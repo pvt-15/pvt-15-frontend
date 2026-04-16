@@ -34,12 +34,23 @@ class _LoginScreenState extends State<LoginScreen> {
 
               const SizedBox(height: 20),
 
+              Padding(
+                padding: const EdgeInsets.only(bottom: 16.0),
+                child: TextField(
+                  controller: nameController,
+                  decoration: const InputDecoration(
+                    labelText: "Lösenord",
+                  ),
+                ),
+              ),
+
               ElevatedButton(
                 onPressed: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => HomeScreen(name: nameController.text),
+                      builder: (_) =>
+                          HomeScreen(name: nameController.text),
                     ),
                   );
                 },
