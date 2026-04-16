@@ -39,7 +39,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: TextField(
                   controller: nameController,
                   decoration: const InputDecoration(
-                    labelText: "Lösenord",
+                    labelText: "skriv Lösenord",
                   ),
                 ),
               ),
