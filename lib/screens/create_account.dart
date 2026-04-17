@@ -12,6 +12,7 @@ class _CreateAccountState extends State<CreateAccount> {
   final nameController = TextEditingController();
   final passwordController = TextEditingController ();
   final confirmPasswordController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +20,10 @@ class _CreateAccountState extends State<CreateAccount> {
       backgroundColor: Colors.green.shade100,
       body: Align(
         alignment: Alignment.topCenter,
-        child: Column(
+        child: Form(
+      key: _formKey,
+          child: Column(
+
           children: [
 
             Padding(
@@ -37,13 +41,21 @@ class _CreateAccountState extends State<CreateAccount> {
                 horizontal: 20.0,
                 vertical: 15.0,
               ),
-              child: TextField(
+              child: TextFormField(
                 controller: nameController,
                 decoration: const InputDecoration(
                   labelText: "Vad heter du?",
                 ),
+                validator: (value){ // olika validations
+                  if(value == null || value.isEmpty) return "Ogiltig mejl";
+                  if(value.contains(" ")) return "Ogiltig mejl";
+                  if(RegExp(r'[åäöÅÄÖ]').hasMatch(value)) return "Ogiltig mejl";
+                  if(!value.contains("@")) return "Ogiltig mejl";
+                  return null;
+                },
               ),
             ),
+
 
             Padding(
               padding: const EdgeInsets.symmetric(
@@ -75,16 +87,19 @@ class _CreateAccountState extends State<CreateAccount> {
 
             ElevatedButton(
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => LoginScreen(),
-                  ),
-                );
+                if (_formKey.currentState!.validate()) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => LoginScreen(),
+                    ),
+                  );
+                }
               },
               child: const Text("Skapa konto"),
             ),
           ],
+          ),
         ),
       ),
     );
