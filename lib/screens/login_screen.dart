@@ -15,10 +15,19 @@ class _LoginScreenState extends State<LoginScreen> {
   final passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>(); //lägg till denna för att valideringen ska fungera vid användarnamn formfield.
 
+  bool isValidPassword(String password) {
+    final hasMinLength = password.length >= 10;
+    final hasUppercase = password.contains(RegExp(r'[A-Z]'));
+    final hasNumber = password.contains(RegExp(r'[0-9]'));
+
+    return hasMinLength && hasUppercase && hasNumber;
+
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.green.shade100,
+      backgroundColor: Color(0xFF84C06C),
       body: Stack(
         children: [
 
@@ -29,7 +38,7 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-              const Text("Skogsjakten 🌿", style: TextStyle(fontSize: 30)),
+              const Text("Skogsjakten 🌿", style: TextStyle(color: Color(0xFFB1067E), fontSize: 30)),
               ],
             ),
           ),
@@ -69,26 +78,49 @@ class _LoginScreenState extends State<LoginScreen> {
                       vertical: 30.0,
                   ),
                   child: TextField(
-                    //controller: nameController,
+                    controller: passwordController,
+                    obscureText: true,
                     decoration: const InputDecoration(
-                      labelText: "skriv Lösenord",
+                      labelText: "Lösenord",
                     ),
                   ),
                 ),
 
                 ElevatedButton(
                   onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) =>
-                              HomeScreen(name: nameController.text),
+                    final password = passwordController.text;
+
+                    // Password controll
+                    if (password.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text("Vänligen skriv ditt lösenord"),
                         ),
                       );
+                      return;
+
                     }
+                    if (!isValidPassword(password)) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                            "Lösenordet måste vara minst 10 tecken, innehålla en stor bokstav och en siffra",
+                          ),
+                        ),
+                      );
+                      return;
+                    }
+
+                    // Go too meny
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) =>
+                            HomeScreen(name: nameController.text), // Nu blir namnet ens email
+                      ),
+                    );
                   },
-                  child: const Text("Starta"),
+                  child: const Text("Logga in"),
                 ),
               ],
             ),
