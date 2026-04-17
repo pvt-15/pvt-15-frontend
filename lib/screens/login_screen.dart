@@ -60,7 +60,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: TextFormField(
                     controller: nameController,
                     decoration: const InputDecoration(
-                      labelText: "Användarnamn",
+                      labelText: "Email",
                     ),
                     validator: (value){ // olika validations
                       if(value == null || value.isEmpty) return "Ogiltigt användarnamn";
@@ -91,34 +91,36 @@ class _LoginScreenState extends State<LoginScreen> {
                     final password = passwordController.text;
 
                     // Password controll
-                    if (password.isEmpty) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text("Vänligen skriv ditt lösenord"),
-                        ),
-                      );
-                      return;
-
-                    }
-                    if (!isValidPassword(password)) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text(
-                            "Lösenordet måste vara minst 10 tecken, innehålla en stor bokstav och en siffra",
+                    if (_formKey.currentState!.validate()) {
+                      if (password.isEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text("Vänligen skriv ditt lösenord"),
                           ),
+                        );
+                        return;
+                      }
+                      if (!isValidPassword(password)) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                              "Lösenordet måste vara minst 10 tecken, innehålla en stor bokstav och en siffra",
+                            ),
+                          ),
+                        );
+                        return;
+                      }
+
+                      // Go too meny
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) =>
+                              HomeScreen(name: nameController
+                                  .text), // Nu blir namnet ens email
                         ),
                       );
-                      return;
                     }
-
-                    // Go too meny
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) =>
-                            HomeScreen(name: nameController.text), // Nu blir namnet ens email
-                      ),
-                    );
                   },
                   child: const Text("Logga in"),
                 ),
