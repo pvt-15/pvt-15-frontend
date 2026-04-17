@@ -12,6 +12,8 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final nameController = TextEditingController();
+  final passwordController = TextEditingController();
+  final _formKey = GlobalKey<FormState>(); //lägg till denna för att valideringen ska fungera vid användarnamn formfield.
 
   @override
   Widget build(BuildContext context) {
@@ -32,6 +34,7 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
           ),
 
+      const SizedBox(height: 30),
           Positioned(
             top: 380,
             left: 0,
@@ -44,11 +47,18 @@ class _LoginScreenState extends State<LoginScreen> {
                     horizontal: 20.0,
                     vertical: 5.0,
                   ),
-                  child: TextField(
+                  child: TextFormField(
                     controller: nameController,
                     decoration: const InputDecoration(
-                      labelText: "Vad heter du?",
+                      labelText: "Användarnamn",
                     ),
+                    validator: (value){ // olika validations
+                      if(value == null || value.isEmpty) return "Ogiltigt användarnamn";
+                      if(value.contains(" ")) return "Ogiltigt användarnamn";
+                      if(RegExp(r'[åäöÅÄÖ]').hasMatch(value)) return "Ogiltigt användarnamn";
+                      if(!value.contains("@")) return "Ogiltigt användarnamn";
+                      return null;
+                    },
                   ),
                 ),
 
