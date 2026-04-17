@@ -10,6 +10,8 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final nameController = TextEditingController();
+  final passwordController = TextEditingController();
+  final _formKey = GlobalKey<FormState>(); //lägg till denna för att valideringen ska fungera vid användarnamn formfield.
 
   @override
   Widget build(BuildContext context) {
@@ -18,45 +20,56 @@ class _LoginScreenState extends State<LoginScreen> {
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Text("Skogsjakten 🌿", style: TextStyle(fontSize: 30)),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text("Skogsjakten 🌿", style: TextStyle(fontSize: 30)),
 
-              const SizedBox(height: 30),
+                const SizedBox(height: 30),
 
-              TextField(
-                controller: nameController,
-                decoration: const InputDecoration(
-                  labelText: "Vad heter du?",
-                ),
-              ),
-
-              const SizedBox(height: 20),
-
-              Padding(
-                padding: const EdgeInsets.only(bottom: 16.0),
-                child: TextField(
+                TextFormField(
                   controller: nameController,
                   decoration: const InputDecoration(
-                    labelText: "skriv Lösenord",
+                    labelText: "Användarnamn",
+                  ),
+                  validator: (value){ // olika validations
+                    if(value == null || value.isEmpty) return "Ogiltigt användarnamn";
+                    if(value.contains(" ")) return "Ogiltigt användarnamn";
+                    if(RegExp(r'[åäöÅÄÖ]').hasMatch(value)) return "Ogiltigt användarnamn";
+                    if(!value.contains("@")) return "Ogiltigt användarnamn";
+                    return null;
+                  },
+                ),
+
+                const SizedBox(height: 20),
+
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 16.0),
+                  child: TextField(
+                    controller: passwordController,
+                    decoration: const InputDecoration(
+                      labelText: "skriv Lösenord",
+                    ),
                   ),
                 ),
-              ),
 
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) =>
-                          HomeScreen(name: nameController.text),
-                    ),
-                  );
-                },
-                child: const Text("Starta"),
-              ),
-            ],
+                ElevatedButton(
+                  onPressed: () {
+                    if (_formKey.currentState!.validate()) { // kollar så att validation händer vid start.
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => HomeScreen(name: nameController.text),
+                        ),
+                      );
+                    }
+                  },
+                  child: const Text("Starta"),
+                ),
+              ],
+            ),
           ),
         ),
       ),
