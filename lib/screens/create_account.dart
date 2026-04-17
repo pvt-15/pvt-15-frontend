@@ -17,7 +17,7 @@ class _CreateAccountState extends State<CreateAccount> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.green.shade100,
+      backgroundColor: Color(0xFF84C06C),
       body: Align(
         alignment: Alignment.topCenter,
         child: Form(

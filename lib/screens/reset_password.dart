@@ -10,11 +10,13 @@ class ResetPassword extends StatefulWidget{
 
 class _ResetPasswordState extends State<ResetPassword> {
   final nameController = TextEditingController();
+  final passwordController = TextEditingController();
+  final confirmPasswordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.green.shade100,
+      backgroundColor: Color(0xFF84C06C),
       body: Align(
         alignment: Alignment.topCenter,
         child: Column(
@@ -49,7 +51,7 @@ class _ResetPasswordState extends State<ResetPassword> {
                 vertical: 15.0,
               ),
               child: TextField(
-                controller: nameController,
+                controller: passwordController,
                 decoration: const InputDecoration(
                   labelText: "Nytt lösenord",
                 ),
@@ -62,7 +64,7 @@ class _ResetPasswordState extends State<ResetPassword> {
                 vertical: 15.0,
               ),
               child: TextField(
-                controller: nameController,
+                controller: confirmPasswordController,
                 decoration: const InputDecoration(
                   labelText: "Bekräfta lösenord",
                 ),
