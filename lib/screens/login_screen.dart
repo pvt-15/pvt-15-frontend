@@ -34,9 +34,8 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
           ),
 
-      const SizedBox(height: 30),
           Positioned(
-            top: 380,
+            top: 360,
             left: 0,
             right: 0,
             child: Column(
@@ -45,7 +44,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 Padding(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 20.0,
-                    vertical: 5.0,
+                    vertical: 30.0,
                   ),
                   child: TextFormField(
                     controller: nameController,
@@ -65,27 +64,27 @@ class _LoginScreenState extends State<LoginScreen> {
                 Padding(
                   padding: const EdgeInsets.symmetric(
                       horizontal: 20.0,
-                      vertical: 15.0,
+                      vertical: 30.0,
                   ),
                   child: TextField(
-                    controller: nameController,
+                    //controller: nameController,
                     decoration: const InputDecoration(
                       labelText: "skriv Lösenord",
                     ),
                   ),
                 ),
 
-                const SizedBox(height: 20),
-
                 ElevatedButton(
                   onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) =>
-                            HomeScreen(name: nameController.text),
-                      ),
-                    );
+                    if (_formKey.currentState!.validate()) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) =>
+                              HomeScreen(name: nameController.text),
+                        ),
+                      );
+                    }
                   },
                   child: const Text("Starta"),
                 ),
