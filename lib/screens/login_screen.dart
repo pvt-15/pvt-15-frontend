@@ -63,10 +63,10 @@ class _LoginScreenState extends State<LoginScreen> {
                       labelText: "Email",
                     ),
                     validator: (value){ // olika validations
-                      if(value == null || value.isEmpty) return "Ogiltigt användarnamn";
-                      if(value.contains(" ")) return "Ogiltigt användarnamn";
-                      if(RegExp(r'[åäöÅÄÖ]').hasMatch(value)) return "Ogiltigt användarnamn";
-                      if(!value.contains("@")) return "Ogiltigt användarnamn";
+                      if(value == null || value.isEmpty) return "Ogiltig mejl";
+                      if(value.contains(" ")) return "Ogiltig mejl";
+                      if(RegExp(r'[åäöÅÄÖ]').hasMatch(value)) return "Ogiltig mejl";
+                      if(!value.contains("@")) return "Ogiltig mejl";
                       return null;
                     },
                   ),

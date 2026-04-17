@@ -10,6 +10,8 @@ class CreateAccount extends StatefulWidget {
 
 class _CreateAccountState extends State<CreateAccount> {
   final nameController = TextEditingController();
+  final passwordController = TextEditingController ();
+  final confirmPasswordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +51,7 @@ class _CreateAccountState extends State<CreateAccount> {
                 vertical: 15.0,
               ),
               child: TextField(
-                controller: nameController,
+                controller: passwordController,
                 decoration: const InputDecoration(
                   labelText: "Lösenord",
                 ),
@@ -62,7 +64,7 @@ class _CreateAccountState extends State<CreateAccount> {
                 vertical: 15.0,
               ),
               child: TextField(
-                controller: nameController,
+                controller: confirmPasswordController,
                 decoration: const InputDecoration(
                   labelText: "Bekräfta lösenord",
                 ),
