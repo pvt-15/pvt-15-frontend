@@ -38,6 +38,8 @@ class _LoginScreenState extends State<LoginScreen> {
             top: 360,
             left: 0,
             right: 0,
+            child: Form(
+              key: _formKey,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -90,6 +92,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ],
             ),
+          ),
           ),
 
           Positioned(
