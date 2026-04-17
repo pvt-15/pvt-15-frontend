@@ -25,14 +25,14 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.green.shade100,
+      backgroundColor: Color(0xFF84C06C),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(24),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Text("Skogsjakten 🌿", style: TextStyle(fontSize: 30)),
+              const Text("Skogsjakten 🌿", style: TextStyle(color: Color(0xFFB1067E), fontSize: 30)),
 
               const SizedBox(height: 30),
 
