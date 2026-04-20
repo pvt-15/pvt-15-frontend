@@ -17,7 +17,7 @@ class _CreateAccountState extends State<CreateAccount> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFF84C06C),
+      backgroundColor: Color(0xFFBEDBB2),
       body: Align(
         alignment: Alignment.topCenter,
         child: Form(
@@ -31,7 +31,8 @@ class _CreateAccountState extends State<CreateAccount> {
                   horizontal: 20.0,
                   vertical: 80.0,
                 ),
-                child: Text("Skapa ett konto", style: TextStyle(fontSize: 30))
+                child: Text("Skapa ett konto", style: TextStyle(fontSize: 30, color : Color(0xFF4C290C))
+                )
             ),
 
             const SizedBox(height: 70),
@@ -45,6 +46,15 @@ class _CreateAccountState extends State<CreateAccount> {
                 controller: nameController,
                 decoration: const InputDecoration(
                   labelText: "Vad heter du?",
+                  labelStyle: TextStyle(
+                    color: Color(0xFF4C290C),
+                  ),
+                  filled: true,
+                  fillColor: Color(0xFFF8ED76),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(25)),
+                  ),
+
                 ),
                 validator: (value){ // olika validations
                   if(value == null || value.isEmpty) return "Ogiltig mejl";
@@ -66,6 +76,14 @@ class _CreateAccountState extends State<CreateAccount> {
                 controller: passwordController,
                 decoration: const InputDecoration(
                   labelText: "Lösenord",
+                  labelStyle: TextStyle(
+                    color: Color(0xFF4C290C),
+                  ),
+                  filled: true,
+                  fillColor: Color(0xFFF8ED76),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(25)),
+                  ),
                 ),
               ),
             ),
@@ -79,6 +97,14 @@ class _CreateAccountState extends State<CreateAccount> {
                 controller: confirmPasswordController,
                 decoration: const InputDecoration(
                   labelText: "Bekräfta lösenord",
+                  labelStyle: TextStyle(
+                    color: Color(0xFF4C290C),
+                  ),
+                  filled: true,
+                  fillColor: Color(0xFFF8ED76),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(25)),
+                  ),
                 ),
               ),
             ),
@@ -86,6 +112,10 @@ class _CreateAccountState extends State<CreateAccount> {
             const SizedBox(height: 40),
 
             ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color(0xFFB1067E),
+                foregroundColor: Color(0xFF4C290C),
+              ),
               onPressed: () {
                 if (_formKey.currentState!.validate()) {
                   Navigator.push(

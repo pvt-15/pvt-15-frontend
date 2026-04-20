@@ -20,7 +20,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFF84C06C),
+      backgroundColor: Color(0xFFBEDBB2),
       body: Stack(
         children: [
 
@@ -32,7 +32,7 @@ class _LoginScreenState extends State<LoginScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
               const Text(
-                  "Skogsjakten", style: TextStyle(color: Color(0xFFB1067E), fontSize: 30)
+                  "Skogsjakten", style: TextStyle(color: Color(0xFF4C290C), fontSize: 30)
               ),
                 Image.asset(
                   'assets/maskot_skogstroll.png',
@@ -55,12 +55,17 @@ class _LoginScreenState extends State<LoginScreen> {
                   Padding(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 20.0,
-                      vertical: 30.0,
+                      vertical: 10.0,
                     ),
                     child: TextFormField(
                       controller: nameController,
                       decoration: const InputDecoration(
                         labelText: "Email",
+                        filled: true,
+                        fillColor: Color(0xFFF8ED76),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(25)),
+                        ),
                       ),
 
                       validator: (value){ // olika validations
@@ -76,13 +81,18 @@ class _LoginScreenState extends State<LoginScreen> {
                   Padding(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 20.0,
-                      vertical: 30.0,
+                      vertical: 15.0,
                     ),
                     child: TextFormField(
                         controller: passwordController,
                         obscureText: true,
                         decoration: const InputDecoration(
                           labelText: "Lösenord",
+                          filled: true,
+                          fillColor: Color(0xFFF8ED76),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(25)),
+                          ),
                         ),
 
                         validator: (value){
@@ -96,6 +106,10 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
 
                 ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Color(0xFF84C06C),
+                      foregroundColor: Color(0xFF4C290C),
+                    ),
                   onPressed: () async {
                     final password = passwordController.text;
                     final email = nameController.text;
@@ -138,6 +152,13 @@ class _LoginScreenState extends State<LoginScreen> {
                               content: Text("Fel email eller lösenord")),
                         );
                       }
+                      },
+                    child: const Text("Logga in"),
+
+                  ),
+                ],
+              ),
+            ),
                     }
                   },
                   child: const Text("Logga in"),
@@ -160,6 +181,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       top: 20
                   ),
                   child: TextButton(
+                    style: TextButton.styleFrom(
+                      foregroundColor: Color(0xFFB1067E),
+                    ),
                     onPressed: () {
                       Navigator.push(
                         context,
@@ -177,6 +201,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       top: 20
                   ),
                   child: TextButton(
+                    style: TextButton.styleFrom(
+                      foregroundColor: Color(0xFFB1067E),
+                    ),
                     onPressed: () {
                       Navigator.push(
                         context,
