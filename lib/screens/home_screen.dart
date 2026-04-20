@@ -9,13 +9,26 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.green.shade100,
-      appBar: AppBar(title: const Text("Skogsjakten")),
+      appBar: AppBar(
+        title: const Text("Skogsjakten"),
+      ),
       body: Center(
-        child: Text(
-          "Hej $name! 🌳",
-          style: const TextStyle(fontSize: 24),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              "Hej $name! ",
+              style: const TextStyle(fontSize: 24),
+            ),
+            Image.asset(
+              'assets/maskot_skogstroll.png',
+              width: 100,
+              height: 100,
+            ),
+          ],
         ),
       ),
     );
+
   }
 }

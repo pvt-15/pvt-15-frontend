@@ -38,7 +38,14 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-              const Text("Skogsjakten 🌿", style: TextStyle(color: Color(0xFFB1067E), fontSize: 30)),
+              const Text(
+                  "Skogsjakten", style: TextStyle(color: Color(0xFFB1067E), fontSize: 30)
+              ),
+                Image.asset(
+                  'assets/maskot_skogstroll.png',
+                  width: 90,
+                  height: 90,
+                ),
               ],
             ),
           ),
