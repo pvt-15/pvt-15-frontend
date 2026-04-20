@@ -16,7 +16,7 @@ class _ResetPasswordState extends State<ResetPassword> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFF84C06C),
+      backgroundColor: Color(0xFFBEDBB2),
       body: Align(
         alignment: Alignment.topCenter,
         child: Column(
@@ -41,6 +41,14 @@ class _ResetPasswordState extends State<ResetPassword> {
                 controller: nameController,
                 decoration: const InputDecoration(
                   labelText: "Användarnamn",
+                  labelStyle: TextStyle(
+                    color: Color(0xFF4C290C),
+                  ),
+                  filled: true,
+                  fillColor: Color(0xFFF8ED76),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(25)),
+                  ),
                 ),
               ),
             ),
@@ -54,6 +62,14 @@ class _ResetPasswordState extends State<ResetPassword> {
                 controller: passwordController,
                 decoration: const InputDecoration(
                   labelText: "Nytt lösenord",
+                  labelStyle: TextStyle(
+                    color: Color(0xFF4C290C),
+                  ),
+                  filled: true,
+                  fillColor: Color(0xFFF8ED76),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(25)),
+                  ),
                 ),
               ),
             ),
@@ -67,6 +83,14 @@ class _ResetPasswordState extends State<ResetPassword> {
                 controller: confirmPasswordController,
                 decoration: const InputDecoration(
                   labelText: "Bekräfta lösenord",
+                  labelStyle: TextStyle(
+                    color: Color(0xFF4C290C),
+                  ),
+                  filled: true,
+                  fillColor: Color(0xFFF8ED76),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(25)),
+                  ),
                 ),
               ),
             ),
