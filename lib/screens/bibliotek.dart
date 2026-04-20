@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'home_screen.dart';
+
 
 class bibliotek extends StatelessWidget {
   const bibliotek({super.key});
@@ -15,12 +15,7 @@ class bibliotek extends StatelessWidget {
       body: Center(
         child: ElevatedButton(
           onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => const HomeScreen(name: "home"),
-              ),
-            );
+            Navigator.pop(context);
           },
           child: const Text("Till home"),
         ),

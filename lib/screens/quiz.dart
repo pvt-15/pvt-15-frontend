@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'home_screen.dart';
+
 
 class quiz extends StatelessWidget {
   const quiz({super.key});
@@ -8,21 +8,16 @@ class quiz extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFBEDBB2),
-        appBar: AppBar(
-          title: const Text("Quiz"),
-          centerTitle: true,
-        ),
+      appBar: AppBar(
+        title: const Text("Quiz"),
+        centerTitle: true,
+      ),
       body: Center(
         child: ElevatedButton(
           onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => const HomeScreen(name: "home"),
-              ),
-            );
+            Navigator.pop(context);
           },
-          child: const Text("Till home"),
+          child: const Text("Till startsidan"),
         ),
       ),
     );
