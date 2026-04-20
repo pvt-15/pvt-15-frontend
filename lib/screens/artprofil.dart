@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'home_screen.dart';
 
-class artprofil extends StatelessWidget {
-  const artprofil({super.key});
+
+class bibliotek extends StatelessWidget {
+  const bibliotek({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -15,14 +15,9 @@ class artprofil extends StatelessWidget {
       body: Center(
         child: ElevatedButton(
           onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => const HomeScreen(name: "home"),
-              ),
-            );
+            Navigator.pop(context);
           },
-          child: const Text("till home"),
+          child: const Text("Till home"),
         ),
       ),
     );
