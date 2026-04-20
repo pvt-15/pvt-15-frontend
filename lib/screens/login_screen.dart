@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:pvt/screens/reset_password.dart';
 import 'home_screen.dart';
 import 'create_account.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -87,8 +89,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
 
                 ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async {
                     final password = passwordController.text;
+                    final email = nameController.text;
 
                     // Password controll
                     if (_formKey.currentState!.validate()) {
@@ -100,6 +103,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         );
                         return;
                       }
+                      /*
                       if (!isValidPassword(password)) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
@@ -109,17 +113,24 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         );
                         return;
-                      }
+                      }*/
 
-                      // Go too meny
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) =>
-                              HomeScreen(name: nameController
-                                  .text), // Nu blir namnet ens email
-                        ),
-                      );
+                      //anropa backend
+                      bool success = await loginUser(email, password);
+
+                      if (success) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => HomeScreen(name: email),
+                          ),
+                        );
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                              content: Text("Fel email eller lösenord")),
+                        );
+                      }
                     }
                   },
                   child: const Text("Logga in"),
@@ -176,5 +187,25 @@ class _LoginScreenState extends State<LoginScreen> {
         ],
       ),
     );
+  }
+
+  Future<bool> loginUser(String email, String password) async {
+    final response = await http.post(
+      Uri.parse('https://group-6-15.pvt.dsv.su.se/auth/login'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'email': email,
+        'password': password,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      print('Du loggas in!: ${response.body}');
+      return true;
+    } else {
+      print('Fel lösenord eller email: ${response.body}');
+      return false;
+    }
+
   }
 }
