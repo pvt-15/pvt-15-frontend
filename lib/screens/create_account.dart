@@ -62,11 +62,18 @@ class _CreateAccountState extends State<CreateAccount> {
                 horizontal: 20.0,
                 vertical: 15.0,
               ),
-              child: TextField(
+              child: TextFormField(
                 controller: passwordController,
                 decoration: const InputDecoration(
                   labelText: "Lösenord",
                 ),
+                  validator: (value){
+                    if(value == null || value.isEmpty) return "Ogiltigt lösenord";
+                    if(value.length <= 10) return "Lösenordet måste vara minst 10 tecken";
+                    if(!value.contains(RegExp(r'[A-Z]'))) return "Lösenordet måste innehålla en stor bokstav";
+                    if(!value.contains(RegExp(r'[0-9]'))) return "Lösenordet måste innehålla en siffra";
+                    return null;
+                  }
               ),
             ),
 
@@ -75,11 +82,18 @@ class _CreateAccountState extends State<CreateAccount> {
                 horizontal: 20.0,
                 vertical: 15.0,
               ),
-              child: TextField(
+              child: TextFormField(
                 controller: confirmPasswordController,
                 decoration: const InputDecoration(
                   labelText: "Bekräfta lösenord",
                 ),
+                  validator: (value){
+                    if(value == null || value.isEmpty) return "Ogiltigt lösenord";
+                    if(value.length <= 10) return "Lösenordet måste vara minst 10 tecken";
+                    if(!value.contains(RegExp(r'[A-Z]'))) return "Lösenordet måste innehålla en stor bokstav";
+                    if(!value.contains(RegExp(r'[0-9]'))) return "Lösenordet måste innehålla en siffra";
+                    return null;
+                  }
               ),
             ),
 
