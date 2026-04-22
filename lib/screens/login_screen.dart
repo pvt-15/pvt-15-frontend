@@ -65,9 +65,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
                       validator: (value){ // olika validations
                         if(value == null || value.isEmpty) return "Ogiltig mejl";
-                        if(value.contains(" ")) return "Ogiltig mejl";
-                        if(RegExp(r'[åäöÅÄÖ]').hasMatch(value)) return "Ogiltig mejl";
-                        if(!value.contains("@")) return "Ogiltig mejl";
+                        //if(value.contains(" ")) return "Ogiltig mejl";
+                        //if(RegExp(r'[åäöÅÄÖ]').hasMatch(value)) return "Ogiltig mejl";
+                        //if(!value.contains("@")) return "Ogiltig mejl";
                         return null;
                         },
                     ),
@@ -87,9 +87,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
                         validator: (value){
                           if(value == null || value.isEmpty) return "Ogiltigt lösenord";
-                          if(value.length <= 10) return "Lösenordet måste vara minst 10 tecken";
-                          if(!value.contains(RegExp(r'[A-Z]'))) return "Lösenordet måste innehålla en stor bokstav";
-                          if(!value.contains(RegExp(r'[0-9]'))) return "Lösenordet måste innehålla en siffra";
+                          //if(value.length <= 10) return "Lösenordet måste vara minst 10 tecken";
+                          //if(!value.contains(RegExp(r'[A-Z]'))) return "Lösenordet måste innehålla en stor bokstav";
+                          //if(!value.contains(RegExp(r'[0-9]'))) return "Lösenordet måste innehålla en siffra";
                           return null;
                         }
                         ),
