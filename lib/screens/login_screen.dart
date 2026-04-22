@@ -150,6 +150,10 @@ class _LoginScreenState extends State<LoginScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Color(0xFF84C06C),
+                      foregroundColor: Color(0xFF4C290C),
+                    ),
                       onPressed: () async {
                         try {
                           final result = await signIn();
