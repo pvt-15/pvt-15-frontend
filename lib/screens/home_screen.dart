@@ -3,6 +3,7 @@ import 'bibliotek.dart';
 import 'artprofil.dart';
 import 'quiz.dart';
 import 'choose_bingo_game.dart';
+import 'skattjakt.dart';
 
 class HomeScreen extends StatelessWidget {
   final String name;
@@ -89,6 +90,19 @@ class HomeScreen extends StatelessWidget {
                 );
               },
               child: const Text("Bingo"),
+            ),
+
+            const SizedBox(height: 10),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const skattjakt(),
+                  ),
+                );
+              },
+              child: const Text("Skattjakt"),
             ),
           ],
         ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pvt/screens/home_screen.dart';
 
 class quiz extends StatelessWidget {
   const quiz({super.key});
@@ -27,14 +28,13 @@ class quiz extends StatelessWidget {
 
               Container(
                 width: double.infinity,
-                padding:
-                const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
                 decoration: BoxDecoration(
                   color: const Color(0xFFFFEE7A),
                   border: Border.all(
                     color: const Color(0xFFF8ED76),
-                   width: 4,
-                 ),
+                    width: 4,
+                  ),
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: const [
                     BoxShadow(
@@ -57,12 +57,32 @@ class quiz extends StatelessWidget {
               ),
 
               const SizedBox(height: 28),
-
               _answerButton('alternativ 1'),
               const SizedBox(height: 18),
               _answerButton('alternativ 2'),
               const SizedBox(height: 18),
               _answerButton('alternativ 3'),
+
+              const Spacer(),
+
+              Align(
+                alignment: Alignment.bottomLeft,
+                child: IconButton(
+                  onPressed: () {
+                    Navigator.pop(context);(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const HomeScreen(name: 'test'),
+                      ),
+                    );
+                  },
+                  icon: const Icon(
+                    Icons.home_outlined,
+                    color: Color(0xFFC0008F),
+                    size: 60,
+                  ),
+                ),
+              ),
             ],
           ),
         ),
