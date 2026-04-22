@@ -140,7 +140,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ],
             ),
           ),
-          ),
+        ),
 
           Positioned(
               bottom: 190,

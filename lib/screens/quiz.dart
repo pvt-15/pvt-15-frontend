@@ -8,153 +8,89 @@ class quiz extends StatelessWidget {
     return Scaffold(
       backgroundColor: const Color(0xFFBEDBB2),
       body: SafeArea(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      IconButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        icon: const Icon(Icons.arrow_back, color: Color(0xFF4C290C)),
-                      ),
-                      const Text(
-                        "Fråga",
-                        style: TextStyle(
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF4C290C),
-                        ),
-                      ),
-                      const CircleAvatar(
-                        radius: 20,
-                        backgroundColor: Color(0xFF9FD37E),
-                        child: Icon(
-                          Icons.person_outline,
-                          color: Color(0xFFB1067E),
-                        ),
-                      ),
-                    ],
-                  ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          child: Column(
+            children: [
+              const SizedBox(height: 8),
 
-                  const SizedBox(height: 30),
-
-                  Container(
-                    width: double.infinity,
-                    height: 120,
-                    decoration: BoxDecoration(
-                      color: Color(0xFFF8ED76),
-                      borderRadius: BorderRadius.all(Radius.circular(20)),
-                    ),
-                    child: const Center(
-                      child: Text(
-                        "Här visas frågan",
-                        style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF4C290C),
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 25),
-
-                  Container(
-                    width: double.infinity,
-                    padding: EdgeInsets.symmetric(vertical: 18),
-                    decoration: BoxDecoration(
-                      color: Color(0xFFF8ED76),
-                      borderRadius: BorderRadius.all(Radius.circular(20)),
-                    ),
-                    child: const Center(
-                      child: Text(
-                        "Svar 1",
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF4C290C),
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 15),
-
-                  Container(
-                    width: double.infinity,
-                    padding: EdgeInsets.symmetric(vertical: 18),
-                    decoration: BoxDecoration(
-                      color: Color(0xFFF8ED76),
-                      borderRadius: BorderRadius.all(Radius.circular(20)),
-                    ),
-                    child: const Center(
-                      child: Text(
-                        "Svar 2",
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF4C290C),
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 15),
-
-                  Container(
-                    width: double.infinity,
-                    padding: EdgeInsets.symmetric(vertical: 18),
-                    decoration: BoxDecoration(
-                      color: Color(0xFFF8ED76),
-                      borderRadius: BorderRadius.all(Radius.circular(20)),
-                    ),
-                    child: const Center(
-                      child: Text(
-                        "Svar 3",
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF4C290C),
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 30),
-
-                  const Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text("← Tidigare fråga"),
-                      Text("Nästa fråga →"),
-                    ],
-                  ),
-                ],
+              const Text(
+                'Fråga x',
+                style: TextStyle(
+                  fontSize: 34,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF5A3A1A),
+                ),
               ),
-            ),
 
-            const Spacer(),
+              const SizedBox(height: 20),
 
-            Container(
-              height: 70,
-              color: const Color(0xFF84C06C),
-              child: const Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Icon(Icons.home_outlined, color: Color(0xFFB1067E)),
-                  Icon(Icons.bookmark_border, color: Color(0xFFB1067E)),
-                  Icon(Icons.map_outlined, color: Color(0xFFB1067E)),
-                ],
+              Container(
+                width: double.infinity,
+                padding:
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFFEE7A),
+                  border: Border.all(
+                    color: const Color(0xFFF8ED76),
+                   width: 4,
+                 ),
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Colors.black26,
+                      blurRadius: 4,
+                      offset: Offset(2, 3),
+                    ),
+                  ],
+                ),
+                child: const Text(
+                  'riktiga frågan här, riktig fråga här, riktigt fråga här',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF4E341C),
+                    height: 1.2,
+                  ),
+                ),
               ),
-            ),
-          ],
+
+              const SizedBox(height: 28),
+
+              _answerButton('alternativ 1'),
+              const SizedBox(height: 18),
+              _answerButton('alternativ 2'),
+              const SizedBox(height: 18),
+              _answerButton('alternativ 3'),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _answerButton(String text) {
+    return SizedBox(
+      width: 220,
+      height: 90,
+      child: ElevatedButton(
+        onPressed: () {},
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color(0xFFFFEE7A),
+          foregroundColor: const Color(0xFF5A3A1A),
+          elevation: 6,
+          shadowColor: Colors.black26,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
+        ),
+        child: Text(
+          text,
+          style: const TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
     );
