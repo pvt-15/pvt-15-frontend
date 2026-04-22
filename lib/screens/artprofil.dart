@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 
-class bibliotek extends StatelessWidget {
-  const bibliotek({super.key});
+class artprofil extends StatelessWidget {
+  const artprofil({super.key});
 
   @override
   Widget build(BuildContext context) {
