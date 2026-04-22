@@ -305,7 +305,7 @@ class _LoginScreenState extends State<LoginScreen> {
     final response = await http.post(
       Uri.parse('https://group-6-15.pvt.dsv.su.se/auth/google'),
       headers: {'Content-Type' : 'application/json'},
-      body: jsonEncode({'idToken': idToken}),
+      body: jsonEncode({'token': idToken}),
     );
 
     debugPrint("Backend statuskod: ${response.statusCode}");
