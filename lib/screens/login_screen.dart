@@ -20,6 +20,8 @@ class _LoginScreenState extends State<LoginScreen> {
   final nameController = TextEditingController();
   final passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>(); //lägg till denna för att valideringen ska fungera vid användarnamn formfield.
+  String serverClientId = '171324929378-o6f6ehfj8vtte1fasnhdd2jnjf376uto.apps.googleusercontent.com';
+  String clientId = '171324929378-g1ncu7d2p3ulaa4rovaep5lasc0p49vv.apps.googleusercontent.com';
 
   @override
   Widget build(BuildContext context) {
@@ -136,20 +138,22 @@ class _LoginScreenState extends State<LoginScreen> {
                   ElevatedButton(
                       onPressed: () async {
                         try {
-                          String idToken= await signIn();
+                          final result = await signIn();
 
-                          bool success = await loginWithGoogle(idToken);
+                          if (result == null) return; // Användaren avbröt inloggningen
+
+                          bool success = await loginWithGoogle(result['idToken']!);
 
                           if (success) {
+                            if (!mounted) return;
                             Navigator.push(
-                              //TODO context ska inte användas vid async
                               context,
                               MaterialPageRoute(
-                                //TODO ska inte vara idToken som skickas som namn
-                                builder: (_) => HomeScreen(name: idToken),
+                                builder: (_) => HomeScreen(name: result['name'] ?? "Användare"),
                               ),
                             );
                           } else {
+                            if (!mounted) return;
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
                                   content: Text("Inloggning misslyckad")),
@@ -157,7 +161,8 @@ class _LoginScreenState extends State<LoginScreen> {
                           }
                         } catch (e) {
                           debugPrint (e.toString());
-                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Något gick fel")),
+                          if (!mounted) return;
+                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Något gick fel")),
                           );
                         }
                         },
@@ -237,34 +242,50 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  Future<String> signIn() async {
-    final idToken = "";
+  Future<Map<String, String?>?> signIn() async {
     try {
       final GoogleSignIn googleSignIn = GoogleSignIn.instance;
-      unawaited(
-          googleSignIn.initialize()
+
+      await googleSignIn.initialize(
+        serverClientId: serverClientId,
+        clientId: clientId,
       );
 
-      final account = await googleSignIn.authenticate();
+      await googleSignIn.disconnect().catchError((e) => null);
 
-      final auth = account.authentication;
+      final GoogleSignInAccount? account = await googleSignIn.authenticate();
 
-      final idToken = auth.idToken;
+      if (account == null) return null;
+
+      final GoogleSignInAuthentication auth = await account.authentication;
+
+      final String? idToken = auth.idToken;
 
       if (idToken == null) {
-        throw SkogsjaktenException("Ingen token mottagen");
+        throw SkogsjaktenException("Ingen token mottagen från Google");
       }
+
+      debugPrint('DEBUG: Mottagen google id token: $idToken');
+
+      return {
+        'idToken': idToken,
+        'name': account.displayName,
+      };
     } catch (e) {
-      throw e;
+      debugPrint("Google Sign-In Error: $e");
+      rethrow;
     }
-      return idToken;
   }
 
   Future<bool> loginWithGoogle(String idToken) async {
     final response = await http.post(
       Uri.parse('https://group-6-15.pvt.dsv.su.se/auth/google'),
-      body: {'idToken': idToken},
+      headers: {'Content-Type' : 'application/json'},
+      body: jsonEncode({'idToken': idToken}),
     );
+
+    debugPrint("Backend statuskod: ${response.statusCode}");
+    debugPrint("Backend svar: ${response.body}");
 
     if (response.statusCode == 200) {
       return true;
