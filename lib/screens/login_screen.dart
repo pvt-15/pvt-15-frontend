@@ -21,7 +21,6 @@ class _LoginScreenState extends State<LoginScreen> {
   final passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>(); //lägg till denna för att valideringen ska fungera vid användarnamn formfield.
   String serverClientId = '171324929378-o6f6ehfj8vtte1fasnhdd2jnjf376uto.apps.googleusercontent.com';
-  String clientId = '171324929378-g1ncu7d2p3ulaa4rovaep5lasc0p49vv.apps.googleusercontent.com';
 
   @override
   Widget build(BuildContext context) {
@@ -272,31 +271,27 @@ class _LoginScreenState extends State<LoginScreen> {
 
       await googleSignIn.initialize(
         serverClientId: serverClientId,
-        clientId: clientId,
       );
-
-      await googleSignIn.disconnect().catchError((e) => null);
 
       final GoogleSignInAccount? account = await googleSignIn.authenticate();
 
       if (account == null) return null;
 
       final GoogleSignInAuthentication auth = await account.authentication;
-
       final String? idToken = auth.idToken;
 
       if (idToken == null) {
         throw SkogsjaktenException("Ingen token mottagen från Google");
       }
 
-      debugPrint('DEBUG: Mottagen google id token: $idToken');
-
+      debugPrint('Google ID token mottagen');
       return {
         'idToken': idToken,
         'name': account.displayName,
       };
-    } catch (e) {
+    } catch (e, st) {
       debugPrint("Google Sign-In Error: $e");
+      debugPrint("$st");
       rethrow;
     }
   }
@@ -304,17 +299,13 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<bool> loginWithGoogle(String idToken) async {
     final response = await http.post(
       Uri.parse('https://group-6-15.pvt.dsv.su.se/auth/google'),
-      headers: {'Content-Type' : 'application/json'},
+      headers: {'Content-Type': 'application/json'},
       body: jsonEncode({'token': idToken}),
     );
 
     debugPrint("Backend statuskod: ${response.statusCode}");
     debugPrint("Backend svar: ${response.body}");
 
-    if (response.statusCode == 200) {
-      return true;
-    } else {
-      return false;
-    }
+    return response.statusCode == 200;
   }
 }
