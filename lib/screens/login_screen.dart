@@ -152,13 +152,6 @@ class _LoginScreenState extends State<LoginScreen> {
                               content: Text("Fel email eller lösenord")),
                         );
                       }
-                      },
-                    child: const Text("Logga in"),
-
-                  ),
-                ],
-              ),
-            ),
                     }
                   },
                   child: const Text("Logga in"),
@@ -166,7 +159,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ],
             ),
           ),
-          ),
+        ),
 
           Positioned(
             bottom: 80,
