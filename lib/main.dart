@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'screens/login_screen.dart';
+import 'screens/home_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -15,7 +16,24 @@ class MyApp extends StatelessWidget {
       title: 'Skogsjakten',
       theme: ThemeData(
         primarySwatch: Colors.green,
+
+        textTheme: TextTheme(
+          headlineLarge: TextStyle(
+            fontFamily: 'YoungSerif',
+            fontSize: 30,
+          ),
+          titleMedium: TextStyle(
+            fontFamily: 'WinkySans',
+            fontSize: 16,
+          ),
+          bodyMedium: TextStyle(
+            fontFamily: 'WinkySans',
+            fontSize: 16,
+          ),
+        ),
+
       ),
+      //home: const HomeScreen(name: 'test'),
       home: const LoginScreen(),
     );
   }

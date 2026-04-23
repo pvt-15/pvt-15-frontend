@@ -273,25 +273,27 @@ class _LoginScreenState extends State<LoginScreen> {
         serverClientId: serverClientId,
       );
 
+
       final GoogleSignInAccount? account = await googleSignIn.authenticate();
 
       if (account == null) return null;
 
       final GoogleSignInAuthentication auth = await account.authentication;
+
       final String? idToken = auth.idToken;
 
       if (idToken == null) {
         throw SkogsjaktenException("Ingen token mottagen från Google");
       }
 
-      debugPrint('Google ID token mottagen');
+      debugPrint('DEBUG: Mottagen google id token: $idToken');
+
       return {
         'idToken': idToken,
         'name': account.displayName,
       };
-    } catch (e, st) {
+    } catch (e) {
       debugPrint("Google Sign-In Error: $e");
-      debugPrint("$st");
       rethrow;
     }
   }
@@ -299,13 +301,17 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<bool> loginWithGoogle(String idToken) async {
     final response = await http.post(
       Uri.parse('https://group-6-15.pvt.dsv.su.se/auth/google'),
-      headers: {'Content-Type': 'application/json'},
+      headers: {'Content-Type' : 'application/json'},
       body: jsonEncode({'token': idToken}),
     );
 
     debugPrint("Backend statuskod: ${response.statusCode}");
     debugPrint("Backend svar: ${response.body}");
 
-    return response.statusCode == 200;
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      return false;
+    }
   }
 }
