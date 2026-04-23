@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'login_screen.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'home_screen.dart';
 
 class CreateAccount extends StatefulWidget {
   const CreateAccount({super.key});
@@ -71,6 +74,7 @@ class _CreateAccountState extends State<CreateAccount> {
                 controller: emailController,
                 decoration: InputDecoration(
                   labelText: "Mejladress",
+                  labelStyle: TextStyle(color: Color(0xFF4C290C)),
                   filled: true,
                   fillColor: Color(0xFFF8ED76),
                   contentPadding: EdgeInsets.symmetric(vertical: 16),
@@ -100,6 +104,7 @@ class _CreateAccountState extends State<CreateAccount> {
                 controller: nameController,
                 decoration: InputDecoration(
                   labelText: "Användarnamn",
+                  labelStyle: TextStyle(color: Color(0xFF4C290C)),
                   filled: true,
                   fillColor: Color(0xFFF8ED76),
                   contentPadding: EdgeInsets.symmetric(vertical: 16),
@@ -127,23 +132,16 @@ class _CreateAccountState extends State<CreateAccount> {
                 controller: passwordController,
                 decoration: InputDecoration(
                   labelText: "Lösenord",
+                  labelStyle: TextStyle(color: Color(0xFF4C290C)),
                   filled: true,
                   fillColor: Color(0xFFF8ED76),
                   contentPadding: EdgeInsets.symmetric(vertical: 16),
-
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(20),
                     borderSide: BorderSide.none,
                   ),
-                  labelStyle: TextStyle(
-                    color: Color(0xFF4C290C),
-                  ),
-                  filled: true,
-                  fillColor: Color(0xFFF8ED76),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(25)),
-                  ),
                 ),
+
                   validator: (value){
                     if(value == null || value.isEmpty) return "Ogiltigt lösenord";
                     if(value.length <= 10) return "Lösenordet måste vara minst 10 tecken";
@@ -169,7 +167,8 @@ class _CreateAccountState extends State<CreateAccount> {
                   filled: true,
                   fillColor: Color(0xFFF8ED76),
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(25)),
+                    borderRadius: BorderRadius.all(Radius.circular(20)),
+                    borderSide: BorderSide.none,
                   ),
                 ),
                 validator: (value) {
@@ -193,7 +192,7 @@ class _CreateAccountState extends State<CreateAccount> {
                 backgroundColor: Color(0xFFB1067E),
                 foregroundColor: Color(0xFF4C290C),
               ),
-              onPressed: () {
+              onPressed: () async {
                 if (_formKey.currentState!.validate()) {
 
                   bool success = await registerUser(
@@ -231,7 +230,7 @@ class _CreateAccountState extends State<CreateAccount> {
               style: ElevatedButton.styleFrom(
                 foregroundColor: Colors.black,
               ),
-              onPressed: () {
+              onPressed: () async {
                 Navigator.push(
                     context,
                     MaterialPageRoute(builder: (_) => const LoginScreen()),
