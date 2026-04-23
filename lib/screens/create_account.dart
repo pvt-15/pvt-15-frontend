@@ -45,7 +45,7 @@ class _CreateAccountState extends State<CreateAccount> {
               child: TextFormField(
                 controller: nameController,
                 decoration: const InputDecoration(
-                  labelText: "Vad heter du?",
+                  labelText: "Vad heter du?", //ändra namn till "email"?
                   labelStyle: TextStyle(
                     color: Color(0xFF4C290C),
                   ),
