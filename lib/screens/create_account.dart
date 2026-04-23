@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
 import 'login_screen.dart';
-import 'home_screen.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 
 class CreateAccount extends StatefulWidget {
   const CreateAccount({super.key});
@@ -59,7 +56,8 @@ class _CreateAccountState extends State<CreateAccount> {
                   horizontal: 20.0,
                   vertical: 80.0,
                 ),
-                child: Text("Skapa ett konto", style: TextStyle(fontSize: 30))
+                child: Text("Skapa ett konto", style: TextStyle(fontSize: 30, color : Color(0xFF4C290C))
+                )
             ),
 
             const SizedBox(height: 70),
@@ -137,6 +135,14 @@ class _CreateAccountState extends State<CreateAccount> {
                     borderRadius: BorderRadius.circular(20),
                     borderSide: BorderSide.none,
                   ),
+                  labelStyle: TextStyle(
+                    color: Color(0xFF4C290C),
+                  ),
+                  filled: true,
+                  fillColor: Color(0xFFF8ED76),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(25)),
+                  ),
                 ),
                   validator: (value){
                     if(value == null || value.isEmpty) return "Ogiltigt lösenord";
@@ -157,12 +163,13 @@ class _CreateAccountState extends State<CreateAccount> {
                 controller: confirmPasswordController,
                 decoration: InputDecoration(
                   labelText: "Bekräfta lösenord",
+                  labelStyle: TextStyle(
+                    color: Color(0xFF4C290C),
+                  ),
                   filled: true,
                   fillColor: Color(0xFFF8ED76),
-                  contentPadding: EdgeInsets.symmetric(vertical: 16),
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(20),
-                    borderSide: BorderSide.none,
+                    borderRadius: BorderRadius.all(Radius.circular(25)),
                   ),
                 ),
                 validator: (value) {
@@ -184,9 +191,9 @@ class _CreateAccountState extends State<CreateAccount> {
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: Color(0xFFB1067E),
-                foregroundColor: Colors.black,
+                foregroundColor: Color(0xFF4C290C),
               ),
-              onPressed: () async {
+              onPressed: () {
                 if (_formKey.currentState!.validate()) {
 
                   bool success = await registerUser(
