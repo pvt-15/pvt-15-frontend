@@ -7,6 +7,7 @@ import 'package:Skogsjakten/services/session.dart';
 void main() {
   runApp(const MyApp());
 }
+//test2
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -20,16 +21,21 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.green,
         scaffoldBackgroundColor: const Color(0xFFBEDBB2),
         textTheme: const TextTheme(
-          headlineLarge: TextStyle(fontFamily: 'YoungSerif', fontSize: 30, color: Color(0xFF4C290C)),
-          headlineMedium: TextStyle(fontFamily: 'YoungSerif', fontSize: 24, color: Color(0xFF4C290C)),
-          titleLarge: TextStyle(fontFamily: 'YoungSerif', fontSize: 22, fontWeight: FontWeight.bold, color: Color(0xFF4C290C)),
-          bodyMedium: TextStyle(fontFamily: 'WinkySans', fontSize: 16, color: Color(0xFF4C290C)),
-        ),
-        elevatedButtonTheme: ElevatedButtonThemeData(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF84C06C),
-            foregroundColor: const Color(0xFF4C290C),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+          headlineLarge: TextStyle(
+            fontFamily: 'YoungSerif',
+            fontSize: 30,
+            color: Color(0xFF4C290C),
+          ),
+          headlineMedium: TextStyle(
+            fontFamily: 'YoungSerif',
+            fontSize: 24,
+            color: Color(0xFF4C290C),
+          ),
+          titleLarge: TextStyle(
+            fontFamily: 'YoungSerif',
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF4C290C),
           ),
         ),
         inputDecorationTheme: const InputDecorationTheme(
@@ -58,6 +64,17 @@ class MyApp extends StatelessWidget {
 
           return const LoginScreen();
         },
+          titleMedium: TextStyle(
+            fontFamily: 'WinkySans',
+            fontSize: 18,
+            color: Color(0xFF4C290C),
+          ),
+          bodyMedium: TextStyle(
+            fontFamily: 'WinkySans',
+            fontSize: 16,
+            color: Color(0xFF4C290C),
+          ),
+        ),
       ),
     );
   }
