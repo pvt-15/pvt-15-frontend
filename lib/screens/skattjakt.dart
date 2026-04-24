@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'home_screen.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 
-class skattjakt extends StatelessWidget {
-  const skattjakt({super.key});
+class Skattjakt extends StatelessWidget {
+  const Skattjakt({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -15,9 +14,10 @@ class skattjakt extends StatelessWidget {
         elevation: 0,
         centerTitle: true,
         toolbarHeight: 100,
-        title: Text(
+        title: const Text(
           "Skattjakt",
-          style: GoogleFonts.youngSerif(
+          style: TextStyle(
+            fontFamily: 'YoungSerif',
             fontSize: 30,
             fontWeight: FontWeight.bold,
             color: Color(0xFF4C290C),
@@ -31,10 +31,11 @@ class skattjakt extends StatelessWidget {
             children: [
               const SizedBox(height: 20),
 
-               Text(
+               const Text(
                 'uppdraget ska stå här',
                 textAlign: TextAlign.center,
-                style: GoogleFonts.winkySans(
+                style: TextStyle(
+                  fontFamily: 'WinkySans',
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                   color: Color(0xFF4C290C),
@@ -61,10 +62,11 @@ class skattjakt extends StatelessWidget {
 
               const SizedBox(height: 30),
 
-              Text(
+              const Text(
                 'titel på vad man ska hitta ex. vitsippa',
                 textAlign: TextAlign.center,
-                style: GoogleFonts.winkySans(
+                style: TextStyle(
+                  fontFamily: 'WinkySans',
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                   color: Color(0xFF4C290C),
@@ -73,27 +75,34 @@ class skattjakt extends StatelessWidget {
 
               const SizedBox(height: 60),
 
-              Container(
-                width: 150,
-                height: 65,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFFEE7A),
-                  borderRadius: BorderRadius.circular(18),
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Colors.black26,
-                      blurRadius: 4,
-                      offset: Offset(2, 3),
-                    ),
-                  ],
-                ),
-                child: Center(
-                  child: Text(
-                    'Ta bild',
-                    style: GoogleFonts.winkySans(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF4C290C),
+              InkWell(
+                onTap: () {
+                  // TODO: Implementera kamerafunktion
+                },
+                borderRadius: BorderRadius.circular(18),
+                child: Container(
+                  width: 150,
+                  height: 65,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFFEE7A),
+                    borderRadius: BorderRadius.circular(18),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Colors.black26,
+                        blurRadius: 4,
+                        offset: Offset(2, 3),
+                      ),
+                    ],
+                  ),
+                  child: const Center(
+                    child: Text(
+                      'Ta bild',
+                      style: TextStyle(
+                        fontFamily: 'WinkySans',
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF4C290C),
+                      ),
                     ),
                   ),
                 ),
