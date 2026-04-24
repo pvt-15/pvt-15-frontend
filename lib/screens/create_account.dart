@@ -74,15 +74,6 @@ class _CreateAccountState extends State<CreateAccount> {
                   controller: emailController,
                   decoration: InputDecoration(
                     labelText: "Mejladress",
-                    labelStyle: TextStyle(color: Color(0xFF4C290C)),
-                    filled: true,
-                    fillColor: Color(0xFFF8ED76),
-                    contentPadding: EdgeInsets.symmetric(vertical: 16),
-
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(20),
-                      borderSide: BorderSide.none,
-                    ),
                   ),
                   validator: (value){ // olika validations
                     if(value == null || value.isEmpty) return "Ogiltig mejl";
@@ -104,15 +95,6 @@ class _CreateAccountState extends State<CreateAccount> {
                     controller: nameController,
                     decoration: InputDecoration(
                       labelText: "Användarnamn",
-                      labelStyle: TextStyle(color: Color(0xFF4C290C)),
-                      filled: true,
-                      fillColor: Color(0xFFF8ED76),
-                      contentPadding: EdgeInsets.symmetric(vertical: 16),
-
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(20),
-                        borderSide: BorderSide.none,
-                      ),
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -132,14 +114,6 @@ class _CreateAccountState extends State<CreateAccount> {
                     controller: passwordController,
                     decoration: InputDecoration(
                       labelText: "Lösenord",
-                      labelStyle: TextStyle(color: Color(0xFF4C290C)),
-                      filled: true,
-                      fillColor: Color(0xFFF8ED76),
-                      contentPadding: EdgeInsets.symmetric(vertical: 16),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(20),
-                        borderSide: BorderSide.none,
-                      ),
                     ),
 
                     validator: (value){
@@ -161,15 +135,6 @@ class _CreateAccountState extends State<CreateAccount> {
                     controller: confirmPasswordController,
                     decoration: InputDecoration(
                       labelText: "Bekräfta lösenord",
-                      labelStyle: TextStyle(
-                        color: Color(0xFF4C290C),
-                      ),
-                      filled: true,
-                      fillColor: Color(0xFFF8ED76),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(20)),
-                        borderSide: BorderSide.none,
-                      ),
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -188,10 +153,6 @@ class _CreateAccountState extends State<CreateAccount> {
               const SizedBox(height: 40),
 
               ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xFFB1067E),
-                  foregroundColor: Color(0xFF4C290C),
-                ),
                 onPressed: () async {
                   if (_formKey.currentState!.validate()) {
 
@@ -203,7 +164,7 @@ class _CreateAccountState extends State<CreateAccount> {
 
                     if (success) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text("Konto skapat!")),
+                        const SnackBar(content: Text("Konto skapat!", textAlign: TextAlign.center)),
                       );
 
                       Navigator.push(
@@ -215,7 +176,7 @@ class _CreateAccountState extends State<CreateAccount> {
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
-                          content: Text("Användaren finns redan eller fel uppstod"),
+                          content: Text("Användaren finns redan eller fel uppstod", textAlign: TextAlign.center),
                         ),
                       );
                     }
@@ -227,9 +188,6 @@ class _CreateAccountState extends State<CreateAccount> {
               const SizedBox(height: 20),
 
               TextButton(
-                style: ElevatedButton.styleFrom(
-                  foregroundColor: Colors.black,
-                ),
                 onPressed: () async {
                   Navigator.push(
                     context,

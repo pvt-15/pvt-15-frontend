@@ -15,13 +15,9 @@ class quiz extends StatelessWidget {
             children: [
               const SizedBox(height: 8),
 
-              const Text(
+              Text(
                 'Fråga x',
-                style: TextStyle(
-                  fontSize: 34,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF5A3A1A),
-                ),
+                style: Theme.of(context).textTheme.headlineLarge
               ),
 
               const SizedBox(height: 20),
@@ -44,24 +40,19 @@ class quiz extends StatelessWidget {
                     ),
                   ],
                 ),
-                child: const Text(
+                child: Text(
                   'riktiga frågan här, riktig fråga här, riktigt fråga här',
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF4E341C),
-                    height: 1.2,
-                  ),
+                  style: Theme.of(context).textTheme.headlineMedium,
                 ),
               ),
 
               const SizedBox(height: 28),
-              _answerButton('alternativ 1'),
+              _answerButton(context, 'alternativ 1'),
               const SizedBox(height: 18),
-              _answerButton('alternativ 2'),
+              _answerButton(context, 'alternativ 2'),
               const SizedBox(height: 18),
-              _answerButton('alternativ 3'),
+              _answerButton(context, 'alternativ 3'),
 
               const Spacer(),
 
@@ -90,7 +81,7 @@ class quiz extends StatelessWidget {
     );
   }
 
-  Widget _answerButton(String text) {
+  Widget _answerButton(BuildContext context, String text) {
     return SizedBox(
       width: 220,
       height: 90,
@@ -107,10 +98,7 @@ class quiz extends StatelessWidget {
         ),
         child: Text(
           text,
-          style: const TextStyle(
-            fontSize: 22,
-            fontWeight: FontWeight.bold,
-          ),
+          style: Theme.of(context).textTheme.headlineMedium,
         ),
       ),
     );

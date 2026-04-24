@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'home_screen.dart';
 
@@ -9,6 +11,11 @@ class TreeBingoPage extends StatefulWidget{
 }
 
 class _TreeBingoPage extends State<TreeBingoPage> {
+
+  File? _capturedImage1;
+  File? _capturedImage2;
+  File? _capturedImage3;
+  File? _capturedImage4;
 
   @override
   Widget build(BuildContext context) {
