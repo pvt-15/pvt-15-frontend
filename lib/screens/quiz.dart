@@ -6,7 +6,7 @@ class quiz extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFD8EDC8),
+      backgroundColor: const Color(0xFFBEDBB2),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),

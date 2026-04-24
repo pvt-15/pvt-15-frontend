@@ -1,9 +1,13 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:pvt/screens/reset_password.dart';
 import 'home_screen.dart';
 import 'create_account.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'skogsjakten_exception.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -16,10 +20,12 @@ class _LoginScreenState extends State<LoginScreen> {
   final nameController = TextEditingController();
   final passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>(); //lägg till denna för att valideringen ska fungera vid användarnamn formfield.
+  String serverClientId = '171324929378-o6f6ehfj8vtte1fasnhdd2jnjf376uto.apps.googleusercontent.com';
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false, //testa om detta löser hoppandet med "nytt konto" osv
       backgroundColor: Color(0xFFBEDBB2),
       body: Stack(
         children: [
@@ -70,9 +76,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
                       validator: (value){ // olika validations
                         if(value == null || value.isEmpty) return "Ogiltig mejl";
-                        //if(value.contains(" ")) return "Ogiltig mejl";
-                        //if(RegExp(r'[åäöÅÄÖ]').hasMatch(value)) return "Ogiltig mejl";
-                        //if(!value.contains("@")) return "Ogiltig mejl";
                         return null;
                         },
                     ),
@@ -97,9 +100,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
                         validator: (value){
                           if(value == null || value.isEmpty) return "Ogiltigt lösenord";
-                          //if(value.length <= 10) return "Lösenordet måste vara minst 10 tecken";
-                          //if(!value.contains(RegExp(r'[A-Z]'))) return "Lösenordet måste innehålla en stor bokstav";
-                          //if(!value.contains(RegExp(r'[0-9]'))) return "Lösenordet måste innehålla en siffra";
                           return null;
                         }
                         ),
@@ -116,25 +116,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
                     // Password controll
                     if (_formKey.currentState!.validate()) {
-                      if (password.isEmpty) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text("Vänligen skriv ditt lösenord"),
-                          ),
-                        );
-                        return;
-                      }
-                      /*
-                      if (!isValidPassword(password)) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text(
-                              "Lösenordet måste vara minst 10 tecken, innehålla en stor bokstav och en siffra",
-                            ),
-                          ),
-                        );
-                        return;
-                      }*/
 
                       //anropa backend
                       bool success = await loginUser(email, password);
@@ -162,7 +143,57 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
 
           Positioned(
-            bottom: 80,
+              bottom: 190,
+              left: 0,
+              right: 0,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Color(0xFF84C06C),
+                      foregroundColor: Color(0xFF4C290C),
+                    ),
+                      onPressed: () async {
+                        try {
+                          final result = await signIn();
+
+                          if (result == null) return; // Användaren avbröt inloggningen
+
+                          bool success = await loginWithGoogle(result['idToken']!);
+
+                          if (success) {
+                            if (!mounted) return;
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => HomeScreen(name: result['name'] ?? "Användare"),
+                              ),
+                            );
+                          } else {
+                            if (!mounted) return;
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content: Text("Inloggning misslyckad")),
+                            );
+                          }
+                        } catch (e) {
+                          debugPrint (e.toString());
+                          if (!mounted) return;
+                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Något gick fel")),
+                          );
+                        }
+                        },
+                    child: const Text("Logga in med Google"),
+
+                  )
+                ],
+              )
+
+          ),
+
+          Positioned(
+            bottom: 70,
             left: 0,
             right: 0,
             child: Column(
@@ -171,7 +202,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                 Padding(
                   padding: const EdgeInsets.only(
-                      top: 20
+                      top: 10
                   ),
                   child: TextButton(
                     style: TextButton.styleFrom(
@@ -191,7 +222,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                 Padding(
                   padding: const EdgeInsets.only(
-                      top: 20
+                      top: 10
                   ),
                   child: TextButton(
                     style: TextButton.styleFrom(
@@ -227,12 +258,61 @@ class _LoginScreenState extends State<LoginScreen> {
     );
 
     if (response.statusCode == 200) {
-      print('Du loggas in!: ${response.body}');
+      //print('Du loggas in!: ${response.body}');
       return true;
     } else {
-      print('Fel lösenord eller email: ${response.body}');
+      //print('Fel lösenord eller email: ${response.body}');
       return false;
     }
+  }
 
+  Future<Map<String, String?>?> signIn() async {
+    try {
+      final GoogleSignIn googleSignIn = GoogleSignIn.instance;
+
+      await googleSignIn.initialize(
+        serverClientId: serverClientId,
+      );
+
+
+      final GoogleSignInAccount? account = await googleSignIn.authenticate();
+
+      if (account == null) return null;
+
+      final GoogleSignInAuthentication auth = await account.authentication;
+
+      final String? idToken = auth.idToken;
+
+      if (idToken == null) {
+        throw SkogsjaktenException("Ingen token mottagen från Google");
+      }
+
+      debugPrint('DEBUG: Mottagen google id token: $idToken');
+
+      return {
+        'idToken': idToken,
+        'name': account.displayName,
+      };
+    } catch (e) {
+      debugPrint("Google Sign-In Error: $e");
+      rethrow;
+    }
+  }
+
+  Future<bool> loginWithGoogle(String idToken) async {
+    final response = await http.post(
+      Uri.parse('https://group-6-15.pvt.dsv.su.se/auth/google'),
+      headers: {'Content-Type' : 'application/json'},
+      body: jsonEncode({'token': idToken}),
+    );
+
+    debugPrint("Backend statuskod: ${response.statusCode}");
+    debugPrint("Backend svar: ${response.body}");
+
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      return false;
+    }
   }
 }
