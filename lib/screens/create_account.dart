@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'login_screen.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'home_screen.dart';
 
 class CreateAccount extends StatefulWidget {
   const CreateAccount({super.key});
@@ -46,200 +49,196 @@ class _CreateAccountState extends State<CreateAccount> {
       body: Align(
         alignment: Alignment.topCenter,
         child: Form(
-      key: _formKey,
+          key: _formKey,
           child: Column(
 
-          children: [
+            children: [
 
-            Padding(
+              Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20.0,
+                    vertical: 80.0,
+                  ),
+                  child: Text("Skapa ett konto", style: TextStyle(fontSize: 30, color : Color(0xFF4C290C))
+                  )
+              ),
+
+              const SizedBox(height: 70),
+
+              Padding(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 20.0,
-                  vertical: 80.0,
+                  vertical: 15.0,
                 ),
-                child: Text("Skapa ett konto", style: TextStyle(fontSize: 30, color : Color(0xFF4C290C))
-                )
-            ),
+                child: TextFormField(
+                  controller: emailController,
+                  decoration: InputDecoration(
+                    labelText: "Mejladress",
+                    labelStyle: TextStyle(color: Color(0xFF4C290C)),
+                    filled: true,
+                    fillColor: Color(0xFFF8ED76),
+                    contentPadding: EdgeInsets.symmetric(vertical: 16),
 
-            const SizedBox(height: 70),
-
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 20.0,
-                vertical: 15.0,
-              ),
-              child: TextFormField(
-                controller: emailController,
-                decoration: InputDecoration(
-                  labelText: "Mejladress",
-                  filled: true,
-                  fillColor: Color(0xFFF8ED76),
-                  contentPadding: EdgeInsets.symmetric(vertical: 16),
-
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(20),
-                    borderSide: BorderSide.none,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(20),
+                      borderSide: BorderSide.none,
+                    ),
                   ),
+                  validator: (value){ // olika validations
+                    if(value == null || value.isEmpty) return "Ogiltig mejl";
+                    if(value.contains(" ")) return "Ogiltig mejl";
+                    if(RegExp(r'[åäöÅÄÖ]').hasMatch(value)) return "Ogiltig mejl";
+                    if(!value.contains("@")) return "Ogiltig mejl";
+                    return null;
+                  },
                 ),
-                validator: (value){ // olika validations
-                  if(value == null || value.isEmpty) return "Ogiltig mejl";
-                  if(value.contains(" ")) return "Ogiltig mejl";
-                  if(RegExp(r'[åäöÅÄÖ]').hasMatch(value)) return "Ogiltig mejl";
-                  if(!value.contains("@")) return "Ogiltig mejl";
-                  return null;
+              ),
+
+              // Name
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20.0,
+                  vertical: 15.0,
+                ),
+                child: TextFormField(
+                    controller: nameController,
+                    decoration: InputDecoration(
+                      labelText: "Användarnamn",
+                      labelStyle: TextStyle(color: Color(0xFF4C290C)),
+                      filled: true,
+                      fillColor: Color(0xFFF8ED76),
+                      contentPadding: EdgeInsets.symmetric(vertical: 16),
+
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20),
+                        borderSide: BorderSide.none,
+                      ),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return "Vänligen skriv in ditt namn";
+                      }
+                      return null;
+                    }
+                ),
+              ),
+
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20.0,
+                  vertical: 15.0,
+                ),
+                child: TextFormField(
+                    controller: passwordController,
+                    decoration: InputDecoration(
+                      labelText: "Lösenord",
+                      labelStyle: TextStyle(color: Color(0xFF4C290C)),
+                      filled: true,
+                      fillColor: Color(0xFFF8ED76),
+                      contentPadding: EdgeInsets.symmetric(vertical: 16),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20),
+                        borderSide: BorderSide.none,
+                      ),
+                    ),
+
+                    validator: (value){
+                      if(value == null || value.isEmpty) return "Ogiltigt lösenord";
+                      if(value.length <= 10) return "Lösenordet måste vara minst 10 tecken";
+                      if(!value.contains(RegExp(r'[A-Z]'))) return "Lösenordet måste innehålla en stor bokstav";
+                      if(!value.contains(RegExp(r'[0-9]'))) return "Lösenordet måste innehålla en siffra";
+                      return null;
+                    }
+                ),
+              ),
+
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20.0,
+                  vertical: 15.0,
+                ),
+                child: TextFormField(
+                    controller: confirmPasswordController,
+                    decoration: InputDecoration(
+                      labelText: "Bekräfta lösenord",
+                      labelStyle: TextStyle(
+                        color: Color(0xFF4C290C),
+                      ),
+                      filled: true,
+                      fillColor: Color(0xFFF8ED76),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(20)),
+                        borderSide: BorderSide.none,
+                      ),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return "Bekräfta lösenord";
+                      }
+
+                      if (value != passwordController.text) {
+                        return "Lösenorden matchar inte";
+                      }
+
+                      return null;
+                    }
+                ),
+              ),
+
+              const SizedBox(height: 40),
+
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Color(0xFFB1067E),
+                  foregroundColor: Color(0xFF4C290C),
+                ),
+                onPressed: () async {
+                  if (_formKey.currentState!.validate()) {
+
+                    bool success = await registerUser(
+                      nameController.text,
+                      emailController.text,
+                      passwordController.text,
+                    );
+
+                    if (success) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text("Konto skapat!")),
+                      );
+
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => HomeScreen(name: nameController.text),
+                        ),
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text("Användaren finns redan eller fel uppstod"),
+                        ),
+                      );
+                    }
+                  }
                 },
+                child: const Text("Skapa konto"),
               ),
-            ),
 
-            // Name
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 20.0,
-                vertical: 15.0,
-              ),
-              child: TextFormField(
-                controller: nameController,
-                decoration: InputDecoration(
-                  labelText: "Användarnamn",
-                  filled: true,
-                  fillColor: Color(0xFFF8ED76),
-                  contentPadding: EdgeInsets.symmetric(vertical: 16),
+              const SizedBox(height: 20),
 
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(20),
-                    borderSide: BorderSide.none,
-                  ),
+              TextButton(
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: Colors.black,
                 ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return "Vänligen skriv in ditt namn";
-                    }
-                    return null;
-                  }
-              ),
-            ),
-
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 20.0,
-                vertical: 15.0,
-              ),
-              child: TextFormField(
-                controller: passwordController,
-                decoration: InputDecoration(
-                  labelText: "Lösenord",
-                  filled: true,
-                  fillColor: Color(0xFFF8ED76),
-                  contentPadding: EdgeInsets.symmetric(vertical: 16),
-
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(20),
-                    borderSide: BorderSide.none,
-                  ),
-                  labelStyle: TextStyle(
-                    color: Color(0xFF4C290C),
-                  ),
-                  filled: true,
-                  fillColor: Color(0xFFF8ED76),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(25)),
-                  ),
-                ),
-                  validator: (value){
-                    if(value == null || value.isEmpty) return "Ogiltigt lösenord";
-                    if(value.length <= 10) return "Lösenordet måste vara minst 10 tecken";
-                    if(!value.contains(RegExp(r'[A-Z]'))) return "Lösenordet måste innehålla en stor bokstav";
-                    if(!value.contains(RegExp(r'[0-9]'))) return "Lösenordet måste innehålla en siffra";
-                    return null;
-                    }
-                ),
-              ),
-
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 20.0,
-                vertical: 15.0,
-              ),
-              child: TextFormField(
-                controller: confirmPasswordController,
-                decoration: InputDecoration(
-                  labelText: "Bekräfta lösenord",
-                  labelStyle: TextStyle(
-                    color: Color(0xFF4C290C),
-                  ),
-                  filled: true,
-                  fillColor: Color(0xFFF8ED76),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(25)),
-                  ),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return "Bekräfta lösenord";
-                  }
-
-                  if (value != passwordController.text) {
-                    return "Lösenorden matchar inte";
-                  }
-
-                  return null;
-                }
-              ),
-            ),
-
-            const SizedBox(height: 40),
-
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xFFB1067E),
-                foregroundColor: Color(0xFF4C290C),
-              ),
-              onPressed: () {
-                if (_formKey.currentState!.validate()) {
-
-                  bool success = await registerUser(
-                    nameController.text,
-                    emailController.text,
-                    passwordController.text,
-                  );
-
-                  if (success) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("Konto skapat!")),
-                    );
-
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => HomeScreen(name: nameController.text),
-                      ),
-                    );
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text("Användaren finns redan eller fel uppstod"),
-                      ),
-                    );
-                  }
-                }
-              },
-              child: const Text("Skapa konto"),
-            ),
-
-            const SizedBox(height: 20),
-
-            TextButton(
-              style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.black,
-              ),
-              onPressed: () {
-                Navigator.push(
+                onPressed: () async {
+                  Navigator.push(
                     context,
                     MaterialPageRoute(builder: (_) => const LoginScreen()),
-                );
-              },
-              child: const Text("Tillbaka till login"),
-            ),
-          ],
+                  );
+                },
+                child: const Text("Tillbaka till login"),
+              ),
+            ],
           ),
         ),
       ),
