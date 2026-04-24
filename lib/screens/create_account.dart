@@ -142,6 +142,24 @@ class _CreateAccountState extends State<CreateAccount> {
               },
               child: const Text("Skapa konto"),
             ),
+
+            const SizedBox(height: 40),
+
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color(0xFFB1067E),
+                foregroundColor: Color(0xFF4C290C),
+              ),
+              onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => LoginScreen(),
+                    ),
+                  );
+                  },
+              child: const Text("Avbryt"),
+            ),
           ],
           ),
         ),

@@ -1,5 +1,11 @@
 import 'package:flutter/material.dart';
 import 'home_screen.dart';
+import 'tree_bingo_page.dart';
+import 'mushroom_bingo_page.dart';
+import 'flower_bingo_page.dart';
+import 'insect_bingo_page.dart';
+import 'mixed_bingo_page.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 class ChooseBingoGame extends StatefulWidget{
   const ChooseBingoGame({super.key});
@@ -12,11 +18,11 @@ class ChooseBingoGame extends StatefulWidget{
 class _ChooseBingoGame extends State<ChooseBingoGame> {
 
   final List<Map<String, dynamic>> games = [
-    {'name': 'Trädbingo', 'icon': Icons.park},
-    {'name': 'Svampbingo', 'icon': Icons.mail},
-    {'name': 'Blombingo', 'icon': Icons.local_florist},
-    {'name': 'Insektsbingo', 'icon': Icons.bug_report},
-    {'name': 'Blandad bingo', 'icon': Icons.sunny},
+    {'name': 'Träd', 'icon': MdiIcons.tree, 'page': const TreeBingoPage()},
+    {'name': 'Svamp', 'icon': MdiIcons.mushroom, 'page': const MushroomBingoPage()},
+    {'name': 'Blomma', 'icon': MdiIcons.flower, 'page': const FlowerBingoPage()},
+    {'name': 'Insekt', 'icon': MdiIcons.ladybug, 'page': const InsectBingoPage()},
+    {'name': 'Blandad', 'icon': Icons.sunny, 'page': const MixedBingoPage()},
   ];
 
   @override
@@ -31,7 +37,7 @@ class _ChooseBingoGame extends State<ChooseBingoGame> {
                 padding: const EdgeInsets.only(
                   left: 30,
                   top: 40,
-                  bottom: 20
+                  bottom: 30
                 ),
                 child: Text(
                   'Välj ett Bingo-spel',
@@ -57,7 +63,11 @@ class _ChooseBingoGame extends State<ChooseBingoGame> {
                           ),
                         ),
                         onPressed: () {
-                          print('Valde: ${games[index]['name']}');
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder:
+                            (context) => games[index]['page'])
+                          );
                         },
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,

@@ -25,6 +25,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false, //testa om detta löser hoppandet med "nytt konto" osv
       backgroundColor: Color(0xFFBEDBB2),
       body: Stack(
         children: [

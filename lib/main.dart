@@ -22,6 +22,10 @@ class MyApp extends StatelessWidget {
             fontFamily: 'YoungSerif',
             fontSize: 30,
           ),
+          headlineMedium: TextStyle(
+            fontFamily: 'YoungSerif',
+            fontSize: 24,
+          ),
           titleMedium: TextStyle(
             fontFamily: 'WinkySans',
             fontSize: 16,
@@ -33,8 +37,8 @@ class MyApp extends StatelessWidget {
         ),
 
       ),
-      //home: const HomeScreen(name: 'test'),
-      home: const LoginScreen(),
+      home: const HomeScreen(name: 'test'),
+      //home: const LoginScreen(),
     );
   }
 }
