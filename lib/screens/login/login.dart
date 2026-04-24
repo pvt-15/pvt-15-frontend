@@ -36,7 +36,7 @@ class _LoginScreenState extends State<LoginScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
               const Text(
-                  "Skogsjakten", style: TextStyle(fontSize: 30)
+                  "Skogsjakten", style: TextStyle(color: Color(0xFF4C290C), fontSize: 30)
               ),
                 Image.asset(
                   'assets/maskot_skogstroll.png',

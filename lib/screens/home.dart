@@ -13,97 +13,122 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final List<Map<String, dynamic>> menuItems = [
+      {'name': 'Dagens utmaning', 'page': const bibliotek()},
+      {'name': 'Bingo', 'page': const ChooseBingoGame()},
+      {'name': 'Skattjakt', 'page': const Skattjakt()},
+      {'name': 'Samla art', 'page': const artprofil()},
+      {'name': 'Quiz', 'page': const quiz()},
+      {'name': 'Platsuppdrag', 'page': const bibliotek()},
+    ];
+
     return Scaffold(
-      backgroundColor: Colors.green.shade100,
+      backgroundColor: const Color(0xFFBEDBB2),
       appBar: AppBar(
-        title: const Text("Skogsjakten"),
+        backgroundColor: const Color(0xFFBEDBB2),
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Color(0xFF4C290C)),
       ),
-      body: Center(
+      body: SafeArea(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  "Hej $name! ",
-                  style: const TextStyle(fontSize: 24),
+            const SizedBox(height: 0),
+
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 15),
+              child: SizedBox(
+                width: double.infinity,
+                child: Text(
+                  "Dags för en\nutmaning!",
+                  style: Theme.of(context).textTheme.headlineLarge,
+                  textAlign: TextAlign.center,
                 ),
-                Image.asset(
-                  'assets/maskot_skogstroll.png',
-                  width: 100,
-                  height: 100,
+              ),
+            ),
+
+            const SizedBox(height: 20),
+
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 20),
+              padding: const EdgeInsets.symmetric(vertical: 22, horizontal: 20),
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: const Color(0xff84c06c),
+                borderRadius: BorderRadius.circular(22),
+              ),
+              child: Column(
+                children: [
+                  Text(
+                    "10020 Poäng",
+                    style: Theme.of(context).textTheme.titleLarge,
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    "Nivå 8 - Skogsjägare",
+                    style: Theme.of(context).textTheme.titleMedium,
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 22),
+
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 35),
+              child: SizedBox(
+                width: double.infinity,
+                child: Text(
+                  "Utmaningar",
+                  style: Theme.of(context).textTheme.headlineLarge,
+                  textAlign: TextAlign.center,
                 ),
-              ],
-            ),
-
-
-            const SizedBox(height: 30),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const HomeLibrary(),
-                  ),
-                );
-              },
-              child: const Text("Bibliotek"),
-            ),
-
-
-            const SizedBox(height: 10),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const SpeciesProfile(),
-                  ),
-                );
-              },
-              child: const Text("Artprofil"),
-            ),
-
-
-            const SizedBox(height: 10),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const Quiz(),
-                  ),
-                );
-              },
-              child: const Text("Quiz"),
-            ),
-
-
-            const SizedBox(height: 10),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const ChooseBingoGame(),
-                  ),
-                );
-              },
-              child: const Text("Bingo"),
+              ),
             ),
 
             const SizedBox(height: 10),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const Skattjakt(),
-                  ),
-                );
-              },
-              child: const Text("Skattjakt"),
+
+            Expanded(
+              child: ListView.builder(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                itemCount: menuItems.length,
+                itemBuilder: (context, index) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xfff0e36d),
+                        foregroundColor: Colors.brown.shade900,
+                        minimumSize: const Size(double.infinity, 58),
+                        padding: const EdgeInsets.symmetric(vertical: 25),
+                        elevation: 5,
+                        shadowColor: Colors.black38,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(18),
+                        ),
+                      ),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => menuItems[index]['page'],
+                          ),
+                        );
+                      },
+                      child: Text(
+                        menuItems[index]['name'],
+                        style: Theme.of(context).textTheme.titleMedium,
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  );
+                },
+              ),
             ),
           ],
         ),
