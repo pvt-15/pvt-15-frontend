@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:pvt/screens/reset_password.dart';
 import 'home_screen.dart';
 import 'create_account.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -14,11 +17,13 @@ class _LoginScreenState extends State<LoginScreen> {
   final nameController = TextEditingController();
   final passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>(); //lägg till denna för att valideringen ska fungera vid användarnamn formfield.
+  String serverClientId = '171324929378-o6f6ehfj8vtte1fasnhdd2jnjf376uto.apps.googleusercontent.com';
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFF84C06C),
+      resizeToAvoidBottomInset: false, //testa om detta löser hoppandet med "nytt konto" osv
+      backgroundColor: Color(0xFFBEDBB2),
       body: Stack(
         children: [
 
@@ -29,9 +34,10 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-              const Text(
-                  "Skogsjakten", style: TextStyle(color: Color(0xFFB1067E), fontSize: 30)
-              ),
+                Text(
+                    "Skogsjakten",
+                    style: Theme.of(context).textTheme.headlineLarge
+                ),
                 Image.asset(
                   'assets/maskot_skogstroll.png',
                   width: 90,
@@ -48,12 +54,12 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Form(
               key: _formKey,
               child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Padding(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 20.0,
-                      vertical: 30.0,
+                      vertical: 10.0,
                     ),
                     child: TextFormField(
                       controller: nameController,
@@ -63,18 +69,15 @@ class _LoginScreenState extends State<LoginScreen> {
 
                       validator: (value){ // olika validations
                         if(value == null || value.isEmpty) return "Ogiltig mejl";
-                        if(value.contains(" ")) return "Ogiltig mejl";
-                        if(RegExp(r'[åäöÅÄÖ]').hasMatch(value)) return "Ogiltig mejl";
-                        if(!value.contains("@")) return "Ogiltig mejl";
                         return null;
-                        },
+                      },
                     ),
                   ),
 
                   Padding(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 20.0,
-                      vertical: 30.0,
+                      vertical: 15.0,
                     ),
                     child: TextFormField(
                         controller: passwordController,
@@ -85,27 +88,37 @@ class _LoginScreenState extends State<LoginScreen> {
 
                         validator: (value){
                           if(value == null || value.isEmpty) return "Ogiltigt lösenord";
-                          if(value.length <= 10) return "Lösenordet måste vara minst 10 tecken";
-                          if(!value.contains(RegExp(r'[A-Z]'))) return "Lösenordet måste innehålla en stor bokstav";
-                          if(!value.contains(RegExp(r'[0-9]'))) return "Lösenordet måste innehålla en siffra";
                           return null;
                         }
-                        ),
+                    ),
                   ),
 
                   ElevatedButton(
-                    onPressed: () {
+                    onPressed: () async {
+                      final password = passwordController.text;
+                      final email = nameController.text;
+
+                      // Password controll
                       if (_formKey.currentState!.validate()) {
-                      // Go too meny
-                        Navigator.push(
-                        context,
-                          MaterialPageRoute(
-                            builder: (_) =>
-                                HomeScreen(name: nameController.text), // Nu blir namnet ens email
+
+                        //anropa backend
+                        bool success = await loginUser(email, password);
+
+                        if (success) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => HomeScreen(name: email),
                             ),
-                        );
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text("Fel email eller lösenord", textAlign: TextAlign.center)),
+                          );
+                        }
                       }
-                      },
+                    },
                     child: const Text("Logga in"),
                   ),
                 ],
@@ -114,7 +127,51 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
 
           Positioned(
-            bottom: 80,
+              bottom: 190,
+              left: 0,
+              right: 0,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ElevatedButton(
+                    onPressed: () async {
+                      try {
+                        final result = await signIn();
+
+                        if (result == null) return; // Användaren avbröt inloggningen
+
+                        bool success = await loginWithGoogle(result['idToken']!);
+
+                        if (success) {
+                          if (!mounted) return;
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => HomeScreen(name: result['name'] ?? "Användare"),
+                            ),
+                          );
+                        } else {
+                          if (!mounted) return;
+                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Inloggning misslyckad", textAlign: TextAlign.center)),
+                          );
+                        }
+                      } catch (e) {
+                        debugPrint (e.toString());
+                        if (!mounted) return;
+                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Något gick fel", textAlign: TextAlign.center)),
+                        );
+                      }
+                    },
+                    child: const Text("Logga in med Google"),
+
+                  )
+                ],
+              )
+
+          ),
+
+          Positioned(
+            bottom: 70,
             left: 0,
             right: 0,
             child: Column(
@@ -123,7 +180,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                 Padding(
                   padding: const EdgeInsets.only(
-                      top: 20
+                      top: 10
                   ),
                   child: TextButton(
                     onPressed: () {
@@ -133,14 +190,14 @@ class _LoginScreenState extends State<LoginScreen> {
                           builder: (_) => CreateAccount(),
                         ),
                       );
-                      },
+                    },
                     child: const Text("Skapa konto"),
                   ),
                 ),
 
                 Padding(
                   padding: const EdgeInsets.only(
-                      top: 20
+                      top: 10
                   ),
                   child: TextButton(
                     onPressed: () {
@@ -150,7 +207,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           builder: (_) => ResetPassword(),
                         ),
                       );
-                      },
+                    },
                     child: const Text("Glömt lösenord?"),
                   ),
                 ),
@@ -160,5 +217,76 @@ class _LoginScreenState extends State<LoginScreen> {
         ],
       ),
     );
+  }
+
+  Future<bool> loginUser(String email, String password) async {
+    final response = await http.post(
+      Uri.parse('https://group-6-15.pvt.dsv.su.se/auth/login'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'email': email,
+        'password': password,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      //print('Du loggas in!: ${response.body}');
+      return true;
+    } else {
+      //print('Fel lösenord eller email: ${response.body}');
+      return false;
+    }
+  }
+
+  Future<Map<String, String?>?> signIn() async {
+    try {
+      final GoogleSignIn googleSignIn = GoogleSignIn.instance;
+
+      await googleSignIn.initialize(
+        serverClientId: serverClientId,
+      );
+
+
+      final GoogleSignInAccount? account = await googleSignIn.authenticate();
+
+      if (account == null) return null;
+
+      final GoogleSignInAuthentication auth = await account.authentication;
+
+      final String? idToken = auth.idToken;
+
+      if (idToken == null) {
+        throw Exception("Ingen token mottagen från Google");
+      }
+
+      debugPrint('DEBUG: Mottagen google id token: $idToken');
+
+      return {
+        'idToken': idToken,
+        'name': account.displayName,
+      };
+    } catch (e) {
+      debugPrint("Google Sign-In Error: $e");
+      rethrow;
+    }
+  }
+
+  Future<bool> loginWithGoogle(String idToken) async {
+    final response = await http.post(
+      Uri.parse('https://group-6-15.pvt.dsv.su.se/auth/google'),
+      headers: {'Content-Type' : 'application/json'},
+      body: jsonEncode({'token': idToken}),
+    );
+
+    debugPrint("Backend statuskod: ${response.statusCode}");
+    debugPrint("Backend svar: ${response.body}");
+
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      print('Fel lösenord eller email: ${response.body}');
+      return false;
+    }
+
   }
 }
