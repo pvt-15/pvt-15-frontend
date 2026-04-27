@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 
 
-class bibliotek extends StatelessWidget {
-  const bibliotek({super.key});
+class SpeciesProfile extends StatelessWidget {
+  const SpeciesProfile({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFBEDBB2),
       appBar: AppBar(
-        title: const Text("Bibliotek"),
+        title: const Text("Artprofil"),
         centerTitle: true,
       ),
       body: Center(

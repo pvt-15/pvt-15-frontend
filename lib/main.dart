@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'screens/login_screen.dart';
-import 'screens/home_screen.dart';
+import 'screens/login/login.dart'; // login har pajat???
+// import 'screens/home.dart';
 
 void main() {
   runApp(const MyApp());
 }
-//test2
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -37,8 +36,8 @@ class MyApp extends StatelessWidget {
         ),
 
       ),
-      //home: const HomeScreen(name: 'test'),
-      home: const LoginScreen(),
+      home: const LoginScreen(), // Ändra så första screen är login
+      //home: const HomeScreen(name: 'Test'),
     );
   }
 }
