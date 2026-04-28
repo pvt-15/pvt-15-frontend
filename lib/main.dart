@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'screens/login/login.dart'; // login har pajat???
-// import 'screens/home.dart';
+//import 'screens/login/login.dart'; // login har pajat???
+import 'screens/home.dart';
 
 void main() {
   runApp(const MyApp());
@@ -36,8 +36,8 @@ class MyApp extends StatelessWidget {
         ),
 
       ),
-      home: const LoginScreen(), // Ändra så första screen är login
-      //home: const HomeScreen(name: 'Test'),
+      //home: const LoginScreen(), // Ändra så första screen är login
+      home: const HomeScreen(name: 'Test'),
     );
   }
 }

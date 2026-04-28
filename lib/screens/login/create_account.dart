@@ -74,11 +74,9 @@ class _CreateAccountState extends State<CreateAccount> {
                   controller: emailController,
                   decoration: InputDecoration(
                     labelText: "Mejladress",
-                    labelStyle: TextStyle(color: Color(0xFF4C290C)),
                     filled: true,
                     fillColor: Color(0xFFF8ED76),
-                    contentPadding: EdgeInsets.symmetric(vertical: 16),
-
+                    //contentPadding: EdgeInsets.symmetric(vertical: 16),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(20),
                       borderSide: BorderSide.none,
@@ -104,11 +102,9 @@ class _CreateAccountState extends State<CreateAccount> {
                     controller: nameController,
                     decoration: InputDecoration(
                       labelText: "Användarnamn",
-                      labelStyle: TextStyle(color: Color(0xFF4C290C)),
                       filled: true,
                       fillColor: Color(0xFFF8ED76),
-                      contentPadding: EdgeInsets.symmetric(vertical: 16),
-
+                      //contentPadding: EdgeInsets.symmetric(vertical: 16),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(20),
                         borderSide: BorderSide.none,
@@ -133,10 +129,9 @@ class _CreateAccountState extends State<CreateAccount> {
                     obscureText: true,
                     decoration: InputDecoration(
                       labelText: "Lösenord",
-                      labelStyle: TextStyle(color: Color(0xFF4C290C)),
                       filled: true,
                       fillColor: Color(0xFFF8ED76),
-                      contentPadding: EdgeInsets.symmetric(vertical: 16),
+                      //contentPadding: EdgeInsets.symmetric(vertical: 16),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(20),
                         borderSide: BorderSide.none,
@@ -163,9 +158,6 @@ class _CreateAccountState extends State<CreateAccount> {
                     obscureText: true,
                     decoration: InputDecoration(
                       labelText: "Bekräfta lösenord",
-                      labelStyle: TextStyle(
-                        color: Color(0xFF4C290C),
-                      ),
                       filled: true,
                       fillColor: Color(0xFFF8ED76),
                       border: OutlineInputBorder(
@@ -192,7 +184,7 @@ class _CreateAccountState extends State<CreateAccount> {
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Color(0xFFB1067E),
-                  foregroundColor: Color(0xFF4C290C),
+                  foregroundColor: Color(0xFF4C290C)
                 ),
                 onPressed: () async {
                   if (_formKey.currentState!.validate()) {
