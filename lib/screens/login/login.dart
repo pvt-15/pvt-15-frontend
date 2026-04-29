@@ -5,6 +5,11 @@ import 'create_account.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'skogsjakten_exception.dart';
+import 'package:pvt/repositories/auth_repository.dart';
+import 'package:pvt/services/token_storage.dart';
+import 'package:pvt/services/user_local_storage.dart';
+import 'package:pvt/Authorization/user_model.dart';
 import '../skogsjakten_exception.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -19,6 +24,11 @@ class _LoginScreenState extends State<LoginScreen> {
   final passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>(); //lägg till denna för att valideringen ska fungera vid användarnamn formfield.
   String serverClientId = '171324929378-o6f6ehfj8vtte1fasnhdd2jnjf376uto.apps.googleusercontent.com';
+
+  final authRepository = AuthRepository(
+    tokenStorage: TokenStorage(),
+    userLocalStorage: UserLocalStorage(),
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -256,10 +266,21 @@ class _LoginScreenState extends State<LoginScreen> {
     );
 
     if (response.statusCode == 200) {
-      //print('Du loggas in!: ${response.body}');
+      final data = jsonDecode(response.body);
+
+      print('Login response: $data');
+
+      await authRepository.saveLoginData(
+        token: data['token'],
+        user: UserModel(
+          id: data['user']['id'].toString(),
+          email: data['user']['email'],
+          username: data['user']['name'],
+        ),
+      );
+
       return true;
     } else {
-      //print('Fel lösenord eller email: ${response.body}');
       return false;
     }
   }
