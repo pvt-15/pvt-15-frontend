@@ -12,11 +12,11 @@ class ChooseDifficulty extends StatefulWidget {
 
 class _ChooseDifficultyState extends State<ChooseDifficulty> {
 
-  final List<Map<String, dynamic>> games = [
+  /*final List<Map<String, dynamic>> games = [
     {'name': 'Lätt', 'icon': MdiIcons.flower, 'page': const PlantsLibrary()},
     {'name': 'Medel', 'icon': Icons.emoji_nature, 'page': const AnimalsLibrary()},
     {'name': 'Svårt', 'icon': Icons.emoji_events, 'page': const MedalsLibrary()},
-  ];
+  ];*/
 
   @override
   Widget build(BuildContext context) {
