@@ -65,6 +65,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       controller: nameController,
                       decoration: const InputDecoration(
                         labelText: "Email",
+                        labelStyle: TextStyle(
+                          color: Color(0xFF000000),
+                        ),
                         filled: true,
                         fillColor: Color(0xFFF8ED76),
                         border: OutlineInputBorder(
@@ -89,6 +92,9 @@ class _LoginScreenState extends State<LoginScreen> {
                         obscureText: true,
                         decoration: const InputDecoration(
                           labelText: "Lösenord",
+                          labelStyle: TextStyle(
+                            color: Color(0xFF000000),
+                          ),
                           filled: true,
                           fillColor: Color(0xFFF8ED76),
                           border: OutlineInputBorder(
@@ -106,7 +112,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Color(0xFF84C06C),
-                      foregroundColor: Color(0xFF4C290C),
+                      foregroundColor: Color(0xFF000000),
                     ),
                   onPressed: () async {
                     final password = passwordController.text;
@@ -150,7 +156,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Color(0xFF84C06C),
-                      foregroundColor: Color(0xFF4C290C),
+                      foregroundColor: Color(0xFF000000),
                     ),
                       onPressed: () async {
                         try {

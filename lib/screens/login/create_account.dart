@@ -59,7 +59,7 @@ class _CreateAccountState extends State<CreateAccount> {
                     horizontal: 20.0,
                     vertical: 80.0,
                   ),
-                  child: Text("Skapa ett konto", style: TextStyle(fontSize: 30, color : Color(0xFF4C290C))
+                  child: Text("Skapa ett konto", style: TextStyle(fontSize: 30)
                   )
               ),
 
@@ -74,6 +74,9 @@ class _CreateAccountState extends State<CreateAccount> {
                   controller: emailController,
                   decoration: InputDecoration(
                     labelText: "Mejladress",
+                    labelStyle: TextStyle(
+                      color: Color(0xFF000000),
+                    ),
                     filled: true,
                     fillColor: Color(0xFFF8ED76),
                     //contentPadding: EdgeInsets.symmetric(vertical: 16),
@@ -102,6 +105,9 @@ class _CreateAccountState extends State<CreateAccount> {
                     controller: nameController,
                     decoration: InputDecoration(
                       labelText: "Användarnamn",
+                      labelStyle: TextStyle(
+                        color: Color(0xFF000000),
+                      ),
                       filled: true,
                       fillColor: Color(0xFFF8ED76),
                       //contentPadding: EdgeInsets.symmetric(vertical: 16),
@@ -129,6 +135,9 @@ class _CreateAccountState extends State<CreateAccount> {
                     obscureText: true,
                     decoration: InputDecoration(
                       labelText: "Lösenord",
+                      labelStyle: TextStyle(
+                        color: Color(0xFF000000),
+                      ),
                       filled: true,
                       fillColor: Color(0xFFF8ED76),
                       //contentPadding: EdgeInsets.symmetric(vertical: 16),
@@ -158,6 +167,9 @@ class _CreateAccountState extends State<CreateAccount> {
                     obscureText: true,
                     decoration: InputDecoration(
                       labelText: "Bekräfta lösenord",
+                      labelStyle: TextStyle(
+                        color: Color(0xFF000000),
+                      ),
                       filled: true,
                       fillColor: Color(0xFFF8ED76),
                       border: OutlineInputBorder(
@@ -183,8 +195,8 @@ class _CreateAccountState extends State<CreateAccount> {
 
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xFFB1067E),
-                  foregroundColor: Color(0xFF4C290C)
+                  backgroundColor: Color(0xFF84C06C),
+                  foregroundColor: Color(0xFF000000),
                 ),
                 onPressed: () async {
                   if (_formKey.currentState!.validate()) {
@@ -218,19 +230,36 @@ class _CreateAccountState extends State<CreateAccount> {
                 child: const Text("Skapa konto"),
               ),
 
-              const SizedBox(height: 20),
+              const SizedBox(height: 70),
 
-              TextButton(
-                style: ElevatedButton.styleFrom(
-                  foregroundColor: Colors.black,
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20.0,
+                  vertical: 15.0,
                 ),
-                onPressed: () async {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const LoginScreen()),
-                  );
-                },
-                child: const Text("Tillbaka till login"),
+                child: SizedBox(
+                  width: 280,
+                  height: 50,
+                  child: TextButton(
+                    style: TextButton.styleFrom(
+                      backgroundColor: const Color(0xFFB1067E),
+                      foregroundColor: Colors.black,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                    ),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const LoginScreen()),
+                      );
+                    },
+                    child: const Text(
+                      "Jag har ett konto",
+                      style: TextStyle(fontSize: 16),
+                    ),
+                  ),
+                ),
               ),
             ],
           ),

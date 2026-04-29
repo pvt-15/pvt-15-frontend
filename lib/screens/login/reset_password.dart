@@ -42,7 +42,7 @@ class _ResetPasswordState extends State<ResetPassword> {
                 decoration: const InputDecoration(
                   labelText: "Användarnamn",
                   labelStyle: TextStyle(
-                    color: Color(0xFF4C290C),
+                    color: Color(0xFF000000),
                   ),
                   filled: true,
                   fillColor: Color(0xFFF8ED76),
@@ -63,7 +63,7 @@ class _ResetPasswordState extends State<ResetPassword> {
                 decoration: const InputDecoration(
                   labelText: "Nytt lösenord",
                   labelStyle: TextStyle(
-                    color: Color(0xFF4C290C),
+                    color: Color(0xFF000000),
                   ),
                   filled: true,
                   fillColor: Color(0xFFF8ED76),
@@ -84,7 +84,7 @@ class _ResetPasswordState extends State<ResetPassword> {
                 decoration: const InputDecoration(
                   labelText: "Bekräfta lösenord",
                   labelStyle: TextStyle(
-                    color: Color(0xFF4C290C),
+                    color: Color(0xFF000000),
                   ),
                   filled: true,
                   fillColor: Color(0xFFF8ED76),
@@ -98,6 +98,10 @@ class _ResetPasswordState extends State<ResetPassword> {
             const SizedBox(height: 40),
 
             ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color(0xFF84C06C),
+                foregroundColor: Color(0xFF000000),
+              ),
               onPressed: () {
                 Navigator.push(
                   context,
