@@ -1,17 +1,31 @@
 import 'dart:io';
+import 'package:flutter/cupertino.dart';
 import 'package:image_picker/image_picker.dart';
 
 class CameraService {
-  static final ImagePicker _picker = ImagePicker();
+
+  static final ImagePicker picker = ImagePicker();
 
   static Future<File?> takePicture() async {
-    final XFile? photo = await _picker.pickImage(
-        source: ImageSource.camera, maxWidth: 1000
-    );
 
-    if (photo != null) {
-      return File(photo.path);
+    try{
+      final XFile? photo = await picker.pickImage(
+        source: ImageSource.camera,
+        //kan justeras beroende på AI api
+        maxWidth: 1000,
+        imageQuality: 85,
+      );
+
+      if (photo != null) {
+        return File(photo.path);
+      }
+
+      return null;
+
+    } catch (e) {
+      debugPrint("Kamera Fel: $e");
+      return null;
     }
-    return null;
+
   }
 }

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:pvt/screens/skattjakt.dart';
 import 'bibliotek.dart';
 import 'artprofil.dart';
 import 'quiz.dart';
 import 'choose_bingo_game.dart';
-import 'skattjakt.dart';
 
 class HomeScreen extends StatelessWidget {
   final String name;

@@ -95,7 +95,15 @@ class MyApp extends StatelessWidget {
           border: OutlineInputBorder(
             borderRadius: BorderRadius.all(Radius.circular(20)),
           ),
-        )
+        ),
+
+        navigationBarTheme: NavigationBarThemeData(
+          height: 80,
+          backgroundColor: const Color(0xff84c06c), indicatorColor: Colors.white24,
+          iconTheme: WidgetStateProperty.all(const IconThemeData(color: Color(0xFF4C290C), size: 30),),
+          shadowColor: Colors.black12,
+        ),
+
 
       ),
 
