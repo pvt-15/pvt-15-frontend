@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../widgets/custom_navigation_bar.dart';
 import 'home_screen.dart';
 import 'tree_bingo_page.dart';
 import 'mushroom_bingo_page.dart';
@@ -88,30 +89,7 @@ class _ChooseBingoGame extends State<ChooseBingoGame> {
             ],
           ),
         ),
-
-        bottomNavigationBar: Container(
-        height: 80,
-        decoration: const BoxDecoration(
-          color: Color(0xff84c06c),
-          boxShadow: [
-            BoxShadow(color: Colors.black12, blurRadius: 10),
-          ],
-        ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              IconButton(icon: const Icon(Icons.home), onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => HomeScreen(name: 'test'),
-                  ),
-                );
-                },
-              )
-            ],
-          ),
-        ),
+      bottomNavigationBar: const CustomNavigationBar(selectedIndex: -1),
     );
   }
 }

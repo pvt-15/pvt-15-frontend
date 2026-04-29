@@ -98,9 +98,10 @@ class MyApp extends StatelessWidget {
         ),
 
         navigationBarTheme: NavigationBarThemeData(
-          height: 80,
-          backgroundColor: const Color(0xff84c06c), indicatorColor: Colors.white24,
-          iconTheme: WidgetStateProperty.all(const IconThemeData(color: Color(0xFF4C290C), size: 30),),
+          height: 70,
+          backgroundColor: const Color(0xff84c06c), indicatorColor: Colors.transparent,
+          labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
+          iconTheme: WidgetStateProperty.all(const IconThemeData(color: Color(0xFF4C290C), size: 45),),
           shadowColor: Colors.black12,
         ),
 
