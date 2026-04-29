@@ -28,7 +28,7 @@ class _AnimalsLibrary extends State<AnimalsLibrary> {
             Padding(
               padding: const EdgeInsets.only(top: 40, bottom: 30),
               child: Text(
-                'Mina växter',
+                'Mina djur',
                 style: Theme.of(context).textTheme.headlineLarge,
               ),
             ),

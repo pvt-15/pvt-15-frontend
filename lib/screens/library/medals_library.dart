@@ -26,7 +26,7 @@ class _MedalsLibrary extends State<MedalsLibrary> {
             Padding(
               padding: const EdgeInsets.only(top: 40, bottom: 30),
               child: Text(
-                'Mina växter',
+                'Mina medaljer',
                 style: Theme.of(context).textTheme.headlineLarge,
               ),
             ),
