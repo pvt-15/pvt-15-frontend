@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:pvt/screens/skattjakt.dart';
 import 'bibliotek.dart';
 import 'artprofil.dart';
+import 'library/home_library.dart';
+import 'species_profile.dart';
 import 'quiz.dart';
 import 'choose_bingo_game.dart';
+import 'bingo/choose_bingo_game.dart';
+import 'skattjakt.dart';
 
 class HomeScreen extends StatelessWidget {
   final String name;
@@ -37,14 +40,13 @@ class HomeScreen extends StatelessWidget {
             ),
 
 
-
             const SizedBox(height: 30),
             ElevatedButton(
               onPressed: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => const bibliotek(),
+                    builder: (_) => const HomeLibrary(),
                   ),
                 );
               },
@@ -58,7 +60,7 @@ class HomeScreen extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => const artprofil(),
+                    builder: (_) => const SpeciesProfile(),
                   ),
                 );
               },
@@ -72,12 +74,13 @@ class HomeScreen extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => const quiz(),
+                    builder: (_) => const Quiz(),
                   ),
                 );
               },
               child: const Text("Quiz"),
             ),
+
 
             const SizedBox(height: 10),
             ElevatedButton(

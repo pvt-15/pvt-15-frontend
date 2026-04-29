@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../widgets/custom_navigation_bar.dart';
 import 'home_screen.dart';
+import '../home.dart';
 import 'tree_bingo_page.dart';
 import 'mushroom_bingo_page.dart';
 import 'flower_bingo_page.dart';

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:pvt/screens/reset_password.dart';
-import 'home_screen.dart';
+import 'reset_password.dart';
+import '../home.dart';
 import 'create_account.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'skogsjakten_exception.dart';
+import '../skogsjakten_exception.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});

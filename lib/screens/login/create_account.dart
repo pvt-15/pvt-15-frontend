@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'login_screen.dart';
+import 'login.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'home_screen.dart';
+import '../home.dart';
 
 class CreateAccount extends StatefulWidget {
   const CreateAccount({super.key});
@@ -112,6 +112,7 @@ class _CreateAccountState extends State<CreateAccount> {
                 ),
                 child: TextFormField(
                     controller: passwordController,
+                    obscureText: true,
                     decoration: InputDecoration(
                       labelText: "Lösenord",
                     ),
@@ -133,6 +134,7 @@ class _CreateAccountState extends State<CreateAccount> {
                 ),
                 child: TextFormField(
                     controller: confirmPasswordController,
+                    obscureText: true,
                     decoration: InputDecoration(
                       labelText: "Bekräfta lösenord",
                     ),

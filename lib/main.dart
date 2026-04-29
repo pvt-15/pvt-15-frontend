@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'screens/login_screen.dart';
-import 'screens/home_screen.dart';
+//import 'screens/login/login.dart'; // login har pajat???
+import 'screens/home.dart';
 
 void main() {
   runApp(const MyApp());
 }
-//test2
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});

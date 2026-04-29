@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'home_screen.dart';
+import 'home.dart';
 
 
 class Skattjakt extends StatelessWidget {
