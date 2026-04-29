@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../screens/home_screen.dart';
-import '../screens/bibliotek.dart';
-import '../screens/artprofil.dart';
+import '../screens/home.dart';
+import '../screens/library/home_library.dart';
+import '../screens/species_profile.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 
@@ -25,7 +25,7 @@ class CustomNavigationBar extends StatelessWidget {
         if (index == 0) {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (_) => const artprofil()),
+            MaterialPageRoute(builder: (_) => const SpeciesProfile()),
           );
         } else if (index == 1) {
           Navigator.pushReplacement(
@@ -35,7 +35,7 @@ class CustomNavigationBar extends StatelessWidget {
         } else if (index == 2) {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (_) => const bibliotek()),
+            MaterialPageRoute(builder: (_) => const HomeLibrary()),
           );
         }
       },

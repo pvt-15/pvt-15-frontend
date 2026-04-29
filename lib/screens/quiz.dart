@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../widgets/custom_navigation_bar.dart';
 import 'home.dart';
 
 class Quiz extends StatelessWidget {
@@ -54,30 +55,11 @@ class Quiz extends StatelessWidget {
               const SizedBox(height: 18),
               _answerButton(context, 'alternativ 3'),
 
-              const Spacer(),
-
-              Align(
-                alignment: Alignment.bottomLeft,
-                child: IconButton(
-                  onPressed: () {
-                    Navigator.pop(context);(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const HomeScreen(name: 'test'),
-                      ),
-                    );
-                  },
-                  icon: const Icon(
-                    Icons.home_outlined,
-                    color: Color(0xFFC0008F),
-                    size: 60,
-                  ),
-                ),
-              ),
             ],
           ),
         ),
       ),
+      bottomNavigationBar: const CustomNavigationBar(selectedIndex: -1),
     );
   }
 

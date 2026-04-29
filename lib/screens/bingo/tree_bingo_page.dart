@@ -2,12 +2,10 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import '../../services/camera_service.dart';
+import '../../widgets/custom_navigation_bar.dart';
 import '../home.dart';
 import 'package:http/http.dart' as http;
-import 'package:pvt/services/camera_service.dart';
-import 'package:pvt/widgets/custom_navigation_bar.dart';
-import 'home_screen.dart';
-import 'bibliotek.dart';
 
 class TreeBingoPage extends StatefulWidget{
   const TreeBingoPage({super.key});
@@ -264,30 +262,3 @@ class _TreeBingoPage extends State<TreeBingoPage> {
 //TODO metod för att skicka bilderna till bibliotek via backend
 
 }
-
-/*
-  showDialog(
-  context: context,
-  builder: (context) {
-  return AlertDialog(
-  title: Text('Vilken typ av bild har du tagit?', style: Theme.of(context).textTheme.headlineMedium),
-
-  actions: [
-  TextButton(
-  onPressed: () {
-  Navigator.pop(context);
-  },
-  child: Text('Växt/Blomma', style: Theme.of(context).textTheme.headlineLarge),
-  ),
-  TextButton(
-  onPressed: () {
-  Navigator.pop(context);
-  },
-  child: Text('Insekt', style: Theme.of(context).textTheme.headlineLarge),
-  ),
-  ],
-  );
-  }
-  );
-
- */
