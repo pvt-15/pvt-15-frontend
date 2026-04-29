@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'reset_password.dart';
 import '../home.dart';
@@ -312,7 +310,9 @@ class _LoginScreenState extends State<LoginScreen> {
     if (response.statusCode == 200) {
       return true;
     } else {
+      print('Fel lösenord eller email: ${response.body}');
       return false;
     }
+
   }
 }
