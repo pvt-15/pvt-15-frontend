@@ -3,7 +3,7 @@ import 'library/home_library.dart';
 import 'species_profile.dart';
 import 'quiz.dart';
 import 'bingo/choose_bingo_game.dart';
-import 'choose_bingo_game.dart';
+//import 'bingo/choose_bingo_game.dart';
 import 'skattjakt.dart';
 
 class HomeScreen extends StatelessWidget {

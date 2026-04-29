@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:pvt/screens/home_screen.dart';
+import 'home.dart';
 
 class Quiz extends StatelessWidget {
   const Quiz({super.key});
