@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import '../home.dart';
-import 'tree_bingo_page.dart';
-import 'mushroom_bingo_page.dart';
-import 'flower_bingo_page.dart';
-import 'insect_bingo_page.dart';
-import 'mixed_bingo_page.dart';
+import '../bingo/tree_bingo_page.dart';
+import '../bingo/mushroom_bingo_page.dart';
+import '../bingo/flower_bingo_page.dart';
+import '../bingo/insect_bingo_page.dart';
+import '../bingo/mixed_bingo_page.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import '../choose_difficulty.dart';
 

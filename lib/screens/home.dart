@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'library/home_library.dart';
-import 'species_profile.dart';
-import 'quiz.dart';
-import 'bingo/choose_bingo_game.dart';
+import 'home/home_library.dart';
+import 'home/species_profile.dart';
+import 'home/quiz.dart';
+import 'home/choose_bingo_game.dart';
 //import 'bingo/choose_bingo_game.dart';
-import 'skattjakt.dart';
+import 'home/skattjakt.dart';
 import 'choose_difficulty.dart';
 
 class HomeScreen extends StatelessWidget {
