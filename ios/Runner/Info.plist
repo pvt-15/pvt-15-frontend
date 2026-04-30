@@ -4,6 +4,10 @@
 <dict>
     <key>NSCameraUsageDescription</key>
     <string>Appen behöver tillgång till kameran för att ta bilder.</string>
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>Appen behöver tillgång till ditt galleri för att kunna spara eller välja bilder.</string>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>Appen behöver tillgång till mikrofonen om du spelar in video.</string>
 
 
      <key>GIDClientID</key> <string>171324929378-s80ticbmtbc99b3akm5e6q8lvfgohhpf.apps.googleusercontent.com</string>
@@ -15,7 +19,6 @@
      <string>com.googleusercontent.apps.171324929378-s80ticbmtbc99b3akm5e6q8lvfgohhpf</string> </array> </dict> </array>
 
 
-
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
 	<key>CFBundleDevelopmentRegion</key>
@@ -25,7 +28,7 @@
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
-	<string>$(com.example.pvt)</string>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
