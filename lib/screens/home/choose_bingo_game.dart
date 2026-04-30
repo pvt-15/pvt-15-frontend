@@ -4,11 +4,6 @@ import 'package:material_design_icons_flutter/material_design_icons_flutter.dart
 import '../bingo/bingo_easy_mode.dart';
 import '../bingo/bingo_hard_mode.dart';
 import '../bingo/bingo_medium_mode.dart';
-import '../bingo/flower_bingo_page.dart';
-import '../bingo/insect_bingo_page.dart';
-import '../bingo/mixed_bingo_page.dart';
-import '../bingo/mushroom_bingo_page.dart';
-import '../bingo/tree_bingo_page.dart';
 import '../choose_difficulty.dart';
 
 class ChooseBingoGame extends StatefulWidget {
@@ -27,11 +22,11 @@ class ChooseBingoGame extends StatefulWidget {
 class _ChooseBingoGame extends State<ChooseBingoGame> {
 
   final List<Map<String, dynamic>> games = [
-    {'name': 'Träd', 'icon': MdiIcons.tree, 'page': const TreeBingoPage()},
-    {'name': 'Svamp', 'icon': MdiIcons.mushroom, 'page': const MushroomBingoPage()},
-    {'name': 'Blomma', 'icon': MdiIcons.flower, 'page': const FlowerBingoPage()},
-    {'name': 'Insekt', 'icon': MdiIcons.ladybug, 'page': const InsectBingoPage()},
-    {'name': 'Blandad', 'icon': Icons.sunny, 'page': const MixedBingoPage()},
+    {'name': 'Träd', 'icon': MdiIcons.tree},
+    {'name': 'Svamp', 'icon': MdiIcons.mushroom},
+    {'name': 'Blomma', 'icon': MdiIcons.flower},
+    {'name': 'Insekt', 'icon': MdiIcons.ladybug},
+    {'name': 'Blandad', 'icon': Icons.sunny},
   ];
 
   @override
