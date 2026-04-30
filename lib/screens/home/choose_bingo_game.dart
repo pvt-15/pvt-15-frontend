@@ -1,7 +1,9 @@
-import 'package:Skogsjakten/screens/bingo/bingo_game.dart';
 import 'package:flutter/material.dart';
 import '../../widgets/custom_navigation_bar.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import '../bingo/bingo_easy_mode.dart';
+import '../bingo/bingo_hard_mode.dart';
+import '../bingo/bingo_medium_mode.dart';
 import '../bingo/flower_bingo_page.dart';
 import '../bingo/insect_bingo_page.dart';
 import '../bingo/mixed_bingo_page.dart';
@@ -69,14 +71,39 @@ class _ChooseBingoGame extends State<ChooseBingoGame> {
                             borderRadius: BorderRadius.circular(15),
                           ),
                         ),
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder:
+                        onPressed: () async {
+                          final Difficulty? result = await Navigator.push(context, MaterialPageRoute(builder: (context) => ChooseDifficulty()),);
+
+                          if (result == Difficulty.easy){
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => BingoEasyMode(typeOfBingo: games[index]['name'])),);
+                          }
+
+                          if (result == Difficulty.medium){
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => BingoMediumMode(typeOfBingo: games[index]['name'])),);
+                          }
+
+                          if (result == Difficulty.hard){
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => BingoHardMode(typeOfBingo: games[index]['name'])),);
+                          }
+
+                          //Navigator.push(
+                            //context,
+                            //MaterialPageRoute(builder:
                             //(context) => games[index]['page'])
-                              (context) => BingoGame(typeOfBingo: games[index]['name'])),
-                          );
+
+                            //TODO i skicket får man tala om vilken svårighetsgrad det handlar om
+                            //TODO antingen check med if sats eller annat, ex om användaren klickar i lätt,
+                            //TODO så kör man en push till den lätta klassen tillsammans med textsträngen
+                              //(context) => BingoGame(typeOfBingo: games[index]['name'])),
+                          //);
                         },
+
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [

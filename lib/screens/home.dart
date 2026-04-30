@@ -131,7 +131,19 @@ class HomeScreen extends StatelessWidget {
                 },
               ),
             ),
-            const SizedBox(height: 10)
+            const SizedBox(height: 10),
+
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => ChooseDifficulty(),
+                  ),
+                );
+              },
+              child: const Text("Difficulty"),
+            ),
 
             /*
 

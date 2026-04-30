@@ -7,16 +7,16 @@ import '../../widgets/custom_navigation_bar.dart';
 import '../home.dart';
 import 'package:http/http.dart' as http;
 
-class BingoGame extends StatefulWidget{
+class BingoHardMode extends StatefulWidget{
   final String typeOfBingo;
 
-  const BingoGame({super.key, required this.typeOfBingo});
+  const BingoHardMode({super.key, required this.typeOfBingo});
 
   @override
-  State<BingoGame> createState() => _BingoPage();
+  State<BingoHardMode> createState() => _BingoHardMode();
 }
 
-class _BingoPage extends State<BingoGame> {
+class _BingoHardMode extends State<BingoHardMode> {
 
   static final List<Map<String, dynamic>> games = [
     {'name': 'Träd', 'images': <File?>[null, null, null, null], "isCompleted": false},
@@ -58,7 +58,7 @@ class _BingoPage extends State<BingoGame> {
                   right: 40
               ),
               child: Text(
-                'Hitta och fota 4 stycken olika träd!',
+                'test svår',
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.headlineMedium,
               ),

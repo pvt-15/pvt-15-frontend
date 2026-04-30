@@ -7,23 +7,23 @@ import '../../widgets/custom_navigation_bar.dart';
 import '../home.dart';
 import 'package:http/http.dart' as http;
 
-class BingoGame extends StatefulWidget{
+class BingoMediumMode extends StatefulWidget{
   final String typeOfBingo;
 
-  const BingoGame({super.key, required this.typeOfBingo});
+  const BingoMediumMode({super.key, required this.typeOfBingo});
 
   @override
-  State<BingoGame> createState() => _BingoPage();
+  State<BingoMediumMode> createState() => _BingoMediumMode();
 }
 
-class _BingoPage extends State<BingoGame> {
+class _BingoMediumMode extends State<BingoMediumMode> {
 
   static final List<Map<String, dynamic>> games = [
-    {'name': 'Träd', 'images': <File?>[null, null, null, null], "isCompleted": false},
-    {'name': 'Svamp', 'images': <File?>[null, null, null, null], "isCompleted": false},
-    {'name': 'Blomma', 'images': <File?>[null, null, null, null], "isCompleted": false},
-    {'name': 'Insekt', 'images': <File?>[null, null, null, null], "isCompleted": false},
-    {'name': 'Blandad', 'images': <File?>[null, null, null, null], "isCompleted": false},
+    {'name': 'Träd', 'images': <File?>[null, null, null], "isCompleted": false},
+    {'name': 'Svamp', 'images': <File?>[null, null, null], "isCompleted": false},
+    {'name': 'Blomma', 'images': <File?>[null, null, null], "isCompleted": false},
+    {'name': 'Insekt', 'images': <File?>[null, null, null], "isCompleted": false},
+    {'name': 'Blandad', 'images': <File?>[null, null, null], "isCompleted": false},
   ];
 
   late bool isCompleted;
@@ -31,7 +31,6 @@ class _BingoPage extends State<BingoGame> {
   File? image1;
   File? image2;
   File? image3;
-  File? image4;
 
   @override
   Widget build(BuildContext context) {
@@ -58,7 +57,7 @@ class _BingoPage extends State<BingoGame> {
                   right: 40
               ),
               child: Text(
-                'Hitta och fota 4 stycken olika träd!',
+                'test medel',
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.headlineMedium,
               ),
@@ -137,25 +136,6 @@ class _BingoPage extends State<BingoGame> {
                           color: const Color(0xfff8ed76),
                           borderRadius: BorderRadius.circular(15),
                           //image: _image3 != null ? DecorationImage(image: FileImage(_image3!), fit: BoxFit.cover) : null,
-                        ),
-                        child: const Center(child: Icon(Icons.image, size: 50,)),
-                      ),
-                    ),
-
-                    const SizedBox(width: 50),
-
-                    InkWell(
-                      onTap: () async {
-                        // Logik för kamera 4 kommer här
-                      },
-                      borderRadius: BorderRadius.circular(15),
-                      child: Container(
-                        width: 130,
-                        height: 130,
-                        decoration: BoxDecoration(
-                          color: const Color(0xfff8ed76),
-                          borderRadius: BorderRadius.circular(15),
-                          //image: _image4 != null ? DecorationImage(image: FileImage(_image4!), fit: BoxFit.cover) : null,
                         ),
                         child: const Center(child: Icon(Icons.image, size: 50,)),
                       ),
@@ -251,7 +231,7 @@ class _BingoPage extends State<BingoGame> {
 
   //TODO egentligen bättre med andra hållet för true false return
   Future<bool> checkBingoCompletionStatus () async {
-    if (image1 == null || image2 == null || image3 == null || image4 == null) {
+    if (image1 == null || image2 == null || image3 == null) {
       return false;
     } else {
       isCompleted = true;
@@ -266,7 +246,6 @@ class _BingoPage extends State<BingoGame> {
       image1 = null;
       image2 = null;
       image3 = null;
-      image4 = null;
       isCompleted = false;
       updateIsCompletedInList(isCompleted);
     }
@@ -315,7 +294,6 @@ class _BingoPage extends State<BingoGame> {
         image1 = currentGame['images'][0];
         image2 = currentGame['images'][1];
         image3 = currentGame['images'][2];
-        image4 = currentGame['images'][3];
       });
 
       isCompleted = currentGame['isCompleted'];
