@@ -14,12 +14,12 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final List<Map<String, dynamic>> menuItems = [
-      {'name': 'Dagens utmaning', 'page': const bibliotek()},
+      {'name': 'Dagens utmaning', 'page': const HomeLibrary()},
       {'name': 'Bingo', 'page': const ChooseBingoGame()},
       {'name': 'Skattjakt', 'page': const Skattjakt()},
-      {'name': 'Samla art', 'page': const artprofil()},
-      {'name': 'Quiz', 'page': const quiz()},
-      {'name': 'Platsuppdrag', 'page': const bibliotek()},
+      {'name': 'Samla art', 'page': const SpeciesProfile()},
+      {'name': 'Quiz', 'page': const Quiz()},
+      {'name': 'Platsuppdrag', 'page': const HomeLibrary()},
     ];
 
     return Scaffold(

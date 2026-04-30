@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
+import '../../Authorization/user_model.dart';
+import '../../repositories/auth_repository.dart';
+import '../../services/token_storage.dart';
+import '../../services/user_local_storage.dart';
 import 'reset_password.dart';
 import '../home.dart';
 import 'create_account.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'skogsjakten_exception.dart';
-import 'package:pvt/repositories/auth_repository.dart';
-import 'package:pvt/services/token_storage.dart';
-import 'package:pvt/services/user_local_storage.dart';
-import 'package:pvt/Authorization/user_model.dart';
 import '../skogsjakten_exception.dart';
 
 class LoginScreen extends StatefulWidget {
