@@ -2,6 +2,11 @@ import 'package:Skogsjakten/screens/bingo/bingo_game.dart';
 import 'package:flutter/material.dart';
 import '../../widgets/custom_navigation_bar.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import '../bingo/flower_bingo_page.dart';
+import '../bingo/insect_bingo_page.dart';
+import '../bingo/mixed_bingo_page.dart';
+import '../bingo/mushroom_bingo_page.dart';
+import '../bingo/tree_bingo_page.dart';
 import '../choose_difficulty.dart';
 
 class ChooseBingoGame extends StatefulWidget {

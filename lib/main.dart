@@ -1,3 +1,4 @@
+import 'package:Skogsjakten/screens/home.dart';
 import 'package:flutter/material.dart';
 import 'screens/login/login.dart';
 //import 'screens/home.dart';
