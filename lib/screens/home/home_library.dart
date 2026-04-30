@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import '../../widgets/custom_navigation_bar.dart';
 import '../home.dart';
-import 'animals_library.dart';
-import 'plants_library.dart';
-import 'medals_library.dart';
+import '../library/animals_library.dart';
+import '../library/plants_library.dart';
+import '../library/medals_library.dart';
 
 class HomeLibrary extends StatefulWidget {
   const HomeLibrary({super.key});

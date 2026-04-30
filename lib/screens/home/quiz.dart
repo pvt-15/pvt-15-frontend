@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../widgets/custom_navigation_bar.dart';
-import 'home.dart';
+import '../home.dart';
+
 
 class Quiz extends StatelessWidget {
   const Quiz({super.key});
@@ -9,29 +9,27 @@ class Quiz extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFBEDBB2),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFFBEDBB2),
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Color(0xFF4C290C)),
+      ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
           child: Column(
             children: [
               const SizedBox(height: 8),
-
               Text(
                 'Fråga x',
-                style: Theme.of(context).textTheme.headlineLarge
+                style: Theme.of(context).textTheme.headlineLarge,
               ),
-
               const SizedBox(height: 20),
-
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 30),
                 decoration: BoxDecoration(
                   color: const Color(0xFFFFEE7A),
-                  border: Border.all(
-                    color: const Color(0xFFF8ED76),
-                    width: 4,
-                  ),
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: const [
                     BoxShadow(
@@ -42,19 +40,36 @@ class Quiz extends StatelessWidget {
                   ],
                 ),
                 child: Text(
-                  'riktiga frågan här, riktig fråga här, riktigt fråga här',
+                  'Här kommer den riktiga frågan att stå!',
                   textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.headlineMedium,
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(fontSize: 22),
                 ),
               ),
-
-              const SizedBox(height: 28),
-              _answerButton(context, 'alternativ 1'),
+              const SizedBox(height: 40),
+              _answerButton(context, 'Alternativ 1'),
               const SizedBox(height: 18),
-              _answerButton(context, 'alternativ 2'),
+              _answerButton(context, 'Alternativ 2'),
               const SizedBox(height: 18),
-              _answerButton(context, 'alternativ 3'),
-
+              _answerButton(context, 'Alternativ 3'),
+              const Spacer(),
+              Align(
+                alignment: Alignment.bottomLeft,
+                child: IconButton(
+                  onPressed: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const HomeScreen(name: 'test'),
+                      ),
+                    );
+                  },
+                  icon: const Icon(
+                    Icons.home_outlined,
+                    color: Color(0xFFC0008F),
+                    size: 60,
+                  ),
+                ),
+              ),
             ],
           ),
         ),
@@ -65,17 +80,18 @@ class Quiz extends StatelessWidget {
 
   Widget _answerButton(BuildContext context, String text) {
     return SizedBox(
-      width: 220,
-      height: 90,
+      width: 250,
+      height: 70,
       child: ElevatedButton(
-        onPressed: () {},
+        onPressed: () {
+          // TODO: Implementera svarslogik
+        },
         style: ElevatedButton.styleFrom(
           backgroundColor: const Color(0xFFFFEE7A),
-          foregroundColor: const Color(0xFF5A3A1A),
-          elevation: 6,
-          shadowColor: Colors.black26,
+          foregroundColor: const Color(0xFF4C290C),
+          elevation: 5,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(18),
           ),
         ),
         child: Text(

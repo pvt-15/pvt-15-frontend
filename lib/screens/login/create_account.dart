@@ -59,6 +59,7 @@ class _CreateAccountState extends State<CreateAccount> {
                     horizontal: 20.0,
                     vertical: 80.0,
                   ),
+                  //TODO ändra text
                   child: Text("Skapa ett konto", style: TextStyle(fontSize: 30, color : Color(0xFF4C290C))
                   )
               ),

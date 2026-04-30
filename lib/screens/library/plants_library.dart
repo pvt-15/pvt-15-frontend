@@ -12,11 +12,26 @@ class _PlantsLibraryState extends State<PlantsLibrary> {
   final List<String> plants = [
     'Vitsippa',
     'Ros',
-    //'Tulpan',
-    //'Lavendel',
-   //'Maskros',
+    'Tulpan',
     'Blåklocka',
+    //'Lavendel',
+    //'Maskros',
   ];
+
+  String getPlantImage(String plant) {
+    switch (plant) {
+      case 'Vitsippa':
+        return 'assets/vitsippa.png';
+      case 'Ros':
+        return 'assets/ros.jpg';
+      case 'Blåklocka':
+        return 'assets/blaklocka.jpg';
+      case 'Tulpan':
+        return 'assets/tulpan.jpg';
+        default:
+          return '';
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -61,9 +76,12 @@ class _PlantsLibraryState extends State<PlantsLibrary> {
                                 color: Colors.white,
                                 borderRadius: BorderRadius.circular(12),
                               ),
-                              child: const Icon(
-                                Icons.local_florist,
-                                size: 50,
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(12),
+                                child: Image.asset(
+                                  getPlantImage(plants[index]),
+                                  fit: BoxFit.cover,
+                                ),
                               ),
                             ),
                           ),

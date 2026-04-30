@@ -7,9 +7,15 @@ import 'flower_bingo_page.dart';
 import 'insect_bingo_page.dart';
 import 'mixed_bingo_page.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import '../choose_difficulty.dart';
 
-class ChooseBingoGame extends StatefulWidget{
-  const ChooseBingoGame({super.key});
+class ChooseBingoGame extends StatefulWidget {
+  final Difficulty difficulty;
+
+  const ChooseBingoGame({
+    super.key,
+    required this.difficulty,
+  });
 
   @override
   State<ChooseBingoGame> createState() => _ChooseBingoGame();
