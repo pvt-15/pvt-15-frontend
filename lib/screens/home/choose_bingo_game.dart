@@ -9,11 +9,11 @@ import 'package:material_design_icons_flutter/material_design_icons_flutter.dart
 import '../choose_difficulty.dart';
 
 class ChooseBingoGame extends StatefulWidget {
-  final Difficulty difficulty;
+  //final Difficulty difficulty;
 
   const ChooseBingoGame({
     super.key,
-    required this.difficulty,
+    //required this.difficulty,
   });
 
   @override

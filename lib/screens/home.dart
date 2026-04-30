@@ -3,7 +3,6 @@ import 'home/home_library.dart';
 import 'home/species_profile.dart';
 import 'home/quiz.dart';
 import 'home/choose_bingo_game.dart';
-//import 'bingo/choose_bingo_game.dart';
 import 'home/skattjakt.dart';
 import 'choose_difficulty.dart';
 
@@ -12,11 +11,12 @@ class HomeScreen extends StatelessWidget {
 
   const HomeScreen({super.key, required this.name});
 
+
   @override
   Widget build(BuildContext context) {
     final List<Map<String, dynamic>> menuItems = [
       {'name': 'Dagens utmaning', 'page': const HomeLibrary()},
-      {'name': 'Bingo', 'page': const ChooseBingoGame()},
+      {'name': 'Bingo', 'page': ChooseBingoGame()},
       {'name': 'Skattjakt', 'page': const Skattjakt()},
       {'name': 'Samla art', 'page': const SpeciesProfile()},
       {'name': 'Quiz', 'page': const Quiz()},
@@ -138,7 +138,7 @@ class HomeScreen extends StatelessWidget {
                   context,
                   MaterialPageRoute(
                     builder: (_) => ChooseDifficulty(
-                      nextPage: (difficulty) => ChooseBingoGame(difficulty: difficulty),
+                      nextPage: (difficulty) => ChooseBingoGame(),
                     ),
                   ),
                 );
