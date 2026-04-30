@@ -1,3 +1,4 @@
+import 'package:Skogsjakten/screens/bingo/bingo_game.dart';
 import 'package:flutter/material.dart';
 import '../../widgets/custom_navigation_bar.dart';
 import 'tree_bingo_page.dart';
@@ -66,7 +67,8 @@ class _ChooseBingoGame extends State<ChooseBingoGame> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(builder:
-                            (context) => games[index]['page'])
+                            //(context) => games[index]['page'])
+                              (context) => BingoGame(typeOfBingo: games[index]['name'])),
                           );
                         },
                         child: Row(
