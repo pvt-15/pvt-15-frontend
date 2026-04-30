@@ -1,11 +1,12 @@
+import 'package:Skogsjakten/screens/bingo/bingo_game.dart';
 import 'package:flutter/material.dart';
-import '../home.dart';
-import '../bingo/tree_bingo_page.dart';
-import '../bingo/mushroom_bingo_page.dart';
+import '../../widgets/custom_navigation_bar.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import '../bingo/flower_bingo_page.dart';
 import '../bingo/insect_bingo_page.dart';
 import '../bingo/mixed_bingo_page.dart';
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import '../bingo/mushroom_bingo_page.dart';
+import '../bingo/tree_bingo_page.dart';
 import '../choose_difficulty.dart';
 
 class ChooseBingoGame extends StatefulWidget {
@@ -72,7 +73,8 @@ class _ChooseBingoGame extends State<ChooseBingoGame> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(builder:
-                            (context) => games[index]['page'])
+                            //(context) => games[index]['page'])
+                              (context) => BingoGame(typeOfBingo: games[index]['name'])),
                           );
                         },
                         child: Row(
@@ -94,30 +96,7 @@ class _ChooseBingoGame extends State<ChooseBingoGame> {
             ],
           ),
         ),
-
-        bottomNavigationBar: Container(
-        height: 80,
-        decoration: const BoxDecoration(
-          color: Color(0xff84c06c),
-          boxShadow: [
-            BoxShadow(color: Colors.black12, blurRadius: 10),
-          ],
-        ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              IconButton(icon: const Icon(Icons.home), onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => HomeScreen(name: 'test'),
-                  ),
-                );
-                },
-              )
-            ],
-          ),
-        ),
+      bottomNavigationBar: const CustomNavigationBar(selectedIndex: -1),
     );
   }
 }

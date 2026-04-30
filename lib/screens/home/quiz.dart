@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../widgets/custom_navigation_bar.dart';
 import '../home.dart';
 
 
@@ -74,6 +75,7 @@ class Quiz extends StatelessWidget {
           ),
         ),
       ),
+      bottomNavigationBar: const CustomNavigationBar(selectedIndex: -1),
     );
   }
 
@@ -95,10 +97,7 @@ class Quiz extends StatelessWidget {
         ),
         child: Text(
           text,
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-                fontSize: 20,
-              ),
+          style: Theme.of(context).textTheme.headlineMedium,
         ),
       ),
     );

@@ -59,7 +59,8 @@ class _CreateAccountState extends State<CreateAccount> {
                     horizontal: 20.0,
                     vertical: 80.0,
                   ),
-                  child: Text("Skapa ett konto", style: TextStyle(fontSize: 30)
+                  //TODO ändra text
+                  child: Text("Skapa ett konto", style: TextStyle(fontSize: 30, color : Color(0xFF4C290C))
                   )
               ),
 
@@ -74,16 +75,6 @@ class _CreateAccountState extends State<CreateAccount> {
                   controller: emailController,
                   decoration: InputDecoration(
                     labelText: "Mejladress",
-                    labelStyle: TextStyle(
-                      color: Color(0xFF000000),
-                    ),
-                    filled: true,
-                    fillColor: Color(0xFFF8ED76),
-                    //contentPadding: EdgeInsets.symmetric(vertical: 16),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(20),
-                      borderSide: BorderSide.none,
-                    ),
                   ),
                   validator: (value){ // olika validations
                     if(value == null || value.isEmpty) return "Ogiltig mejl";
@@ -105,16 +96,6 @@ class _CreateAccountState extends State<CreateAccount> {
                     controller: nameController,
                     decoration: InputDecoration(
                       labelText: "Användarnamn",
-                      labelStyle: TextStyle(
-                        color: Color(0xFF000000),
-                      ),
-                      filled: true,
-                      fillColor: Color(0xFFF8ED76),
-                      //contentPadding: EdgeInsets.symmetric(vertical: 16),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(20),
-                        borderSide: BorderSide.none,
-                      ),
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -135,16 +116,6 @@ class _CreateAccountState extends State<CreateAccount> {
                     obscureText: true,
                     decoration: InputDecoration(
                       labelText: "Lösenord",
-                      labelStyle: TextStyle(
-                        color: Color(0xFF000000),
-                      ),
-                      filled: true,
-                      fillColor: Color(0xFFF8ED76),
-                      //contentPadding: EdgeInsets.symmetric(vertical: 16),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(20),
-                        borderSide: BorderSide.none,
-                      ),
                     ),
 
                     validator: (value){
@@ -167,15 +138,6 @@ class _CreateAccountState extends State<CreateAccount> {
                     obscureText: true,
                     decoration: InputDecoration(
                       labelText: "Bekräfta lösenord",
-                      labelStyle: TextStyle(
-                        color: Color(0xFF000000),
-                      ),
-                      filled: true,
-                      fillColor: Color(0xFFF8ED76),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(20)),
-                        borderSide: BorderSide.none,
-                      ),
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -194,10 +156,6 @@ class _CreateAccountState extends State<CreateAccount> {
               const SizedBox(height: 40),
 
               ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xFF84C06C),
-                  foregroundColor: Color(0xFF000000),
-                ),
                 onPressed: () async {
                   if (_formKey.currentState!.validate()) {
 
@@ -209,7 +167,7 @@ class _CreateAccountState extends State<CreateAccount> {
 
                     if (success) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text("Konto skapat!")),
+                        const SnackBar(content: Text("Konto skapat!", textAlign: TextAlign.center)),
                       );
 
                       Navigator.push(
@@ -221,7 +179,7 @@ class _CreateAccountState extends State<CreateAccount> {
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
-                          content: Text("Användaren finns redan eller fel uppstod"),
+                          content: Text("Användaren finns redan eller fel uppstod", textAlign: TextAlign.center),
                         ),
                       );
                     }
@@ -230,36 +188,16 @@ class _CreateAccountState extends State<CreateAccount> {
                 child: const Text("Skapa konto"),
               ),
 
-              const SizedBox(height: 70),
+              const SizedBox(height: 20),
 
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20.0,
-                  vertical: 15.0,
-                ),
-                child: SizedBox(
-                  width: 280,
-                  height: 50,
-                  child: TextButton(
-                    style: TextButton.styleFrom(
-                      backgroundColor: const Color(0xFFB1067E),
-                      foregroundColor: Colors.black,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                    ),
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => const LoginScreen()),
-                      );
-                    },
-                    child: const Text(
-                      "Jag har ett konto",
-                      style: TextStyle(fontSize: 16),
-                    ),
-                  ),
-                ),
+              TextButton(
+                onPressed: () async {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const LoginScreen()),
+                  );
+                },
+                child: const Text("Tillbaka till login"),
               ),
             ],
           ),

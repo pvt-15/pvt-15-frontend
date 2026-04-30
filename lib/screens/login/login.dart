@@ -44,8 +44,9 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-              const Text(
-                  "Skogsjakten", style: TextStyle(color: Color(0xFF4C290C), fontSize: 30)
+              Text(
+                  "Skogsjakten",
+                  style: Theme.of(context).textTheme.headlineLarge
               ),
                 Image.asset(
                   'assets/maskot_skogstroll.png',
@@ -74,14 +75,6 @@ class _LoginScreenState extends State<LoginScreen> {
                       controller: nameController,
                       decoration: const InputDecoration(
                         labelText: "Email",
-                        labelStyle: TextStyle(
-                          color: Color(0xFF000000),
-                        ),
-                        filled: true,
-                        fillColor: Color(0xFFF8ED76),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(25)),
-                        ),
                       ),
 
                       validator: (value){ // olika validations
@@ -101,14 +94,6 @@ class _LoginScreenState extends State<LoginScreen> {
                         obscureText: true,
                         decoration: const InputDecoration(
                           labelText: "Lösenord",
-                          labelStyle: TextStyle(
-                            color: Color(0xFF000000),
-                          ),
-                          filled: true,
-                          fillColor: Color(0xFFF8ED76),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(25)),
-                          ),
                         ),
 
                         validator: (value){
@@ -119,10 +104,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
 
                 ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Color(0xFF84C06C),
-                      foregroundColor: Color(0xFF000000),
-                    ),
                   onPressed: () async {
                     final password = passwordController.text;
                     final email = nameController.text;
@@ -143,7 +124,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                              content: Text("Fel email eller lösenord")),
+                              content: Text("Fel email eller lösenord", textAlign: TextAlign.center)),
                         );
                       }
                     }
@@ -163,10 +144,6 @@ class _LoginScreenState extends State<LoginScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Color(0xFF84C06C),
-                      foregroundColor: Color(0xFF000000),
-                    ),
                       onPressed: () async {
                         try {
                           final result = await signIn();
@@ -185,15 +162,13 @@ class _LoginScreenState extends State<LoginScreen> {
                             );
                           } else {
                             if (!mounted) return;
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                  content: Text("Inloggning misslyckad")),
+                            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Inloggning misslyckad", textAlign: TextAlign.center)),
                             );
                           }
                         } catch (e) {
                           debugPrint (e.toString());
                           if (!mounted) return;
-                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Något gick fel")),
+                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Något gick fel", textAlign: TextAlign.center)),
                           );
                         }
                         },
@@ -218,9 +193,6 @@ class _LoginScreenState extends State<LoginScreen> {
                       top: 10
                   ),
                   child: TextButton(
-                    style: TextButton.styleFrom(
-                      foregroundColor: Color(0xFFB1067E),
-                    ),
                     onPressed: () {
                       Navigator.push(
                         context,
@@ -238,9 +210,6 @@ class _LoginScreenState extends State<LoginScreen> {
                       top: 10
                   ),
                   child: TextButton(
-                    style: TextButton.styleFrom(
-                      foregroundColor: Color(0xFFB1067E),
-                    ),
                     onPressed: () {
                       Navigator.push(
                         context,

@@ -1,5 +1,6 @@
+import 'package:Skogsjakten/screens/home.dart';
 import 'package:flutter/material.dart';
-import 'screens/login/login.dart'; // login har pajat???
+import 'screens/login/login.dart';
 //import 'screens/home.dart';
 
 void main() {
@@ -45,9 +46,79 @@ class MyApp extends StatelessWidget {
             color: Color(0xFF4C290C),
           ),
         ),
+
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Color(0xFF84C06C),
+            foregroundColor: Color(0xFF4C290C),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(15),
+            ),
+            textStyle: const TextStyle(
+              fontFamily: 'WinkySans',
+              fontSize: 16,
+            ),
+          ),
+        ),
+
+        textButtonTheme: TextButtonThemeData(
+          style: TextButton.styleFrom(
+            foregroundColor: Color(0xFFB1067E),
+            textStyle: const TextStyle(
+              fontFamily: 'WinkySans',
+              fontSize: 14,
+            ),
+          ),
+        ),
+
+        snackBarTheme: SnackBarThemeData(
+          insetPadding: const EdgeInsets.symmetric(
+            horizontal: 20.0,
+            vertical: 15.0,
+          ),
+          contentTextStyle: const TextStyle(
+            fontFamily: 'WinkySans',
+            fontSize: 16,
+          ),
+        ),
+
+        inputDecorationTheme: InputDecorationTheme(
+          //färgen på fältet
+          filled: true,
+          fillColor: const Color(0xFFF8ED76),
+          contentPadding: EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+
+          //stilen för typsnittet
+          labelStyle: const TextStyle(
+            color: Color(0xFF4C290C),
+            fontFamily: 'WinkySans',
+          ),
+
+          //stilen för errormeddelanden
+          errorStyle: const TextStyle(
+            fontFamily: 'WinkySans',
+            fontSize: 12,
+          ),
+
+          //bordern runt
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.all(Radius.circular(20)),
+          ),
+        ),
+
+        navigationBarTheme: NavigationBarThemeData(
+          height: 70,
+          backgroundColor: const Color(0xff84c06c), indicatorColor: Colors.transparent,
+          labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
+          iconTheme: WidgetStateProperty.all(const IconThemeData(color: Color(0xFF4C290C), size: 45),),
+          shadowColor: Colors.black12,
+        ),
+
+
       ),
-      home: const LoginScreen(), // Ändra så första screen är login
-      //home: const HomeScreen(name: 'Test'),
+
+      //home: const LoginScreen(),
+      home: const HomeScreen(name: 'test'),
     );
   }
 }

@@ -131,7 +131,10 @@ class HomeScreen extends StatelessWidget {
                 },
               ),
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 10)
+
+            /*
+
             ElevatedButton(
               onPressed: () {
                 Navigator.push(
@@ -145,6 +148,9 @@ class HomeScreen extends StatelessWidget {
               },
               child: const Text("Difficulty"),
             ),
+
+             */
+
           ],
         ),
       ),

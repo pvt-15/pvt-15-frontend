@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../home.dart';
 
+import '../../widgets/custom_navigation_bar.dart';
 
 class Skattjakt extends StatelessWidget {
   const Skattjakt({super.key});
@@ -25,9 +25,9 @@ class Skattjakt extends StatelessWidget {
         ),
       ),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.only(left: 20, right: 20, top: 0, bottom: 20),
+        child: Center(
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const SizedBox(height: 20),
 
@@ -107,30 +107,11 @@ class Skattjakt extends StatelessWidget {
                   ),
                 ),
               ),
-              const Spacer(),
-
-              Align(
-                alignment: Alignment.bottomLeft,
-                child: IconButton(
-                  onPressed: () {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const HomeScreen(name: 'test'),
-                      ),
-                    );
-                  },
-                  icon: const Icon(
-                    Icons.home_outlined,
-                    color: Color(0xFFC0008F),
-                    size: 60,
-                  ),
-                ),
-              ),
             ],
           ),
         ),
       ),
+      bottomNavigationBar: const CustomNavigationBar(selectedIndex: -1),
     );
   }
 }

@@ -7,16 +7,26 @@ import '../../widgets/custom_navigation_bar.dart';
 import '../home.dart';
 import 'package:http/http.dart' as http;
 
-class TreeBingoPage extends StatefulWidget{
-  const TreeBingoPage({super.key});
+class BingoGame extends StatefulWidget{
+  final String typeOfBingo;
+
+  const BingoGame({super.key, required this.typeOfBingo});
 
   @override
-  State<TreeBingoPage> createState() => _TreeBingoPage();
+  State<BingoGame> createState() => _BingoPage();
 }
 
-class _TreeBingoPage extends State<TreeBingoPage> {
+class _BingoPage extends State<BingoGame> {
 
-  late bool status;
+  static final List<Map<String, dynamic>> games = [
+    {'name': 'Träd', 'images': <File?>[null, null, null, null], "isCompleted": false},
+    {'name': 'Svamp', 'images': <File?>[null, null, null, null], "isCompleted": false},
+    {'name': 'Blomma', 'images': <File?>[null, null, null, null], "isCompleted": false},
+    {'name': 'Insekt', 'images': <File?>[null, null, null, null], "isCompleted": false},
+    {'name': 'Blandad', 'images': <File?>[null, null, null, null], "isCompleted": false},
+  ];
+
+  late bool isCompleted;
 
   File? image1;
   File? image2;
@@ -36,7 +46,7 @@ class _TreeBingoPage extends State<TreeBingoPage> {
                   bottom: 40
               ),
               child: Text(
-                'Trädbingo',
+                widget.typeOfBingo,
                 style: Theme.of(context).textTheme.headlineLarge,
               ),
             ),
@@ -71,6 +81,7 @@ class _TreeBingoPage extends State<TreeBingoPage> {
                           if (file != null) {
                             setState(() {
                               image1 = file;
+                              updateImageInList(file, 0);
                             });
                           }
                         }
@@ -197,7 +208,7 @@ class _TreeBingoPage extends State<TreeBingoPage> {
                       }
                   );
                 }
-                },
+              },
 
               style: ElevatedButton.styleFrom(
                 backgroundColor: Color(0xff84c06c),
@@ -207,8 +218,8 @@ class _TreeBingoPage extends State<TreeBingoPage> {
                 ),
               ),
               child: Text(
-                  "DEBUG hem",
-                  style: Theme.of(context).textTheme.headlineMedium,
+                "DEBUG hem",
+                style: Theme.of(context).textTheme.headlineMedium,
               ),
             ),
 
@@ -242,23 +253,75 @@ class _TreeBingoPage extends State<TreeBingoPage> {
   Future<bool> checkBingoCompletionStatus () async {
     if (image1 == null || image2 == null || image3 == null || image4 == null) {
       return false;
-  } else {
-      status = true;
+    } else {
+      isCompleted = true;
+      updateIsCompletedInList(isCompleted);
       return true;
+    }
   }
-}
 
 //TODO metod för att rensa bingo efter avklarad utmaning
   void resetBingo () {
-    if (status == true) {
+    if (isCompleted == true) {
       image1 = null;
       image2 = null;
       image3 = null;
       image4 = null;
-      status = false;
+      isCompleted = false;
+      updateIsCompletedInList(isCompleted);
     }
   }
 
+  void updateImageInList(File image, int index) {
+    Map<String, dynamic>? currentGame = findCurrentBingoGame();
+
+    if(currentGame != null) {
+      currentGame!['images'][index] = image;
+    }
+  }
+
+  void updateIsCompletedInList(bool isCompleted) {
+    Map<String, dynamic>? currentGame = findCurrentBingoGame();
+
+    if(currentGame != null) {
+      currentGame!['isCompleted'] = isCompleted;
+    }
+  }
+
+  Map<String, dynamic>? findCurrentBingoGame() {
+    Map<String, dynamic>? currentGame;
+
+    for(var game in games) {
+      if (game['name'] == widget.typeOfBingo) {
+        currentGame = game;
+        break;
+      }
+    }
+    return currentGame;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    loadPictures();
+  }
+
+  void loadPictures() {
+    Map<String, dynamic>? currentGame = findCurrentBingoGame();
+
+    if(currentGame != null) {
+      setState(() {
+        image1 = currentGame['images'][0];
+        image2 = currentGame['images'][1];
+        image3 = currentGame['images'][2];
+        image4 = currentGame['images'][3];
+      });
+
+      isCompleted = currentGame['isCompleted'];
+    }
+
+  }
 //TODO metod för att skicka bilderna till bibliotek via backend
 
 }
