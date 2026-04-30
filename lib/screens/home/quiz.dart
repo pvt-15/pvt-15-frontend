@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../home.dart';
 
+
 class Quiz extends StatelessWidget {
   const Quiz({super.key});
 
@@ -8,33 +9,27 @@ class Quiz extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFBEDBB2),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFFBEDBB2),
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Color(0xFF4C290C)),
+      ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
           child: Column(
             children: [
               const SizedBox(height: 8),
-
-              const Text(
+              Text(
                 'Fråga x',
-                style: TextStyle(
-                  fontSize: 34,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF5A3A1A),
-                ),
+                style: Theme.of(context).textTheme.headlineLarge,
               ),
-
               const SizedBox(height: 20),
-
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 30),
                 decoration: BoxDecoration(
                   color: const Color(0xFFFFEE7A),
-                  border: Border.all(
-                    color: const Color(0xFFF8ED76),
-                    width: 4,
-                  ),
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: const [
                     BoxShadow(
@@ -44,32 +39,24 @@ class Quiz extends StatelessWidget {
                     ),
                   ],
                 ),
-                child: const Text(
-                  'riktiga frågan här, riktig fråga här, riktigt fråga här',
+                child: Text(
+                  'Här kommer den riktiga frågan att stå!',
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF4E341C),
-                    height: 1.2,
-                  ),
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(fontSize: 22),
                 ),
               ),
-
-              const SizedBox(height: 28),
-              _answerButton('alternativ 1'),
+              const SizedBox(height: 40),
+              _answerButton(context, 'Alternativ 1'),
               const SizedBox(height: 18),
-              _answerButton('alternativ 2'),
+              _answerButton(context, 'Alternativ 2'),
               const SizedBox(height: 18),
-              _answerButton('alternativ 3'),
-
+              _answerButton(context, 'Alternativ 3'),
               const Spacer(),
-
               Align(
                 alignment: Alignment.bottomLeft,
                 child: IconButton(
                   onPressed: () {
-                    Navigator.pop(context);(
+                    Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
                         builder: (context) => const HomeScreen(name: 'test'),
@@ -90,27 +77,28 @@ class Quiz extends StatelessWidget {
     );
   }
 
-  Widget _answerButton(String text) {
+  Widget _answerButton(BuildContext context, String text) {
     return SizedBox(
-      width: 220,
-      height: 90,
+      width: 250,
+      height: 70,
       child: ElevatedButton(
-        onPressed: () {},
+        onPressed: () {
+          // TODO: Implementera svarslogik
+        },
         style: ElevatedButton.styleFrom(
           backgroundColor: const Color(0xFFFFEE7A),
-          foregroundColor: const Color(0xFF5A3A1A),
-          elevation: 6,
-          shadowColor: Colors.black26,
+          foregroundColor: const Color(0xFF4C290C),
+          elevation: 5,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(18),
           ),
         ),
         child: Text(
           text,
-          style: const TextStyle(
-            fontSize: 22,
-            fontWeight: FontWeight.bold,
-          ),
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+                fontSize: 20,
+              ),
         ),
       ),
     );

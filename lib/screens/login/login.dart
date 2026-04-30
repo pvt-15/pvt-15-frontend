@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import '../../Authorization/user_model.dart';
+import '../../repositories/auth_repository.dart';
+import '../../services/token_storage.dart';
+import '../../services/user_local_storage.dart';
 import 'reset_password.dart';
 import '../home.dart';
 import 'create_account.dart';
@@ -20,6 +24,11 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>(); //lägg till denna för att valideringen ska fungera vid användarnamn formfield.
   String serverClientId = '171324929378-o6f6ehfj8vtte1fasnhdd2jnjf376uto.apps.googleusercontent.com';
 
+  final authRepository = AuthRepository(
+    tokenStorage: TokenStorage(),
+    userLocalStorage: UserLocalStorage(),
+  );
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -36,7 +45,7 @@ class _LoginScreenState extends State<LoginScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
               const Text(
-                  "Skogsjakten", style: TextStyle(fontSize: 30)
+                  "Skogsjakten", style: TextStyle(color: Color(0xFF4C290C), fontSize: 30)
               ),
                 Image.asset(
                   'assets/maskot_skogstroll.png',
@@ -262,10 +271,22 @@ class _LoginScreenState extends State<LoginScreen> {
     );
 
     if (response.statusCode == 200) {
-      //print('Du loggas in!: ${response.body}');
+      final data = jsonDecode(response.body);
+
+      print('Login response: $data');
+
+      await authRepository.saveLoginData(
+        token: data['token'],
+        user: UserModel(
+          userId: data['userId'].toString(),
+          username: data['name'],
+          email: data['email'],
+
+        ),
+      );
+
       return true;
     } else {
-      //print('Fel lösenord eller email: ${response.body}');
       return false;
     }
   }
