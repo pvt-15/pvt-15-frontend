@@ -273,9 +273,10 @@ class _LoginScreenState extends State<LoginScreen> {
       await authRepository.saveLoginData(
         token: data['token'],
         user: UserModel(
-          id: data['user']['id'].toString(),
-          email: data['user']['email'],
-          username: data['user']['name'],
+          userId: data['userId'].toString(),
+          username: data['name'],
+          email: data['email'],
+
         ),
       );
 

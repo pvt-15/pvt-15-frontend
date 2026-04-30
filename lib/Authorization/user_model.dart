@@ -1,17 +1,17 @@
 class UserModel {
-  final String id;
+  final String userId;
   final String email;
   final String username;
 
   UserModel({
-    required this.id,
+    required this.userId,
     required this.email,
     required this.username,
 });
 
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
+      'userId': userId,
       'email': email,
       'username': username,
     };
@@ -19,7 +19,7 @@ class UserModel {
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
-      id: json['id'],
+      userId: json['userId'],
       email: json['email'],
       username: json['username'],
     );
