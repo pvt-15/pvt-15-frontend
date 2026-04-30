@@ -5,6 +5,7 @@ import 'quiz.dart';
 import 'bingo/choose_bingo_game.dart';
 //import 'bingo/choose_bingo_game.dart';
 import 'skattjakt.dart';
+import 'choose_difficulty.dart';
 
 class HomeScreen extends StatelessWidget {
   final String name;
@@ -79,7 +80,7 @@ class HomeScreen extends StatelessWidget {
               child: const Text("Quiz"),
             ),
 
-
+/*
             const SizedBox(height: 10),
             ElevatedButton(
               onPressed: () {
@@ -91,7 +92,7 @@ class HomeScreen extends StatelessWidget {
                 );
               },
               child: const Text("Bingo"),
-            ),
+            ),*/
 
             const SizedBox(height: 10),
             ElevatedButton(
@@ -104,6 +105,20 @@ class HomeScreen extends StatelessWidget {
                 );
               },
               child: const Text("Skattjakt"),
+            ),
+            const SizedBox(height: 10),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => ChooseDifficulty(
+                      nextPage: (difficulty) => ChooseBingoGame(difficulty: difficulty),
+                    ),
+                  ),
+                );
+              },
+              child: const Text("Difficulty"),
             ),
           ],
         ),
