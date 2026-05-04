@@ -5,7 +5,6 @@ import 'package:Skogsjakten/repositories/auth_repository.dart';
 import 'package:Skogsjakten/services/token_storage.dart';
 import 'package:Skogsjakten/services/user_local_storage.dart';
 
-
 class Profile extends StatefulWidget {
   const Profile({super.key});
 
@@ -29,27 +28,31 @@ class _ProfileState extends State<Profile> {
   }
 
   Future<void> loadPoints() async {
-    final token = await authRepository.getToken();
+    try {
+      final token = await authRepository.getToken();
 
-    final response = await http.get(
-      Uri.parse('https://group-6-15.pvt.dsv.su.se/endpointedHär???'),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token',
-      },
-    );
+      final response = await http.get(
+        Uri.parse('https://group-6-15.pvt.dsv.su.se/points'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
 
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-
-      setState(() {
-        points = data['points'];
-        isLoading = false;
-      });
-    } else {
-      setState(() {
-        isLoading = false;
-      });
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        setState(() {
+          points = data['points'] ?? 0;
+          isLoading = false;
+        });
+      } else {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error loading points: $e');
+      if (mounted) setState(() => isLoading = false);
     }
   }
 
@@ -58,30 +61,41 @@ class _ProfileState extends State<Profile> {
     return Scaffold(
       backgroundColor: const Color(0xFFBEDBB2),
       appBar: AppBar(
-        backgroundColor: const Color(0xFFBEDBB2),
+        backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
-        title: const Text(
+        title: Text(
           'Min profil',
-          style: TextStyle(
-            color: Color(0xFF4C290C),
-          ),
+          style: Theme.of(context).textTheme.headlineMedium,
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout, color: Color(0xFF4C290C)),
+            onPressed: () async {
+              await authRepository.logout();
+              if (mounted) {
+                Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
+              }
+            },
+          ),
+        ],
       ),
       body: Center(
         child: isLoading
-            ? const CircularProgressIndicator()
-            : Text(
-          'Poäng: $points',
-          style: const TextStyle(
-            fontSize: 28,
-            color: Color(0xFF4C290C),
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+            ? const CircularProgressIndicator(color: Color(0xFF4C290C))
+            : Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.stars, size: 80, color: Color(0xFFFFEE7A)),
+                  const SizedBox(height: 10),
+                  Text('Dina poäng', style: Theme.of(context).textTheme.titleLarge),
+                  Text(
+                    '$points',
+                    style: Theme.of(context).textTheme.headlineLarge?.copyWith(fontSize: 60),
+                  ),
+                ],
+              ),
       ),
     );
   }
 }
-
-
