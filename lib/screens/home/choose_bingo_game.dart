@@ -21,7 +21,6 @@ class ChooseBingoGame extends StatefulWidget {
   State<ChooseBingoGame> createState() => _ChooseBingoGame();
 }
 
-
 class _ChooseBingoGame extends State<ChooseBingoGame> {
 
   final List<Map<String, dynamic>> games = [

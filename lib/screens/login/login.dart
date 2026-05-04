@@ -239,6 +239,10 @@ class _LoginScreenState extends State<LoginScreen> {
       }),
     );
 
+    // se om det är kopplat till backend
+    print('Status: ${response.statusCode}');
+    print('Body: ${response.body}');
+
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
 
