@@ -91,10 +91,6 @@ class _ChooseBingoGame extends State<ChooseBingoGame> {
                             //context,
                             //MaterialPageRoute(builder:
                             //(context) => games[index]['page'])
-
-                            //TODO i skicket får man tala om vilken svårighetsgrad det handlar om
-                            //TODO antingen check med if sats eller annat, ex om användaren klickar i lätt,
-                            //TODO så kör man en push till den lätta klassen tillsammans med textsträngen
                               //(context) => BingoGame(typeOfBingo: games[index]['name'])),
                           //);
                         },
