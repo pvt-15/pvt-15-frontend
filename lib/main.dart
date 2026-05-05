@@ -6,6 +6,7 @@ import 'screens/login/login.dart';
 void main() {
   runApp(const MyApp());
 }
+//test2
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -79,6 +80,7 @@ class MyApp extends StatelessWidget {
           contentTextStyle: const TextStyle(
             fontFamily: 'WinkySans',
             fontSize: 16,
+            color: Color(0xFF4C290C),
           ),
         ),
 

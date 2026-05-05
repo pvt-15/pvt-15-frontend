@@ -21,7 +21,6 @@ class AuthRepository {
 
   Future<String?> getToken() async {
     return await tokenStorage.getToken();
-
   }
 
   Future<void>logout() async {
