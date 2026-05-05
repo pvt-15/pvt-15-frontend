@@ -120,6 +120,7 @@ class MyApp extends StatelessWidget {
 
       //home: const LoginScreen(),
       home: const Profile(),
+      //home: const HomeScreen(name: 'test'),
     );
   }
 }

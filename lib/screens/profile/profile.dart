@@ -19,20 +19,67 @@ class _ProfileState extends State<Profile> {
     userLocalStorage: UserLocalStorage(),
   );
 
+  String username = '';
+  String level = '';
+
+  List<dynamic> badges = [];
+
   int points = 0;
   bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    loadPoints();
+    print("PROFILE INIT");
+    loadAll();
   }
 
-  Future<void> loadPoints() async {
+   Future<void> loadBadges() async{
+      print("loadBadges START");
+      final token = await authRepository.getToken();
+
+      final response = await http.get(
+        Uri.parse('https://group-6-15.pvt.dsv.su.se/badges/me'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+      print("TOKEN: $token");
+
+      
+      print("BADGES STATUS: ${response.statusCode}");
+      print("BADGES BODY: ${response.body}");
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+
+        setState(() {
+          badges = data;
+          print('Badges: $badges');
+        });
+      } else {
+        setState(() {
+          isLoading = false;
+        });
+      }                                                                                                   
+   }
+
+   Future<void> loadAll() async {
+     print("loadAll START");
+     await loadProfile();
+     await loadBadges();
+
+     setState(() {
+       isLoading = false;
+     });
+   }
+
+  Future<void> loadProfile() async {
     final token = await authRepository.getToken();
 
     final response = await http.get(
-      Uri.parse('https://group-6-15.pvt.dsv.su.se/endpointedHär???'),
+      Uri.parse('https://group-6-15.pvt.dsv.su.se/auth/me'),
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $token',
@@ -43,14 +90,20 @@ class _ProfileState extends State<Profile> {
       final data = jsonDecode(response.body);
 
       setState(() {
-        points = data['points'];
-        isLoading = false;
+        username = data['name'];
+        points = data['totalPoints'];
+        level = data['level'];
+        //isLoading = false;
       });
     } else {
       setState(() {
         isLoading = false;
       });
     }
+  }
+
+  NetworkImage getBadgeImage(String? tier){
+       return NetworkImage("https://cdn.pixabay.com/photo/2015/04/17/19/02/ko-727828_1280.jpg");
   }
 
   @override
@@ -61,25 +114,132 @@ class _ProfileState extends State<Profile> {
         backgroundColor: const Color(0xFFBEDBB2),
         elevation: 0,
         centerTitle: true,
-        title: const Text(
-          'Min profil',
-          style: TextStyle(
-            color: Color(0xFF4C290C),
+
+        title: Padding(
+          padding: const EdgeInsets.only(top: 25),
+          child: Text(
+              "Profil: $username",
+              style: TextStyle(
+                color: Color(0xFF4C290C),
+              )
           ),
         ),
+
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings, size:50, color: Color(0xFF4C290C)),
+            onPressed: () {
+              print('clicked');
+            },
+          )
+        ]
       ),
-      body: Center(
-        child: isLoading
-            ? const CircularProgressIndicator()
-            : Text(
-          'Poäng: $points',
-          style: const TextStyle(
-            fontSize: 28,
-            color: Color(0xFF4C290C),
-            fontWeight: FontWeight.bold,
+      body: isLoading
+        ? const Center(child: CircularProgressIndicator())
+        : Column(
+          children: [
+            const SizedBox(height: 40),
+            Center(
+            child: Stack(
+              clipBehavior: Clip.none,
+              alignment: Alignment.topCenter,
+              children: [
+                Container(
+                  margin: const EdgeInsets.only(top: 120),
+                  width: 350,
+                  height: 170,
+                  child: Card(
+                    color: Color(0xFFF8ED76),
+                    child: Padding(
+                        padding: EdgeInsets.all(5),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.eco, color: Color(0xFF84C06C), size: 35,),
+                                Text("Level: $level"),
+                              ],
+                            ),
+                            const SizedBox(height: 20),
+                            SizedBox(
+                              width: 250,
+                              child: LinearProgressIndicator(
+                                backgroundColor: Color(0xFFDE75BF),
+                                color: Color(0xFFC0008B),
+                                value: points/1000, // lägg in den korrekta beräkningen för poäng
+                                minHeight: 10,
+
+                              ),
+                            ),
+                            const SizedBox(height:20),
+                            Text("Poäng: $points"),
+
+                          ]
+                    ),
+                    ),
+                  ),
+                ),
+                Container(
+                  width: 150,
+                    height: 150,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: Color(0xFFC0008B),
+                        width: 6,
+                      ),
+                  ),
+                  child: CircleAvatar(
+                      radius: 70,
+                      backgroundImage: NetworkImage(
+                        "https://cdn.pixabay.com/photo/2015/04/17/19/02/ko-727828_1280.jpg",
+                        //ska egentligen vara en egen vald profilbild, och bilden ska komma från vår egna google cloud
+                      ),
+                    ),
+                ),
+              ],
+            ),
           ),
-        ),
-      ),
+          const SizedBox(height: 60),
+          Padding(
+            padding: const EdgeInsets.only(right: 260),
+            child: const Text("Medaljer", style: TextStyle(fontSize: 25)),
+          ),
+          const SizedBox(height: 20),
+          Container(
+            height: 200,
+            child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                itemCount: badges.length,
+                separatorBuilder: (context, index) =>
+                  const SizedBox(width:20),
+                itemBuilder: (context, index) {
+                  final badge = badges[index];
+                  return Column(
+                    children: [
+                        CircleAvatar(
+                          radius: 30,
+                          backgroundImage: NetworkImage("https://cdn.pixabay.com/photo/2015/04/17/19/02/ko-727828_1280.jpg"),
+                          //ska egentligen vara en bild på medalj, när de sen lagts in
+                        ),
+                        const SizedBox(height: 10),
+                        SizedBox(
+                          width: 30,
+                          child:
+                            Text(badge['name'],
+                            textAlign: TextAlign.center
+                            ),
+
+                        ),
+                    ],
+                  );
+                }
+            ),
+          ),
+        ],
+      )
     );
   }
 }
