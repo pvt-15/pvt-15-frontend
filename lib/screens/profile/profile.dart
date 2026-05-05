@@ -1,9 +1,9 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:Skogsjakten/repositories/auth_repository.dart';
-import 'package:Skogsjakten/services/token_storage.dart';
-import 'package:Skogsjakten/services/user_local_storage.dart';
+
+import 'package:Skogsjakten/services/session_storage.dart';
+import 'package:Skogsjakten/screens/login/login.dart';
 
 class Profile extends StatefulWidget {
   const Profile({super.key});
@@ -13,10 +13,7 @@ class Profile extends StatefulWidget {
 }
 
 class _ProfileState extends State<Profile> {
-  final authRepository = AuthRepository(
-    tokenStorage: TokenStorage(),
-    userLocalStorage: UserLocalStorage(),
-  );
+  final sessionStorage = SessionStorage();
 
   int points = 0;
   bool isLoading = true;
@@ -29,13 +26,24 @@ class _ProfileState extends State<Profile> {
 
   Future<void> loadPoints() async {
     try {
-      final token = await authRepository.getToken();
+      final session = await sessionStorage.get();
+
+
+      if (session == null) {
+        if (mounted) {
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (_) => const LoginScreen()),
+                (route) => false,
+          );
+        }
+        return;
+      }
 
       final response = await http.get(
         Uri.parse('https://group-6-15.pvt.dsv.su.se/points'),
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
+          'Authorization': 'Bearer ${session.token}',
         },
       );
 
@@ -45,14 +53,35 @@ class _ProfileState extends State<Profile> {
           points = data['points'] ?? 0;
           isLoading = false;
         });
+      }
+
+      else if (response.statusCode == 401) {
+        await sessionStorage.clear();
+
+        if (mounted) {
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (_) => const LoginScreen()),
+                (route) => false,
+          );
+        }
       } else {
-        setState(() {
-          isLoading = false;
-        });
+        setState(() => isLoading = false);
       }
     } catch (e) {
       debugPrint('Error loading points: $e');
       if (mounted) setState(() => isLoading = false);
+    }
+  }
+
+
+  Future<void> _logout() async {
+    await sessionStorage.clear();
+
+    if (mounted) {
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => const LoginScreen()),
+            (route) => false,
+      );
     }
   }
 
@@ -71,12 +100,7 @@ class _ProfileState extends State<Profile> {
         actions: [
           IconButton(
             icon: const Icon(Icons.logout, color: Color(0xFF4C290C)),
-            onPressed: () async {
-              await authRepository.logout();
-              if (mounted) {
-                Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
-              }
-            },
+            onPressed: _logout,
           ),
         ],
       ),
@@ -84,17 +108,17 @@ class _ProfileState extends State<Profile> {
         child: isLoading
             ? const CircularProgressIndicator(color: Color(0xFF4C290C))
             : Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.stars, size: 80, color: Color(0xFFFFEE7A)),
-                  const SizedBox(height: 10),
-                  Text('Dina poäng', style: Theme.of(context).textTheme.titleLarge),
-                  Text(
-                    '$points',
-                    style: Theme.of(context).textTheme.headlineLarge?.copyWith(fontSize: 60),
-                  ),
-                ],
-              ),
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.stars, size: 80, color: Color(0xFFFFEE7A)),
+            const SizedBox(height: 10),
+            Text('Dina poäng', style: Theme.of(context).textTheme.titleLarge),
+            Text(
+              '$points',
+              style: Theme.of(context).textTheme.headlineLarge?.copyWith(fontSize: 60),
+            ),
+          ],
+        ),
       ),
     );
   }

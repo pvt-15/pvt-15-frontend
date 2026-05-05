@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:Skogsjakten/screens/login/login.dart';
-import 'package:Skogsjakten/screens/profile/profile.dart';
-import 'package:Skogsjakten/services/token_storage.dart';
+import 'package:Skogsjakten/screens/home.dart';
+import 'package:Skogsjakten/services/session_storage.dart';
+import 'package:Skogsjakten/services/session.dart';
 
 void main() {
   runApp(const MyApp());
@@ -38,15 +39,23 @@ class MyApp extends StatelessWidget {
           border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(20))),
         ),
       ),
-      home: FutureBuilder<String?>(
-        future: TokenStorage().getToken(),
+
+
+      home: FutureBuilder<Session?>(
+        future: SessionStorage().get(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Scaffold(body: Center(child: CircularProgressIndicator()));
+            return const Scaffold(
+              body: Center(child: CircularProgressIndicator()),
+            );
           }
-          if (snapshot.hasData && snapshot.data != null) {
-            return const Profile();
+
+          final session = snapshot.data;
+
+          if (session != null && session.token.isNotEmpty) {
+            return HomeScreen(name: session.user.username);
           }
+
           return const LoginScreen();
         },
       ),
