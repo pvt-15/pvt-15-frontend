@@ -5,19 +5,25 @@ import '../bingo/bingo_easy_mode.dart';
 import '../bingo/bingo_hard_mode.dart';
 import '../bingo/bingo_medium_mode.dart';
 import '../choose_difficulty.dart';
+import '../login/login.dart';
 
 class ChooseBingoGame extends StatefulWidget {
-  //final Difficulty difficulty;
 
   const ChooseBingoGame({
     super.key,
-    //required this.difficulty,
   });
+
+  static final List<Map<String, dynamic>> startedGames = [
+    {'name': 'Träd', 'status': false, 'route': null},
+    {'name': 'Svamp', 'status': false, 'route': null},
+    {'name': 'Blomma', 'status': false, 'route': null},
+    {'name': 'Insekt', 'status': false, 'route': null},
+    {'name': 'Blandad', 'status': false, 'route': null},
+  ];
 
   @override
   State<ChooseBingoGame> createState() => _ChooseBingoGame();
 }
-
 
 class _ChooseBingoGame extends State<ChooseBingoGame> {
 
@@ -28,6 +34,25 @@ class _ChooseBingoGame extends State<ChooseBingoGame> {
     {'name': 'Insekt', 'icon': MdiIcons.ladybug},
     {'name': 'Blandad', 'icon': Icons.sunny},
   ];
+
+  @override
+  void initState() {
+    super.initState();
+
+    //checken för giltig token, om den ska användas på flera ställen så,
+    //kanske det är bättre att göra det till en klass
+
+    bool response = true;
+
+    if (response) {
+      return;
+    } else {
+      Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => LoginScreen()));
+    }
+
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -67,6 +92,46 @@ class _ChooseBingoGame extends State<ChooseBingoGame> {
                           ),
                         ),
                         onPressed: () async {
+                          //check om det redan finns ett startat spel för typ (ex 'träd')
+
+                          for(var game in ChooseBingoGame.startedGames) {
+                            if (game['name'] == games[index]['name']) {
+                              if (game['status'] == false){
+
+                                final Difficulty? result = await Navigator.push(context, MaterialPageRoute(builder: (context) => ChooseDifficulty()),);
+
+                                if (result == Difficulty.easy){
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (context) => BingoEasyMode(typeOfBingo: games[index]['name'])),);
+                                  game['route'] = BingoEasyMode(typeOfBingo: games[index]['name']);
+                                }
+
+                                if (result == Difficulty.medium){
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (context) => BingoMediumMode(typeOfBingo: games[index]['name'])),);
+                                  game['route'] = BingoMediumMode(typeOfBingo: games[index]['name']);
+                                }
+
+                                if (result == Difficulty.hard){
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (context) => BingoHardMode(typeOfBingo: games[index]['name'])),);
+                                  game['route'] = BingoHardMode(typeOfBingo: games[index]['name']);
+                                }
+
+                                game['status'] = true;
+
+                              } else {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (context) =>  game['route']),);
+                              }
+                            }
+                          }
+
+                          /*
                           final Difficulty? result = await Navigator.push(context, MaterialPageRoute(builder: (context) => ChooseDifficulty()),);
 
                           if (result == Difficulty.easy){
@@ -87,12 +152,8 @@ class _ChooseBingoGame extends State<ChooseBingoGame> {
                               MaterialPageRoute(builder: (context) => BingoHardMode(typeOfBingo: games[index]['name'])),);
                           }
 
-                          //Navigator.push(
-                            //context,
-                            //MaterialPageRoute(builder:
-                            //(context) => games[index]['page'])
-                              //(context) => BingoGame(typeOfBingo: games[index]['name'])),
-                          //);
+                           */
+
                         },
 
                         child: Row(

@@ -26,6 +26,7 @@ class _BingoMediumMode extends State<BingoMediumMode> {
     {'name': 'Blandad', 'images': <File?>[null, null, null], "isCompleted": false},
   ];
 
+
   late bool isCompleted;
 
   File? image1;
