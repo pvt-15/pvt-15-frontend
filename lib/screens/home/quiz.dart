@@ -15,7 +15,6 @@ class Quiz extends StatelessWidget {
         elevation: 0,
         iconTheme: const IconThemeData(color: Color(0xFF4C290C)),
       ),
-      backgroundColor: const Color(0xFFD8EDC8),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),

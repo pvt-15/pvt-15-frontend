@@ -19,6 +19,7 @@ class UserLocalStorage {
     final userMap = jsonDecode(userString);
     return UserModel.fromJson(userMap);
   }
+
   Future<void> clearUser() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('current_user');

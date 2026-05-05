@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../services/check_current_user.dart';
 import '../../widgets/custom_navigation_bar.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import '../bingo/bingo_easy_mode.dart';
@@ -38,19 +39,6 @@ class _ChooseBingoGame extends State<ChooseBingoGame> {
   @override
   void initState() {
     super.initState();
-
-    //checken för giltig token, om den ska användas på flera ställen så,
-    //kanske det är bättre att göra det till en klass
-
-    bool response = true;
-
-    if (response) {
-      return;
-    } else {
-      Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => LoginScreen()));
-    }
 
   }
 
@@ -100,28 +88,39 @@ class _ChooseBingoGame extends State<ChooseBingoGame> {
 
                                 final Difficulty? result = await Navigator.push(context, MaterialPageRoute(builder: (context) => ChooseDifficulty()),);
 
-                                if (result == Difficulty.easy){
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(builder: (context) => BingoEasyMode(typeOfBingo: games[index]['name'])),);
-                                  game['route'] = BingoEasyMode(typeOfBingo: games[index]['name']);
-                                }
+                                if (result != null) {
+                                  if (result == Difficulty.easy) {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(builder: (context) =>
+                                          BingoEasyMode(
+                                              typeOfBingo: games[index]['name'])),);
+                                    game['route'] = BingoEasyMode(
+                                        typeOfBingo: games[index]['name']);
+                                  }
 
-                                if (result == Difficulty.medium){
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(builder: (context) => BingoMediumMode(typeOfBingo: games[index]['name'])),);
-                                  game['route'] = BingoMediumMode(typeOfBingo: games[index]['name']);
-                                }
+                                  if (result == Difficulty.medium) {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(builder: (context) =>
+                                          BingoMediumMode(
+                                              typeOfBingo: games[index]['name'])),);
+                                    game['route'] = BingoMediumMode(
+                                        typeOfBingo: games[index]['name']);
+                                  }
 
-                                if (result == Difficulty.hard){
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(builder: (context) => BingoHardMode(typeOfBingo: games[index]['name'])),);
-                                  game['route'] = BingoHardMode(typeOfBingo: games[index]['name']);
-                                }
+                                  if (result == Difficulty.hard) {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(builder: (context) =>
+                                          BingoHardMode(
+                                              typeOfBingo: games[index]['name'])),);
+                                    game['route'] = BingoHardMode(
+                                        typeOfBingo: games[index]['name']);
+                                  }
 
-                                game['status'] = true;
+                                  game['status'] = true;
+                                }
 
                               } else {
                                 Navigator.push(

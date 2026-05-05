@@ -10,10 +10,6 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:google_sign_in/google_sign_in.dart';
 import '../skogsjakten_exception.dart';
-import 'package:pvt/repositories/auth_repository.dart';
-import 'package:pvt/services/token_storage.dart';
-import 'package:pvt/services/user_local_storage.dart';
-import 'package:pvt/Authorization/user_model.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -248,10 +244,12 @@ class _LoginScreenState extends State<LoginScreen> {
 
       print('Login response: $data');
 
+      authRepository.logout();
+
       await authRepository.saveLoginData(
         token: data['token'],
         user: UserModel(
-          userId: data['userId'].toString(),
+          id: data['userId'].toString(),
           username: data['name'],
           email: data['email'],
 
@@ -259,6 +257,7 @@ class _LoginScreenState extends State<LoginScreen> {
       );
 
       return true;
+
     } else {
       return false;
     }

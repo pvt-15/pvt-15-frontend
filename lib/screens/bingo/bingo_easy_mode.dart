@@ -1,12 +1,17 @@
 import 'dart:convert';
+import 'dart:core';
 import 'dart:io';
 
 import 'package:Skogsjakten/screens/home/choose_bingo_game.dart';
+import 'package:Skogsjakten/services/token_storage.dart';
 import 'package:flutter/material.dart';
 import '../../services/camera_service.dart';
 import '../../widgets/custom_navigation_bar.dart';
 import '../home.dart';
 import 'package:http/http.dart' as http;
+
+import 'bingo_help_methods.dart';
+import 'json_decode.dart';
 
 class BingoEasyMode extends StatefulWidget{
   final String typeOfBingo;
@@ -28,23 +33,40 @@ class _BingoEasyMode extends State<BingoEasyMode> {
     {'name': 'Blandad', 'images': <File?>[null, null], "isCompleted": false, 'challengeId': null},
   ];
 
+  //late Future<String?> token;
+  Future<String?> token = TokenStorage().getToken();
+
+
   @override
-  void initState() {
+  void initState()  {
     super.initState();
+
+    //token = TokenStorage().getToken();
+
     question = 'Laddar utmaning...';
     loadPictures();
 
-    //TODO check om det redan finns ett challengeID innan getQuestion med if-sats
+    getNewQuestion();
+    //getStartedQuestion();
+
+    /*
     Map<String, dynamic>? currentGame = findCurrentBingoGame();
     if(currentGame != null) {
       if(currentGame['challengeId'] != null) {
+        //BingoHelpMethods.getStartedQuestion(token as String);
         getStartedQuestion();
       } else {
+        //BingoHelpMethods.getNewQuestion(token as String, 'EASY', 'BINGO');
         getNewQuestion();
       }
     }
 
+     */
   }
+
+  //Future<String?> token = TokenStorage().getToken();
+
+  late Map<String, dynamic>? currentGame = findCurrentBingoGame();
 
   late bool isCompleted;
 
@@ -96,6 +118,7 @@ class _BingoEasyMode extends State<BingoEasyMode> {
                         if (image1 == null){
                           final File? file = await CameraService.takePicture();
 
+                          //BingoHelpMethods.sendPictureToGoogleStorage(token as String, file);
                           sendPictureToGoogleStorage(file);
 
                           //TODO check om det gick igenom
@@ -128,6 +151,7 @@ class _BingoEasyMode extends State<BingoEasyMode> {
                         if (image2 == null){
                           final File? file = await CameraService.takePicture();
 
+                          //BingoHelpMethods.sendPictureToGoogleStorage(token as String, file);
                           sendPictureToGoogleStorage(file);
 
                           //TODO check om det gick igenom
@@ -313,11 +337,9 @@ class _BingoEasyMode extends State<BingoEasyMode> {
 
   }
 
+
+
   Future<http.StreamedResponse?> sendPictureToGoogleStorage(File? imageFile) async {
-
-    //TODO lägg till riktig token
-    String jwtToken = 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI1MDMiLCJwcm92aWRlciI6IkxPQ0FMIiwiaXNzIjoicHZ0LTE1LWJhY2tlbmQiLCJuYW1lIjoiVGVzdCBVc2VyIGZvciBwaWN0dXJlcyIsImV4cCI6MTc3ODA1MzY4NywiaWF0IjoxNzc3OTY3Mjg3LCJlbWFpbCI6InRlc3QgZm9yIHBpY3NAZXhhbXBsZS5jb20ifQ.w49L49_ELExvQ2YyPLiMfteb-wE7cDWpbtI-mm7A1ao';
-
     try {
       if (imageFile != null) {
         final request = http.MultipartRequest(
@@ -325,7 +347,7 @@ class _BingoEasyMode extends State<BingoEasyMode> {
           Uri.parse('https://group-6-15.pvt.dsv.su.se/uploads/picture'),
         );
 
-        request.headers['Authorization'] = 'Bearer $jwtToken';
+        request.headers['Authorization'] = 'Bearer $token';
 
         request.files.add(
             await http.MultipartFile.fromPath(
@@ -349,22 +371,20 @@ class _BingoEasyMode extends State<BingoEasyMode> {
 
   }
 
+
+
+
   Future<bool> sendPictureToBackend(File? imageFile) async {
     try {
       //Vänta på att bilden laddas upp och få tillbaka URL:en
       final imageURL = await sendPictureToGoogleStorage(imageFile);
-
-      //TODO lägg till riktig token
-      String jwtToken = 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI1MDMiLCJwcm92aWRlciI6IkxPQ0FMIiwiaXNzIjoicHZ0LTE1LWJhY2tlbmQiLCJuYW1lIjoiVGVzdCBVc2VyIGZvciBwaWN0dXJlcyIsImV4cCI6MTc3ODA1MzY4NywiaWF0IjoxNzc3OTY3Mjg3LCJlbWFpbCI6InRlc3QgZm9yIHBpY3NAZXhhbXBsZS5jb20ifQ.w49L49_ELExvQ2YyPLiMfteb-wE7cDWpbtI-mm7A1ao';
-
 
       //Skicka URL till backend
       final response = await http.post(
         Uri.parse('https://group-6-15.pvt.dsv.su.se/pictures'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
-          //TODO lägg till riktig token
-          'token': jwtToken,
+          'token': token,
           //skicka med url till backend som google ger tillbaka
           'imageUrl': imageURL,
           'targetType': 'PLANT',
@@ -384,19 +404,17 @@ class _BingoEasyMode extends State<BingoEasyMode> {
     }
   }
 
+
+
   //TODO hämta ut utmaning från token, behöver då kolla någonstans (init?) om det finns en startad challenge eller inte
 
+
   Future<void> getStartedQuestion() async {
-
-    //TODO lägg till riktig token
-    String jwtToken = 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI1MDMiLCJwcm92aWRlciI6IkxPQ0FMIiwiaXNzIjoicHZ0LTE1LWJhY2tlbmQiLCJuYW1lIjoiVGVzdCBVc2VyIGZvciBwaWN0dXJlcyIsImV4cCI6MTc3ODA1MzY4NywiaWF0IjoxNzc3OTY3Mjg3LCJlbWFpbCI6InRlc3QgZm9yIHBpY3NAZXhhbXBsZS5jb20ifQ.w49L49_ELExvQ2YyPLiMfteb-wE7cDWpbtI-mm7A1ao';
-
     try {
       final response = await http.get(
         Uri.parse('https://group-6-15.pvt.dsv.su.se/challenges/1'),
         headers: {
-          'Authorization': 'Bearer $jwtToken',
-          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
         },
       );
 
@@ -421,31 +439,29 @@ class _BingoEasyMode extends State<BingoEasyMode> {
 
 
 
-  //TODO http för att hämta en ny challenge
-  Future<void> getNewQuestion() async {
 
-    //TODO lägg till riktig token
-    String jwtToken = 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI1MDMiLCJwcm92aWRlciI6IkxPQ0FMIiwiaXNzIjoicHZ0LTE1LWJhY2tlbmQiLCJuYW1lIjoiVGVzdCBVc2VyIGZvciBwaWN0dXJlcyIsImV4cCI6MTc3ODA1MzY4NywiaWF0IjoxNzc3OTY3Mjg3LCJlbWFpbCI6InRlc3QgZm9yIHBpY3NAZXhhbXBsZS5jb20ifQ.w49L49_ELExvQ2YyPLiMfteb-wE7cDWpbtI-mm7A1ao';
+  //http för att hämta en ny challenge
+  Future<void> getNewQuestion() async {
 
     try {
       final response = await http.post(
         Uri.parse('https://group-6-15.pvt.dsv.su.se/challenges/start'),
         headers: {
-          'Authorization': 'Bearer $jwtToken',
+          'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
         },
         body: jsonEncode({
           'challengeDifficulty': 'EASY',
-          'challengeType': 'TREASURE_HUNT',
+          'challengeType': 'BINGO',
         }),
       );
 
       debugPrint(response.body);
-
-      final data = jsonDecode(response.body);
+      debugPrint(await token);
       
       if (response.statusCode == 200) {
         setState(() {
+          final data = jsonDecode(response.body);
           question = jsonDecodeDescription(data);
         });
       } else {
@@ -456,14 +472,18 @@ class _BingoEasyMode extends State<BingoEasyMode> {
       
     } catch (e) {
       setState(() {
+        debugPrint('DEBUG $e');
         question = 'Något gick fel vid inhämtning av fråga';
       });
     }
   }
 
+
+
   void setCurrentChallengeId(Map<String, dynamic> data) {
     Map<String, dynamic>? currentGame = findCurrentBingoGame();
     if(currentGame != null) {
+      //currentGame['challengeId'] = JsonDecode.jsonDecodeChallengeId(data);
       currentGame['challengeId'] = jsonDecodeChallengeId(data);
     }
   }
