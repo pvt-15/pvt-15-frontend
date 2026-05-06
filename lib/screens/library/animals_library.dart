@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../widgets/custom_navigation_bar.dart';
 
 class AnimalsLibrary extends StatefulWidget{
   const AnimalsLibrary({super.key});
@@ -82,6 +83,7 @@ class _AnimalsLibrary extends State<AnimalsLibrary> {
           ],
         ),
       ),
+      bottomNavigationBar: const CustomNavigationBar(),
     );
   }
 }

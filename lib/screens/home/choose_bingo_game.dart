@@ -95,7 +95,7 @@ class _ChooseBingoGame extends State<ChooseBingoGame> {
             ],
           ),
         ),
-      bottomNavigationBar: const CustomNavigationBar(selectedIndex: -1),
+      bottomNavigationBar: const CustomNavigationBar(),
     );
   }
 }

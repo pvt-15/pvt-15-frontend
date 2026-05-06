@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../widgets/custom_navigation_bar.dart';
 
 class MixedBingoPage extends StatefulWidget{
   const MixedBingoPage({super.key});
@@ -13,6 +14,7 @@ class _MixedBingoPage extends State<MixedBingoPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Color(0xFFBEDBB2),
+      bottomNavigationBar: const CustomNavigationBar(),
     );
   }
 }

@@ -111,7 +111,7 @@ class Skattjakt extends StatelessWidget {
           ),
         ),
       ),
-      bottomNavigationBar: const CustomNavigationBar(selectedIndex: -1),
+      bottomNavigationBar: const CustomNavigationBar(),
     );
   }
 }

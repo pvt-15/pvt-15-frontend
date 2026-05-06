@@ -1,10 +1,17 @@
 import 'package:flutter/material.dart';
 import '../../widgets/custom_navigation_bar.dart';
 import '../home.dart';
+import '../choose_difficulty.dart';
 
 
 class Quiz extends StatelessWidget {
-  const Quiz({super.key});
+  final Difficulty difficulty;
+
+
+  const Quiz({
+    super.key,
+    required this.difficulty,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -53,29 +60,11 @@ class Quiz extends StatelessWidget {
               const SizedBox(height: 18),
               _answerButton(context, 'Alternativ 3'),
               const Spacer(),
-              Align(
-                alignment: Alignment.bottomLeft,
-                child: IconButton(
-                  onPressed: () {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const HomeScreen(name: 'test'),
-                      ),
-                    );
-                  },
-                  icon: const Icon(
-                    Icons.home_outlined,
-                    color: Color(0xFFC0008F),
-                    size: 60,
-                  ),
-                ),
-              ),
             ],
           ),
         ),
       ),
-      bottomNavigationBar: const CustomNavigationBar(selectedIndex: -1),
+      bottomNavigationBar: const CustomNavigationBar(),
     );
   }
 

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../widgets/custom_navigation_bar.dart';
 
 class PlantsLibrary extends StatefulWidget {
   const PlantsLibrary({super.key});
@@ -100,6 +101,7 @@ class _PlantsLibraryState extends State<PlantsLibrary> {
           ],
         ),
       ),
+      bottomNavigationBar: const CustomNavigationBar(),
     );
   }
 }

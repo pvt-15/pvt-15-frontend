@@ -216,7 +216,7 @@ class _TreeBingoPage extends State<TreeBingoPage> {
         ),
       ),
 
-      bottomNavigationBar: const CustomNavigationBar(selectedIndex: -1),
+      bottomNavigationBar: const CustomNavigationBar(),
 
     );
   }

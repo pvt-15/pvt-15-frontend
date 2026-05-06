@@ -1,62 +1,71 @@
 import 'package:flutter/material.dart';
-import '../screens/home.dart';
-import '../screens/home/home_library.dart';
-import '../screens/home/species_profile.dart';
+import 'package:Skogsjakten/screens/home.dart';
+import 'package:Skogsjakten/screens/home/home_library.dart';
+import 'package:Skogsjakten/screens/home/species_profile.dart';
+import 'package:Skogsjakten/screens/profile/profile.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
-
 class CustomNavigationBar extends StatelessWidget {
-  final int selectedIndex;
+  final int? selectedIndex;
 
   const CustomNavigationBar({
     super.key,
-    required this.selectedIndex,
+    this.selectedIndex,
   });
 
   @override
   Widget build(BuildContext context) {
-    return NavigationBar(
+    return Container(
+      height: 70,
+      color: const Color(0xFF84C06C),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          _navIcon(
+            context: context,
+            index: 0,
+            icon: Icons.person_outline,
+            page: const Profile(),
+          ),
+          _navIcon(
+            context: context,
+            index: 1,
+            icon: Icons.home_outlined,
+            page: const HomeScreen(name: 'test'),
+          ),
+          _navIcon(
+            context: context,
+            index: 2,
+            icon: Icons.menu_book_outlined,
+            page: const HomeLibrary(),
+          ),
+        ],
+      ),
+    );
+  }
 
-      onDestinationSelected: (int index) {
-        if (index == selectedIndex) return;
+  Widget _navIcon({
+    required BuildContext context,
+    required int index,
+    required IconData icon,
+    required Widget page,
+  }) {
+    final bool isSelected = selectedIndex == index;
 
-        //TODO ändra till profil när screen läggs till
+    return IconButton(
+      icon: Icon(
+        icon,
+        color: Colors.black,
+        size: isSelected ? 36 : 32,
+      ),
+      onPressed: () {
+        if (isSelected) return;
 
-        if (index == 0) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (_) => const SpeciesProfile()),
-          );
-        } else if (index == 1) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (_) => const HomeScreen(name: 'test')),
-          );
-        } else if (index == 2) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (_) => const HomeLibrary()),
-          );
-        }
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => page),
+        );
       },
-
-      destinations: [
-        NavigationDestination(
-          icon: Icon(MdiIcons.accountOutline),
-          //selectedIcon: Icon(MdiIcons.account),
-          label: 'Profil',
-        ),
-        NavigationDestination(
-          icon: Icon(MdiIcons.homeOutline),
-          //selectedIcon: Icon(MdiIcons.home),
-          label: 'Hem',
-        ),
-        NavigationDestination(
-          icon: Icon(MdiIcons.bookOpenPageVariantOutline),
-          //selectedIcon: Icon(MdiIcons.bookOpenPageVariant),
-          label: 'Bibliotek',
-        ),
-      ],
     );
   }
 }

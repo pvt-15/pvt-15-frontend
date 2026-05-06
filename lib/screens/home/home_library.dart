@@ -84,7 +84,6 @@ class _HomeLibraryState extends State<HomeLibrary> {
           ],
         ),
       ),
-
       bottomNavigationBar: const CustomNavigationBar(selectedIndex: 2),
 
     );

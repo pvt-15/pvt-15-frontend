@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import '../../widgets/custom_navigation_bar.dart';
 
 import 'package:Skogsjakten/services/session_storage.dart';
 import 'package:Skogsjakten/screens/login/login.dart';
@@ -120,6 +121,8 @@ class _ProfileState extends State<Profile> {
           ],
         ),
       ),
+      bottomNavigationBar: const CustomNavigationBar(selectedIndex: 0),
     );
+
   }
 }

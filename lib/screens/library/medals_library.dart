@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../widgets/custom_navigation_bar.dart';
 
 class MedalsLibrary extends StatefulWidget{
   const MedalsLibrary({super.key});
@@ -80,6 +81,7 @@ class _MedalsLibrary extends State<MedalsLibrary> {
           ],
         ),
       ),
+      bottomNavigationBar: const CustomNavigationBar(),
     );
   }
 }

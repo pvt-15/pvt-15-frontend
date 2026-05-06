@@ -227,7 +227,7 @@ class _BingoPage extends State<BingoGame> {
         ),
       ),
 
-      bottomNavigationBar: const CustomNavigationBar(selectedIndex: -1),
+      bottomNavigationBar: const CustomNavigationBar(),
 
     );
   }

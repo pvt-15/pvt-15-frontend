@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'home.dart';
+//import 'home.dart';
+import '../../widgets/custom_navigation_bar.dart';
 
 enum Difficulty {
   easy,
@@ -150,36 +151,7 @@ class _ChooseDifficultyState extends State<ChooseDifficulty> {
           ],
         ),
       ),
-
-      bottomNavigationBar: Container(
-        height: 80,
-        decoration: const BoxDecoration(
-          color: Color(0xff84c06c),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black12,
-              blurRadius: 10,
-            ),
-          ],
-        ),
-
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            IconButton(
-              icon: const Icon(Icons.home),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => HomeScreen(name: 'test'),
-                  ),
-                );
-              },
-            ),
-          ],
-        ),
-      ),
+      bottomNavigationBar: const CustomNavigationBar(),
     );
   }
 }

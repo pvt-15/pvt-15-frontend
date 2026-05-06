@@ -6,6 +6,7 @@ import 'home/choose_bingo_game.dart';
 //import 'bingo/choose_bingo_game.dart';
 import 'home/skattjakt.dart';
 import 'choose_difficulty.dart';
+import '../../widgets/custom_navigation_bar.dart';
 
 class HomeScreen extends StatelessWidget {
   final String name;
@@ -19,7 +20,12 @@ class HomeScreen extends StatelessWidget {
       {'name': 'Bingo', 'page': const ChooseBingoGame()},
       {'name': 'Skattjakt', 'page': const Skattjakt()},
       {'name': 'Samla art', 'page': const SpeciesProfile()},
-      {'name': 'Quiz', 'page': const Quiz()},
+      {
+        'name': 'Quiz',
+        'page': ChooseDifficulty(
+          nextPage: (difficulty) => Quiz(difficulty: difficulty),
+        ),
+      },
       {'name': 'Platsuppdrag', 'page': const HomeLibrary()},
     ];
 
@@ -154,6 +160,7 @@ class HomeScreen extends StatelessWidget {
           ],
         ),
       ),
+      bottomNavigationBar: const CustomNavigationBar(selectedIndex: 1),
     );
   }
 }
