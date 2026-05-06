@@ -20,19 +20,14 @@ class _SkattjaktState extends State<Skattjakt> {
     return Scaffold(
       backgroundColor: const Color(0xFFBEDBB2),
       appBar: AppBar(
-        backgroundColor: const Color(0xFFBEDBB2),
-        elevation: 0,
-        centerTitle: true,
-        toolbarHeight: 100,
-        title: const Text(
-          "Skattjakt",
-          style: TextStyle(
-            fontFamily: 'YoungSerif',
-            fontSize: 30,
-            fontWeight: FontWeight.bold,
-            color: Color(0xFF4C290C),
-          ),
+        leading: IconButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+          icon: const Icon(Icons.arrow_back),
         ),
+        title: const Text('Skattjakt'),
+        toolbarHeight: 100,
       ),
       body: SafeArea(
         child: Center(

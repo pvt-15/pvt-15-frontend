@@ -58,15 +58,19 @@ class _ProfileState extends State<Profile> {
     return Scaffold(
       backgroundColor: const Color(0xFFBEDBB2),
       appBar: AppBar(
-        backgroundColor: const Color(0xFFBEDBB2),
-        elevation: 0,
-        centerTitle: true,
-        title: const Text(
-          'Min profil',
-          style: TextStyle(
-            color: Color(0xFF4C290C),
-          ),
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          icon: const Icon(Icons.arrow_back),
         ),
+        title: const Text('Min profil'),
+        actions: [
+          IconButton(
+            onPressed: () {},
+            icon: const Icon(Icons.settings),
+          ),
+        ],
       ),
       body: Center(
         child: isLoading

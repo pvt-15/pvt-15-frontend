@@ -1,7 +1,8 @@
+import 'package:Skogsjakten/screens/bingo/flower_bingo_page.dart';
+import 'package:Skogsjakten/screens/home/skattjakt.dart';
+
 import 'screens/home.dart';
 import 'package:flutter/material.dart';
-import 'screens/login/login.dart';
-//import 'screens/home.dart';
 import 'screens/profile/profile.dart';
 
 
@@ -117,11 +118,26 @@ class MyApp extends StatelessWidget {
           shadowColor: Colors.black12,
         ),
 
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Color(0xFFBEDBB2),
+          elevation: 0,
+          centerTitle: true,
+          iconTheme: IconThemeData(
+            color: Color(0xFF4C290C),
+          ),
+          titleTextStyle: TextStyle(
+            fontFamily: 'YoungSerif',
+            fontSize: 30,
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF4C290C),
+          ),
+        ),
+
 
       ),
 
       //home: const LoginScreen(),
-      home: const Profile(),
+        home: const Profile(),
     );
   }
 }
