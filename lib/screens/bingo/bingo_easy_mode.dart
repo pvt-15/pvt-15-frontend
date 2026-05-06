@@ -34,6 +34,8 @@ class _BingoEasyMode extends State<BingoEasyMode> {
 
   Future<String?> token = TokenStorage().getToken();
 
+  late final BingoHelpMethods helpMethods;
+
   late Map<String, dynamic>? currentGame = findCurrentBingoGame();
 
   late bool isCompleted;
@@ -44,46 +46,29 @@ class _BingoEasyMode extends State<BingoEasyMode> {
   File? image1;
   File? image2;
 
-  //late final helpMethods = BingoHelpMethods(jwtToken: jwtToken);
-
   @override
   void initState() {
     super.initState();
     question = 'Laddar utmaning...';
-    //setupToken();
-    //setupQuestion();
     startChallenge();
-    //getNewQuestion();
-    loadPictures();
+    //loadPictures();
   }
 
-  //Future<void> startChallenge() async {
-    //await setupToken();
-   // setupQuestion();
-  //}
+  void startChallenge() async {
+    final String? jwtToken = await token;
+    helpMethods= BingoHelpMethods(jwtToken: jwtToken);
+    String tempQuestion = await helpMethods.getNewQuestion('EASY', 'BINGO');
+    putQuestion(tempQuestion);
+  }
 
-/*
-  Future<void> setupToken() async {
-    final token = await TokenStorage().getToken();
+  void putQuestion (String tempQuestion) {
     setState(() {
-      jwtToken = token;
+      question = tempQuestion;
     });
-
-    getNewQuestion();
   }
 
 
- */
-
-  Future<void> setupQuestion() async {
-    //final helpMethods = BingoHelpMethods(jwtToken: jwtToken);
-    //String tempQuestion = await helpMethods.getNewQuestion('EASY', 'BINGO');
-    getNewQuestion();
-    //setState(() {
-      //question = tempQuestion;
-    //});
-  }
-
+  /*
 
   void startChallenge() {
     Map<String, dynamic>? currentGame = findCurrentBingoGame();
@@ -97,6 +82,8 @@ class _BingoEasyMode extends State<BingoEasyMode> {
       }
     }
   }
+
+   */
 
 
 
@@ -423,7 +410,7 @@ class _BingoEasyMode extends State<BingoEasyMode> {
 
 
 
-///*
+/*
 
 //TODO ger 500 error
   Future<void> getStartedQuestion() async {
@@ -463,49 +450,6 @@ class _BingoEasyMode extends State<BingoEasyMode> {
     }
   }
 
-  //http för att hämta en ny challenge
-  Future<void> getNewQuestion() async {
-
-    try {
-      final String? jwtToken = await token;
-
-      final response = await http.post(
-        Uri.parse('https://group-6-15.pvt.dsv.su.se/challenges/start'),
-        headers: {
-          'Authorization': 'Bearer $jwtToken',
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode({
-          'challengeDifficulty': 'MEDIUM',
-          'challengeType': 'BINGO',
-        }),
-      );
-
-      debugPrint(response.body);
-      debugPrint(await jwtToken);
-      
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        setState(() {
-          question = jsonDecodeDescription(data);
-          setCurrentChallengeId(data);
-        });
-      } else {
-        setState(() {
-          question = 'Kunde inte hämta fråga (${response.statusCode})';
-        });
-      }
-      
-    } catch (e) {
-      setState(() {
-        debugPrint('DEBUG $e');
-        question = 'Något gick fel vid inhämtning av fråga';
-      });
-    }
-  }
-
-
-
   void setCurrentChallengeId(Map<String, dynamic> data) {
     Map<String, dynamic>? currentGame = findCurrentBingoGame();
     if(currentGame != null) {
@@ -514,39 +458,7 @@ class _BingoEasyMode extends State<BingoEasyMode> {
     }
   }
 
-  String jsonDecodeTitle(Map<String, dynamic> data) {
-    return data['title'];
-  }
-
-  String jsonDecodeDescription(Map<String, dynamic> data) {
-    return data['description'];
-  }
-
-  int jsonDecodeChallengeId(Map<String, dynamic> data) {
-    return data['id'];
-  }
-
-  String jsonDecodeType(Map<String, dynamic> data) {
-    return data['type'];
-  }
-
-  String jsonDecodeDifficulty(Map<String, dynamic> data) {
-    return data['difficulty'];
-  }
-
-  int jsonDecodeRewardPoints(Map<String, dynamic> data) {
-    return data['rewardPoints'];
-  }
-
-  bool jsonDecodeActive(Map<String, dynamic> data) {
-    return data['active'];
-  }
-
-  String jsonDecodeStatus(Map<String, dynamic> data) {
-    return data['status'];
-  }
-
- //*/
+ */
 
 
 }
