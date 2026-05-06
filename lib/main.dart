@@ -6,6 +6,8 @@ import 'screens/login/login.dart';
 //import 'screens/home.dart';
 
 void main() async {
+  //runApp(const MyApp());
+
   //gör main asynkron och ladda in Flutter-motorn
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -33,12 +35,15 @@ void main() async {
         startScreen: initialScreen,
       )
   );
+
+
 }
 
 class MyApp extends StatelessWidget {
   final Widget startScreen;
 
   const MyApp({super.key, required this.startScreen});
+  //const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -148,7 +153,9 @@ class MyApp extends StatelessWidget {
 
       ),
 
-      home: startScreen,
+      home:
+      //const LoginScreen(),
+      startScreen,
 
     );
   }

@@ -16,9 +16,8 @@ class ChooseBingoGame extends StatefulWidget {
 
   static final List<Map<String, dynamic>> startedGames = [
     {'name': 'Träd', 'status': false, 'route': null},
-    {'name': 'Svamp', 'status': false, 'route': null},
-    {'name': 'Blomma', 'status': false, 'route': null},
-    {'name': 'Insekt', 'status': false, 'route': null},
+    {'name': 'Växter', 'status': false, 'route': null},
+    {'name': 'Djur', 'status': false, 'route': null},
     {'name': 'Blandad', 'status': false, 'route': null},
   ];
 
@@ -30,9 +29,8 @@ class _ChooseBingoGame extends State<ChooseBingoGame> {
 
   final List<Map<String, dynamic>> games = [
     {'name': 'Träd', 'icon': MdiIcons.tree},
-    {'name': 'Svamp', 'icon': MdiIcons.mushroom},
-    {'name': 'Blomma', 'icon': MdiIcons.flower},
-    {'name': 'Insekt', 'icon': MdiIcons.ladybug},
+    {'name': 'Växter', 'icon': MdiIcons.flower},
+    {'name': 'Djur', 'icon': MdiIcons.ladybug},
     {'name': 'Blandad', 'icon': Icons.sunny},
   ];
 

@@ -20,9 +20,8 @@ class _BingoHardMode extends State<BingoHardMode> {
 
   static final List<Map<String, dynamic>> games = [
     {'name': 'Träd', 'images': <File?>[null, null, null, null], "isCompleted": false},
-    {'name': 'Svamp', 'images': <File?>[null, null, null, null], "isCompleted": false},
-    {'name': 'Blomma', 'images': <File?>[null, null, null, null], "isCompleted": false},
-    {'name': 'Insekt', 'images': <File?>[null, null, null, null], "isCompleted": false},
+    {'name': 'Växter', 'images': <File?>[null, null, null, null], "isCompleted": false},
+    {'name': 'Djur', 'images': <File?>[null, null, null, null], "isCompleted": false},
     {'name': 'Blandad', 'images': <File?>[null, null, null, null], "isCompleted": false},
   ];
 

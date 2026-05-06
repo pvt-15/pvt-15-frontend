@@ -8,8 +8,11 @@ import 'package:http/http.dart' as http;
 import '../../services/token_storage.dart';
 
 class BingoHelpMethods {
+  final String? jwtToken;
 
-  Future<String?> token = TokenStorage().getToken();
+  const BingoHelpMethods({required this.jwtToken});
+
+  //Future<String?> token = TokenStorage().getToken();
 
   Future<http.StreamedResponse?> sendPictureToGoogleStorage(File? imageFile) async {
     try {
@@ -19,7 +22,7 @@ class BingoHelpMethods {
           Uri.parse('https://group-6-15.pvt.dsv.su.se/uploads/picture'),
         );
 
-        request.headers['Authorization'] = 'Bearer $token';
+        request.headers['Authorization'] = 'Bearer $jwtToken';
 
         request.files.add(
           await http.MultipartFile.fromPath(
@@ -52,7 +55,7 @@ class BingoHelpMethods {
         Uri.parse('https://group-6-15.pvt.dsv.su.se/pictures'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
-          'token': token,
+          'token': jwtToken,
           //skicka med url till backend som google ger tillbaka
           'imageUrl': imageURL,
           'targetType': 'PLANT',
@@ -72,15 +75,14 @@ class BingoHelpMethods {
     }
   }
 
-  Future<String> getStartedQuestion() async {
+  Future<String> getStartedQuestion(int challengeId) async {
     String errorMessage;
 
     try {
       final response = await http.get(
-        //TODO hårdkodad callenge id
-        Uri.parse('https://group-6-15.pvt.dsv.su.se/challenges/1'),
+        Uri.parse('https://group-6-15.pvt.dsv.su.se/challenges/$challengeId'),
         headers: {
-          'Authorization': 'Bearer $token',
+          'Authorization': 'Bearer $jwtToken',
           'Content-Type': 'application/json',
         },
       );
@@ -88,7 +90,7 @@ class BingoHelpMethods {
       debugPrint(response.body);
 
       if (response.statusCode == 200) {
-        return response.body;
+        return jsonDecode(response.body);
       } else {
         errorMessage = 'Kunde inte hämta fråga (${response.statusCode})';
         return errorMessage;
@@ -107,7 +109,7 @@ class BingoHelpMethods {
       final response = await http.post(
         Uri.parse('https://group-6-15.pvt.dsv.su.se/challenges/start'),
         headers: {
-          'Authorization': 'Bearer $token',
+          'Authorization': 'Bearer $jwtToken',
           'Content-Type': 'application/json',
         },
         body: jsonEncode({
@@ -118,9 +120,8 @@ class BingoHelpMethods {
 
       debugPrint(response.body);
 
-      final data = jsonDecode(response.body);
-
       if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
         return JsonDecode.jsonDecodeDescription(data);
       } else {
         errorMessage = 'Kunde inte hämta fråga (${response.statusCode})';

@@ -27,44 +27,12 @@ class _BingoEasyMode extends State<BingoEasyMode> {
   static final List<Map<String, dynamic>> games = [
     //alla startade lätta spel
     {'name': 'Träd', 'images': <File?>[null, null], "isCompleted": false, 'challengeId': null},
-    {'name': 'Svamp', 'images': <File?>[null, null], "isCompleted": false, 'challengeId': null},
-    {'name': 'Blomma', 'images': <File?>[null, null], "isCompleted": false, 'challengeId': null},
-    {'name': 'Insekt', 'images': <File?>[null, null], "isCompleted": false, 'challengeId': null},
+    {'name': 'Växter', 'images': <File?>[null, null], "isCompleted": false, 'challengeId': null},
+    {'name': 'Djur', 'images': <File?>[null, null], "isCompleted": false, 'challengeId': null},
     {'name': 'Blandad', 'images': <File?>[null, null], "isCompleted": false, 'challengeId': null},
   ];
 
-  //late Future<String?> token;
   Future<String?> token = TokenStorage().getToken();
-
-
-  @override
-  void initState()  {
-    super.initState();
-
-    //token = TokenStorage().getToken();
-
-    question = 'Laddar utmaning...';
-    loadPictures();
-
-    getNewQuestion();
-    //getStartedQuestion();
-
-    /*
-    Map<String, dynamic>? currentGame = findCurrentBingoGame();
-    if(currentGame != null) {
-      if(currentGame['challengeId'] != null) {
-        //BingoHelpMethods.getStartedQuestion(token as String);
-        getStartedQuestion();
-      } else {
-        //BingoHelpMethods.getNewQuestion(token as String, 'EASY', 'BINGO');
-        getNewQuestion();
-      }
-    }
-
-     */
-  }
-
-  //Future<String?> token = TokenStorage().getToken();
 
   late Map<String, dynamic>? currentGame = findCurrentBingoGame();
 
@@ -75,6 +43,63 @@ class _BingoEasyMode extends State<BingoEasyMode> {
   //TODO kanske inte behöver göra "lokala" lagring av detta
   File? image1;
   File? image2;
+
+  //late final helpMethods = BingoHelpMethods(jwtToken: jwtToken);
+
+  @override
+  void initState() {
+    super.initState();
+    question = 'Laddar utmaning...';
+    //setupToken();
+    //setupQuestion();
+    startChallenge();
+    //getNewQuestion();
+    loadPictures();
+  }
+
+  //Future<void> startChallenge() async {
+    //await setupToken();
+   // setupQuestion();
+  //}
+
+/*
+  Future<void> setupToken() async {
+    final token = await TokenStorage().getToken();
+    setState(() {
+      jwtToken = token;
+    });
+
+    getNewQuestion();
+  }
+
+
+ */
+
+  Future<void> setupQuestion() async {
+    //final helpMethods = BingoHelpMethods(jwtToken: jwtToken);
+    //String tempQuestion = await helpMethods.getNewQuestion('EASY', 'BINGO');
+    getNewQuestion();
+    //setState(() {
+      //question = tempQuestion;
+    //});
+  }
+
+
+  void startChallenge() {
+    Map<String, dynamic>? currentGame = findCurrentBingoGame();
+    if(currentGame != null) {
+      if(currentGame['challengeId'] != null) {
+        //helpMethods.getStartedQuestion(jwtToken);
+        getStartedQuestion();
+      } else {
+        //helpMethods.getNewQuestion(jwtToken, 'EASY', 'BINGO');
+        getNewQuestion();
+      }
+    }
+  }
+
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -295,18 +320,14 @@ class _BingoEasyMode extends State<BingoEasyMode> {
   }
 
   void updateImageInList(File? image, int index) {
-    Map<String, dynamic>? currentGame = findCurrentBingoGame();
-
     if(currentGame != null) {
-      currentGame['images'][index] = image;
+      currentGame!['images'][index] = image;
     }
   }
 
   void updateIsCompletedInList(bool isCompleted) {
-    Map<String, dynamic>? currentGame = findCurrentBingoGame();
-
     if(currentGame != null) {
-      currentGame['isCompleted'] = isCompleted;
+      currentGame!['isCompleted'] = isCompleted;
     }
   }
 
@@ -324,15 +345,13 @@ class _BingoEasyMode extends State<BingoEasyMode> {
   }
 
   void loadPictures() {
-    Map<String, dynamic>? currentGame = findCurrentBingoGame();
-
     if(currentGame != null) {
       setState(() {
-        image1 = currentGame['images'][0];
-        image2 = currentGame['images'][1];
+        image1 = currentGame!['images'][0];
+        image2 = currentGame!['images'][1];
       });
 
-      isCompleted = currentGame['isCompleted'];
+      isCompleted = currentGame!['isCompleted'];
     }
 
   }
@@ -372,8 +391,6 @@ class _BingoEasyMode extends State<BingoEasyMode> {
   }
 
 
-
-
   Future<bool> sendPictureToBackend(File? imageFile) async {
     try {
       //Vänta på att bilden laddas upp och få tillbaka URL:en
@@ -406,23 +423,32 @@ class _BingoEasyMode extends State<BingoEasyMode> {
 
 
 
-  //TODO hämta ut utmaning från token, behöver då kolla någonstans (init?) om det finns en startad challenge eller inte
+///*
 
-
+//TODO ger 500 error
   Future<void> getStartedQuestion() async {
+    int id = currentGame!['challengeId'];
+
+    debugPrint('DEBUG: $id');
+
     try {
+      final String? jwtToken = await token;
+      debugPrint('DEBUG: $jwtToken');
+
       final response = await http.get(
-        Uri.parse('https://group-6-15.pvt.dsv.su.se/challenges/1'),
+        Uri.parse('https://group-6-15.pvt.dsv.su.se/challenges/$id'),
         headers: {
-          'Authorization': 'Bearer $token',
+          'Authorization': 'Bearer $jwtToken',
+          //'Id': 'id: $id',
         },
       );
 
       debugPrint(response.body);
 
       if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
         setState(() {
-          question = response.body;
+          question = jsonDecodeDescription(data);
         });
       } else {
         setState(() {
@@ -437,32 +463,32 @@ class _BingoEasyMode extends State<BingoEasyMode> {
     }
   }
 
-
-
-
   //http för att hämta en ny challenge
   Future<void> getNewQuestion() async {
 
     try {
+      final String? jwtToken = await token;
+
       final response = await http.post(
         Uri.parse('https://group-6-15.pvt.dsv.su.se/challenges/start'),
         headers: {
-          'Authorization': 'Bearer $token',
+          'Authorization': 'Bearer $jwtToken',
           'Content-Type': 'application/json',
         },
         body: jsonEncode({
-          'challengeDifficulty': 'EASY',
+          'challengeDifficulty': 'MEDIUM',
           'challengeType': 'BINGO',
         }),
       );
 
       debugPrint(response.body);
-      debugPrint(await token);
+      debugPrint(await jwtToken);
       
       if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
         setState(() {
-          final data = jsonDecode(response.body);
           question = jsonDecodeDescription(data);
+          setCurrentChallengeId(data);
         });
       } else {
         setState(() {
@@ -496,7 +522,7 @@ class _BingoEasyMode extends State<BingoEasyMode> {
     return data['description'];
   }
 
-  String jsonDecodeChallengeId(Map<String, dynamic> data) {
+  int jsonDecodeChallengeId(Map<String, dynamic> data) {
     return data['id'];
   }
 
@@ -519,6 +545,8 @@ class _BingoEasyMode extends State<BingoEasyMode> {
   String jsonDecodeStatus(Map<String, dynamic> data) {
     return data['status'];
   }
+
+ //*/
 
 
 }
