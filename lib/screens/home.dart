@@ -160,6 +160,7 @@ class HomeScreen extends StatelessWidget {
 
           ],
         ),
+
       ),
       bottomNavigationBar: const CustomNavigationBar(selectedIndex: 1),
     );
