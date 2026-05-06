@@ -102,7 +102,7 @@ class MyApp extends StatelessWidget {
       //home: const HomeScreen(name: 'test'),
 
 
-      /*home: FutureBuilder<Session?>(
+      home: FutureBuilder<Session?>(
         future: SessionStorage().get(),
         builder: (context, snapshot) {
           final session = snapshot.data;
@@ -113,7 +113,7 @@ class MyApp extends StatelessWidget {
 
           return const LoginScreen();
         },
-      ),*/
+      ),
 
     );
   }

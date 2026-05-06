@@ -31,10 +31,8 @@ class _ProfileState extends State<Profile> {
     loadAll();
   }
 
-//<<<<<<< HEAD
    Future<void> loadBadges() async{
       print("loadBadges START");
-      //final token = await authRepository.getToken();
       final token = await sessionStorage.get();
 
       final response = await http.get(
@@ -73,81 +71,6 @@ class _ProfileState extends State<Profile> {
        isLoading = false;
      });
    }
-
-  /*Future<void> loadProfile() async {
-    //final token = await authRepository.getToken();
-    final token = await sessionStorage.get();
-
-    final response = await http.get(
-      Uri.parse('https://group-6-15.pvt.dsv.su.se/auth/me'),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token',
-      },
-    );
-//=======
-  Future<void> loadProfile() async {
-    try {
-      final session = await sessionStorage.get();
-
-//>>>>>>> dev
-
-      if (session == null) {
-        if (mounted) {
-          Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(builder: (_) => const LoginScreen()),
-                (route) => false,
-          );
-        }
-        return;
-      }
-
-//<<<<<<< HEAD
-      setState(() {
-        username = data['name'];
-        points = data['totalPoints'];
-        level = data['level'];
-        profileImgUrl = data['profileImageUrl'];
-        //isLoading = false;
-      });
-    } else {
-      setState(() {
-        isLoading = false;
-      });
-=======
-      final response = await http.get(
-        Uri.parse('https://group-6-15.pvt.dsv.su.se/points'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ${session.token}',
-        },
-      );
-
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        setState(() {
-          points = data['points'] ?? 0;
-          isLoading = false;
-        });
-      }
-
-      else if (response.statusCode == 401) {
-        await sessionStorage.clear();
-
-        if (mounted) {
-          Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(builder: (_) => const LoginScreen()),
-                (route) => false,
-          );
-        }
-      } else {
-        setState(() => isLoading = false);
-      }
-    } catch (e) {
-      debugPrint('Error loading points: $e');
-      if (mounted) setState(() => isLoading = false);
-    }
-  }*/
 
    Future<void> loadProfile() async {
      try {
@@ -221,15 +144,11 @@ class _ProfileState extends State<Profile> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
-//<<<<<<< HEAD
 
         title: Padding(
           padding: const EdgeInsets.only(top: 25),
           child: Text(
               "Profil: $username",
-              /*style: TextStyle(
-                color: Color(0xFF4C290C),
-              )*/
           ),
         ),
 
@@ -371,35 +290,6 @@ class _ProfileState extends State<Profile> {
           ),
         ],
       )
-/*=======
-        title: Text(
-          'Min profil',
-          style: Theme.of(context).textTheme.headlineMedium,
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout, color: Color(0xFF4C290C)),
-            onPressed: _logout,
-          ),
-        ],
-      ),
-      body: Center(
-        child: isLoading
-            ? const CircularProgressIndicator(color: Color(0xFF4C290C))
-            : Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.stars, size: 80, color: Color(0xFFFFEE7A)),
-            const SizedBox(height: 10),
-            Text('Dina poäng', style: Theme.of(context).textTheme.titleLarge),
-            Text(
-              '$points',
-              style: Theme.of(context).textTheme.headlineLarge?.copyWith(fontSize: 60),
-            ),
-          ],
-        ),
-      ),
->>>>>>> dev*/
     );
   }
 }
