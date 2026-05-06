@@ -1,6 +1,3 @@
-//Denna fil bestämmer filka fält en user ska inehålla +
-// konverterar fram och tilbaka från json.
-
 class UserModel {
   final String userId;
   final String email;

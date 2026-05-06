@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../Authorization/user_model.dart';
+import '../../repositories/auth_repository.dart';
+import '../../services/token_storage.dart';
+import '../../services/user_local_storage.dart';
 import 'reset_password.dart';
 import '../home.dart';
 import 'create_account.dart';
@@ -7,9 +10,6 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:google_sign_in/google_sign_in.dart';
 import '../skogsjakten_exception.dart';
-import 'package:Skogsjakten/services/session_storage.dart';
-import 'package:Skogsjakten/services/session.dart';
-
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -21,16 +21,18 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final nameController = TextEditingController();
   final passwordController = TextEditingController();
-  final _formKey = GlobalKey<
-      FormState>(); //lägg till denna för att valideringen ska fungera vid användarnamn formfield.
+  final _formKey = GlobalKey<FormState>(); //lägg till denna för att valideringen ska fungera vid användarnamn formfield.
   String serverClientId = '171324929378-o6f6ehfj8vtte1fasnhdd2jnjf376uto.apps.googleusercontent.com';
 
+  final authRepository = AuthRepository(
+    tokenStorage: TokenStorage(),
+    userLocalStorage: UserLocalStorage(),
+  );
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset: false,
-      //testa om detta löser hoppandet med "nytt konto" osv
+      resizeToAvoidBottomInset: false, //testa om detta löser hoppandet med "nytt konto" osv
       backgroundColor: Color(0xFFBEDBB2),
       body: Stack(
         children: [
@@ -42,13 +44,10 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(
-                    "Skogsjakten",
-                    style: Theme
-                        .of(context)
-                        .textTheme
-                        .headlineLarge
-                ),
+              Text(
+                  "Skogsjakten",
+                  style: Theme.of(context).textTheme.headlineLarge
+              ),
                 Image.asset(
                   'assets/maskot_skogstroll.png',
                   width: 90,
@@ -65,7 +64,7 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Form(
               key: _formKey,
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Padding(
                     padding: const EdgeInsets.symmetric(
@@ -78,11 +77,10 @@ class _LoginScreenState extends State<LoginScreen> {
                         labelText: "Email",
                       ),
 
-                      validator: (value) { // olika validations
-                        if (value == null || value.isEmpty)
-                          return "Ogiltig mejl";
+                      validator: (value){ // olika validations
+                        if(value == null || value.isEmpty) return "Ogiltig mejl";
                         return null;
-                      },
+                        },
                     ),
                   ),
 
@@ -98,22 +96,45 @@ class _LoginScreenState extends State<LoginScreen> {
                           labelText: "Lösenord",
                         ),
 
-                        validator: (value) {
-                          if (value == null || value.isEmpty)
-                            return "Ogiltigt lösenord";
+                        validator: (value){
+                          if(value == null || value.isEmpty) return "Ogiltigt lösenord";
                           return null;
                         }
-                    ),
+                        ),
                   ),
 
-                  ElevatedButton(
-                    onPressed: _handleLogin,
-                    child: const Text("Logga in"),
-                  ),
-                ],
-              ),
+                ElevatedButton(
+                  onPressed: () async {
+                    final password = passwordController.text;
+                    final email = nameController.text;
+
+                    // Password controll
+                    if (_formKey.currentState!.validate()) {
+
+                      //anropa backend
+                      bool success = await loginUser(email, password);
+
+                      if (success) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => HomeScreen(name: email),
+                          ),
+                        );
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                              content: Text("Fel email eller lösenord", textAlign: TextAlign.center)),
+                        );
+                      }
+                    }
+                  },
+                  child: const Text("Logga in"),
+                ),
+              ],
             ),
           ),
+        ),
 
           Positioned(
               bottom: 190,
@@ -123,43 +144,34 @@ class _LoginScreenState extends State<LoginScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   ElevatedButton(
-                    onPressed: () async {
-                      try {
-                        final result = await signIn();
+                      onPressed: () async {
+                        try {
+                          final result = await signIn();
 
-                        if (result == null)
-                          return; // Användaren avbröt inloggningen
+                          if (result == null) return; // Användaren avbröt inloggningen
 
-                        bool success = await loginWithGoogle(
-                            result['idToken']!);
+                          bool success = await loginWithGoogle(result['idToken']!);
 
-                        if (success) {
+                          if (success) {
+                            if (!mounted) return;
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => HomeScreen(name: result['name'] ?? "Användare"),
+                              ),
+                            );
+                          } else {
+                            if (!mounted) return;
+                            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Inloggning misslyckad", textAlign: TextAlign.center)),
+                            );
+                          }
+                        } catch (e) {
+                          debugPrint (e.toString());
                           if (!mounted) return;
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) =>
-                                  HomeScreen(
-                                      name: result['name'] ?? "Användare"),
-                            ),
-                          );
-                        } else {
-                          if (!mounted) return;
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text(
-                                "Inloggning misslyckad",
-                                textAlign: TextAlign.center)),
+                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Något gick fel", textAlign: TextAlign.center)),
                           );
                         }
-                      } catch (e) {
-                        debugPrint(e.toString());
-                        if (!mounted) return;
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text(
-                              "Något gick fel", textAlign: TextAlign.center)),
-                        );
-                      }
-                    },
+                        },
                     child: const Text("Logga in med Google"),
 
                   )
@@ -188,7 +200,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           builder: (_) => CreateAccount(),
                         ),
                       );
-                    },
+                      },
                     child: const Text("Skapa konto"),
                   ),
                 ),
@@ -205,7 +217,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           builder: (_) => ResetPassword(),
                         ),
                       );
-                    },
+                      },
                     child: const Text("Glömt lösenord?"),
                   ),
                 ),
@@ -217,52 +229,36 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Future<void> _handleLogin() async {
-    if (_formKey.currentState!.validate()) {
-      final response = await http.post(
-        Uri.parse('https://group-6-15.pvt.dsv.su.se/auth/login'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'email': nameController.text,
-          'password': passwordController.text,
-        }),
+  Future<bool> loginUser(String email, String password) async {
+    final response = await http.post(
+      Uri.parse('https://group-6-15.pvt.dsv.su.se/auth/login'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'email': email,
+        'password': password,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+
+      print('Login response: $data');
+
+      await authRepository.saveLoginData(
+        token: data['token'],
+        user: UserModel(
+          userId: data['userId'].toString(),
+          username: data['name'],
+          email: data['email'],
+
+        ),
       );
 
-
-      if (response.statusCode == 200 && mounted) {
-        final data = jsonDecode(response.body);
-
-        await SessionStorage().save(
-          Session(
-            token: data['token'],
-            user: UserModel(
-              userId: data['userId'].toString(),
-              username: data['name'],
-              email: data['email'],
-            ),
-          ),
-        );
-
-
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (_) => HomeScreen(name: data['name']),
-          ),
-        );
-      } else if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-              "Fel email eller lösenord",
-              textAlign: TextAlign.center,
-            ),
-          ),
-        );
-      }
+      return true;
+    } else {
+      return false;
     }
   }
-
 
   Future<Map<String, String?>?> signIn() async {
     try {
@@ -300,7 +296,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<bool> loginWithGoogle(String idToken) async {
     final response = await http.post(
       Uri.parse('https://group-6-15.pvt.dsv.su.se/auth/google'),
-      headers: {'Content-Type': 'application/json'},
+      headers: {'Content-Type' : 'application/json'},
       body: jsonEncode({'token': idToken}),
     );
 
@@ -313,5 +309,6 @@ class _LoginScreenState extends State<LoginScreen> {
       print('Fel lösenord eller email: ${response.body}');
       return false;
     }
+
   }
 }
