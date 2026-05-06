@@ -23,35 +23,35 @@ class MyApp extends StatelessWidget {
           headlineLarge: TextStyle(
             fontFamily: 'YoungSerif',
             fontSize: 30,
-            color: Color(0xFF4C290C),
+            color: Color(0xFF000000),
           ),
           headlineMedium: TextStyle(
             fontFamily: 'YoungSerif',
             fontSize: 24,
-            color: Color(0xFF4C290C),
+            color: Color(0xFF000000),
           ),
           titleLarge: TextStyle(
             fontFamily: 'YoungSerif',
             fontSize: 22,
             fontWeight: FontWeight.bold,
-            color: Color(0xFF4C290C),
+            color: Color(0xFF000000),
           ),
           titleMedium: TextStyle(
             fontFamily: 'WinkySans',
             fontSize: 18,
-            color: Color(0xFF4C290C),
+            color: Color(0xFF000000),
           ),
           bodyMedium: TextStyle(
             fontFamily: 'WinkySans',
             fontSize: 16,
-            color: Color(0xFF4C290C),
+            color: Color(0xFF000000),
           ),
         ),
 
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
             backgroundColor: Color(0xFF84C06C),
-            foregroundColor: Color(0xFF4C290C),
+            foregroundColor: Color(0xFF000000), //Bruna: 0xFF4C290C
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(15),
             ),
@@ -91,7 +91,7 @@ class MyApp extends StatelessWidget {
 
           //stilen för typsnittet
           labelStyle: const TextStyle(
-            color: Color(0xFF4C290C),
+            color: Color(0xFF000000),
             fontFamily: 'WinkySans',
           ),
 
@@ -111,7 +111,7 @@ class MyApp extends StatelessWidget {
           height: 70,
           backgroundColor: const Color(0xff84c06c), indicatorColor: Colors.transparent,
           labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
-          iconTheme: WidgetStateProperty.all(const IconThemeData(color: Color(0xFF4C290C), size: 45),),
+          iconTheme: WidgetStateProperty.all(const IconThemeData(color: Color(0xFF000000), size: 45),),
           shadowColor: Colors.black12,
         ),
 

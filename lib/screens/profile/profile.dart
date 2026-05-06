@@ -21,6 +21,7 @@ class _ProfileState extends State<Profile> {
 
   String username = '';
   String level = '';
+  String profileImgUrl = '';
 
   List<dynamic> badges = [];
 
@@ -57,12 +58,39 @@ class _ProfileState extends State<Profile> {
         setState(() {
           badges = data;
           print('Badges: $badges');
+          if (badges.isEmpty) {
+            badges = [
+              {
+                "name": "Testmedalj",
+                "category": "FLOWER",
+                "tier": "BRONZE",
+                "unlockedAt": "test"
+              },
+              {
+                "name": "Testmedalj2",
+                "category": "FLOWER",
+                "tier": "BRONZE",
+                "unlockedAt": "test"
+              },
+              {
+                "name": "Testmedalj3",
+                "category": "FLOWER",
+                "tier": "BRONZE",
+                "unlockedAt": "test"
+              }
+
+
+            ];
+          } 
+
+
         });
       } else {
         setState(() {
+
           isLoading = false;
         });
-      }                                                                                                   
+      }
    }
 
    Future<void> loadAll() async {
@@ -93,6 +121,7 @@ class _ProfileState extends State<Profile> {
         username = data['name'];
         points = data['totalPoints'];
         level = data['level'];
+        profileImgUrl = data['profileImageUrl'];
         //isLoading = false;
       });
     } else {
@@ -119,15 +148,15 @@ class _ProfileState extends State<Profile> {
           padding: const EdgeInsets.only(top: 25),
           child: Text(
               "Profil: $username",
-              style: TextStyle(
+              /*style: TextStyle(
                 color: Color(0xFF4C290C),
-              )
+              )*/
           ),
         ),
 
         actions: [
           IconButton(
-            icon: const Icon(Icons.settings, size:50, color: Color(0xFF4C290C)),
+            icon: const Icon(Icons.settings, size:50, color: Color(0xFF000000)/*, color: Color(0xFF4C290C)*/),
             onPressed: () {
               print('clicked');
             },
@@ -168,7 +197,7 @@ class _ProfileState extends State<Profile> {
                               child: LinearProgressIndicator(
                                 backgroundColor: Color(0xFFDE75BF),
                                 color: Color(0xFFC0008B),
-                                value: points/1000, // lägg in den korrekta beräkningen för poäng
+                                value: (points % 300) / 300, // lägg in den korrekta beräkningen för poäng, hur gör vi så den börjar om från början för ny nivå
                                 minHeight: 10,
 
                               ),
@@ -193,47 +222,70 @@ class _ProfileState extends State<Profile> {
                   ),
                   child: CircleAvatar(
                       radius: 70,
-                      backgroundImage: NetworkImage(
-                        "https://cdn.pixabay.com/photo/2015/04/17/19/02/ko-727828_1280.jpg",
-                        //ska egentligen vara en egen vald profilbild, och bilden ska komma från vår egna google cloud
-                      ),
-                    ),
+                      backgroundImage: profileImgUrl.isNotEmpty
+                        ? NetworkImage(profileImgUrl)
+                        : const NetworkImage("https://cdn.pixabay.com/photo/2015/04/17/19/02/ko-727828_1280.jpg",),
+                      
+                  ),
                 ),
               ],
             ),
           ),
           const SizedBox(height: 60),
           Padding(
-            padding: const EdgeInsets.only(right: 260),
-            child: const Text("Medaljer", style: TextStyle(fontSize: 25)),
+            //padding: const EdgeInsets.only(right: 260),
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Row(
+              //mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Text("Medaljer", style: TextStyle(fontSize: 25)),
+                IconButton(
+                    onPressed: () {
+                      print("Gå till medaljsida");
+                      // Navigator.push(...) senare
+                      },
+                    icon: const Icon(Icons.arrow_forward, color: Color(0xFF000000), size: 35),
+                    ),
+              ],
+            ),
           ),
           const SizedBox(height: 20),
           Container(
             height: 200,
-            child: ListView.separated(
+            child: badges.isEmpty
+              ? const Align(
+              alignment: Alignment.topCenter,
+              child:
+              Text("Inga medaljer ännu.\nSamla fler av en art så kanske du får en medalj!", textAlign: TextAlign.center),
+            )
+            : ListView.separated(
                 scrollDirection: Axis.horizontal,
                 itemCount: badges.length,
                 separatorBuilder: (context, index) =>
                   const SizedBox(width:20),
                 itemBuilder: (context, index) {
                   final badge = badges[index];
-                  return Column(
-                    children: [
-                        CircleAvatar(
-                          radius: 30,
-                          backgroundImage: NetworkImage("https://cdn.pixabay.com/photo/2015/04/17/19/02/ko-727828_1280.jpg"),
-                          //ska egentligen vara en bild på medalj, när de sen lagts in
-                        ),
-                        const SizedBox(height: 10),
-                        SizedBox(
-                          width: 30,
-                          child:
-                            Text(badge['name'],
-                            textAlign: TextAlign.center
-                            ),
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Column(
+                      children: [
+                          CircleAvatar(
+                            radius: 42.5,
+                            backgroundImage: NetworkImage("https://cdn.pixabay.com/photo/2015/04/17/19/02/ko-727828_1280.jpg"), //ska ändras när de finns bilder för medaljer
+                            //ska egentligen vara en bild på medalj, när de sen lagts in
+                          ),
+                          const SizedBox(height: 10),
+                          SizedBox(
+                            width: 80,
+                            child:
+                              Text(badge['name'],
+                              textAlign: TextAlign.center
+                              ),
 
-                        ),
-                    ],
+                          ),
+                      ],
+                    ),
                   );
                 }
             ),
