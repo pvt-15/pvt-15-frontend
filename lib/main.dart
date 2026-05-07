@@ -1,16 +1,10 @@
 import 'package:Skogsjakten/screens/home.dart';
 import 'package:Skogsjakten/services/check_current_user.dart';
-import 'package:Skogsjakten/screens/profile/profile.dart';
 import 'package:flutter/material.dart';
 import 'package:Skogsjakten/screens/login/login.dart';
-import 'package:Skogsjakten/screens/home.dart';
 import 'package:Skogsjakten/services/session_storage.dart';
-import 'package:Skogsjakten/services/session.dart';
-
 
 void main() async {
-  //runApp(const MyApp());
-
   //gör main asynkron och ladda in Flutter-motorn
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -38,15 +32,12 @@ void main() async {
         startScreen: initialScreen,
       )
   );
-
-
 }
 
 class MyApp extends StatelessWidget {
   final Widget startScreen;
 
   const MyApp({super.key, required this.startScreen});
-  //const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -144,11 +135,7 @@ class MyApp extends StatelessWidget {
           ),
 
           //bordern runt
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.all(Radius.circular(20)),
-          ),
-        ),
-              borderRadius: BorderRadius.all(Radius.circular(20))),
+          border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(20))),
         ),
 
 
@@ -160,19 +147,9 @@ class MyApp extends StatelessWidget {
           shadowColor: Colors.black12,
         ),
 
-
       ),
 
-      //home: const LoginScreen(),
-      //home: const Profile(),
-      //home: const HomeScreen(name: 'test'),
-
-
-      ),
-
-      home:
-      //const LoginScreen(),
-      startScreen,
+      home: startScreen,
 
     );
   }

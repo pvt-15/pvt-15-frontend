@@ -3,7 +3,6 @@ import 'home/home_library.dart';
 import 'home/species_profile.dart';
 import 'home/quiz.dart';
 import 'home/choose_bingo_game.dart';
-//import 'bingo/choose_bingo_game.dart';
 import 'home/skattjakt.dart';
 import 'choose_difficulty.dart';
 import '../widgets/auth_guard.dart';

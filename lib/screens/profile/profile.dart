@@ -33,7 +33,7 @@ class _ProfileState extends State<Profile> {
 
    Future<void> loadBadges() async{
       print("loadBadges START");
-      final token = await sessionStorage.get();
+      final token = await sessionStorage.getUserAndToken();
 
       final response = await http.get(
         Uri.parse('https://group-6-15.pvt.dsv.su.se/badges/me'),
@@ -74,7 +74,7 @@ class _ProfileState extends State<Profile> {
 
    Future<void> loadProfile() async {
      try {
-       final session = await sessionStorage.get();
+       final session = await sessionStorage.getUserAndToken();
 
        if (session == null) {
          if (mounted) {
