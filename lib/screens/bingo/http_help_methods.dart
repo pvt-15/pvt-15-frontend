@@ -81,10 +81,10 @@ class HttpHelpMethods {
     }
   }
 
-  Future<Map<String, dynamic>> decodeAllChallenges() async {
-    String challenges = await getAllChallenges();
+  //Future<Map<String, dynamic>> decodeAllChallenges() async {
+    //String challenges = await getAllChallenges();
 
-  }
+  //}
 
 
 

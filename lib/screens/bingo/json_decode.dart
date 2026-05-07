@@ -36,8 +36,8 @@ class JsonDecode {
     return data['category'];
   }
 
-  static String jsonDecodeChallenges(Map<String, dynamic> data) {
+  //static String jsonDecodeChallenges(Map<String, dynamic> data) {
 
-  }
+  //}
 
 }
