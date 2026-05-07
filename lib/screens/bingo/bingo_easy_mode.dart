@@ -1,37 +1,90 @@
-import 'dart:convert';
+import 'dart:core';
 import 'dart:io';
 
+import 'package:Skogsjakten/screens/home/choose_bingo_game.dart';
+import 'package:Skogsjakten/services/upload_picture.dart';
 import 'package:flutter/material.dart';
 import '../../services/camera_service.dart';
+import '../../services/session_storage.dart';
 import '../../widgets/custom_navigation_bar.dart';
 import '../home.dart';
-import 'package:http/http.dart' as http;
+import 'http_help_methods.dart';
+import 'json_decode.dart';
 
-class BingoGame extends StatefulWidget{
+class BingoEasyMode extends StatefulWidget{
   final String typeOfBingo;
 
-  const BingoGame({super.key, required this.typeOfBingo});
+  const BingoEasyMode({super.key, required this.typeOfBingo});
 
   @override
-  State<BingoGame> createState() => _BingoPage();
+  State<BingoEasyMode> createState() => _BingoEasyMode();
 }
 
-class _BingoPage extends State<BingoGame> {
+class _BingoEasyMode extends State<BingoEasyMode> {
 
   static final List<Map<String, dynamic>> games = [
-    {'name': 'Träd', 'images': <File?>[null, null, null, null], "isCompleted": false},
-    {'name': 'Svamp', 'images': <File?>[null, null, null, null], "isCompleted": false},
-    {'name': 'Blomma', 'images': <File?>[null, null, null, null], "isCompleted": false},
-    {'name': 'Insekt', 'images': <File?>[null, null, null, null], "isCompleted": false},
-    {'name': 'Blandad', 'images': <File?>[null, null, null, null], "isCompleted": false},
+    //alla startade lätta spel
+    {'name': 'Träd', 'images': <File?>[null, null], "isCompleted": false, 'challengeId': null},
+    {'name': 'Växter', 'images': <File?>[null, null], "isCompleted": false, 'challengeId': null},
+    {'name': 'Djur', 'images': <File?>[null, null], "isCompleted": false, 'challengeId': null},
+    {'name': 'Blandad', 'images': <File?>[null, null], "isCompleted": false, 'challengeId': null},
   ];
+
+  Future<String?> token = SessionStorage().getToken();
+
+  late final HttpHelpMethods helpMethodsChallenge;
+
+  late final UploadPicture helpMethodsUploadPicture;
+
+  late Map<String, dynamic>? currentGame = findCurrentBingoGame();
 
   late bool isCompleted;
 
+  late String question;
+
+  //TODO kanske inte behöver göra "lokala" lagring av detta
   File? image1;
   File? image2;
-  File? image3;
-  File? image4;
+
+  @override
+  void initState() {
+    super.initState();
+    question = 'Laddar utmaning...';
+    startChallenge();
+    //loadPictures();
+  }
+
+  void startChallenge() async {
+    try {
+      helpMethodsChallenge = HttpHelpMethods(jwtToken: await token);
+      String tempQuestion;
+
+      Map<String, dynamic>? currentGame = findCurrentBingoGame();
+
+      if (currentGame != null) {
+        if (currentGame['challengeId'] == null) {
+          Map<String, dynamic> data = await helpMethodsChallenge.getNewQuestion('MEDIUM', 'BINGO', null);
+          currentGame['challengeId'] = JsonDecode.jsonDecodeChallengeId(data);
+          tempQuestion = JsonDecode.jsonDecodeDescription(data);
+        } else {
+          Map<String, dynamic> data = await helpMethodsChallenge.getStartedQuestion(currentGame['challengeId']);
+          tempQuestion = JsonDecode.jsonDecodeDescription(data);
+        }
+        putQuestion(tempQuestion);
+      }
+    } catch (e) {
+      setState(() {
+        question = '$e';
+      });
+    }
+  }
+
+  void putQuestion (String tempQuestion) {
+    setState(() {
+      question = tempQuestion;
+    });
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -58,7 +111,8 @@ class _BingoPage extends State<BingoGame> {
                   right: 40
               ),
               child: Text(
-                'Hitta och fota 4 stycken olika träd!',
+                question,
+                //'test lätt',
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.headlineMedium,
               ),
@@ -74,9 +128,10 @@ class _BingoPage extends State<BingoGame> {
                         if (image1 == null){
                           final File? file = await CameraService.takePicture();
 
-                          //TODO beroende på lösningen med jwt token, samt att man behöver skicka med vilken typ det är
+                          //UploadPicture.sendPictureToGoogleStorage(file);
+                          //sendPictureToGoogleStorage(file);
 
-                          //bool success = await checkPictureContent(file);
+                          //TODO check om det gick igenom
 
                           if (file != null) {
                             setState(() {
@@ -103,7 +158,21 @@ class _BingoPage extends State<BingoGame> {
 
                     InkWell(
                       onTap: () async {
-                        // Logik för kamera 2 kommer här
+                        if (image2 == null){
+                          final File? file = await CameraService.takePicture();
+
+                          //BingoHelpMethods.sendPictureToGoogleStorage(token as String, file);
+                          //sendPictureToGoogleStorage(file);
+
+                          //TODO check om det gick igenom
+
+                          if (file != null) {
+                            setState(() {
+                              image2 = file;
+                              updateImageInList(file, 1);
+                            });
+                          }
+                        }
                       },
                       borderRadius: BorderRadius.circular(15),
                       child: Container(
@@ -112,52 +181,9 @@ class _BingoPage extends State<BingoGame> {
                         decoration: BoxDecoration(
                           color: const Color(0xfff8ed76),
                           borderRadius: BorderRadius.circular(15),
-                          //image: _image2 != null ? DecorationImage(image: FileImage(_image2!), fit: BoxFit.cover) : null,
+                          image: image2 != null ? DecorationImage(image: FileImage(image2!), fit: BoxFit.cover) : null,
                         ),
-                        child: const Center(child: Icon(Icons.image, size: 50,)),
-                      ),
-                    ),
-                  ],
-                ),
-
-                const SizedBox(height: 70),
-
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    InkWell(
-                      onTap: () async {
-                        // Logik för kamera 3 kommer här
-                      },
-                      borderRadius: BorderRadius.circular(15),
-                      child: Container(
-                        width: 130,
-                        height: 130,
-                        decoration: BoxDecoration(
-                          color: const Color(0xfff8ed76),
-                          borderRadius: BorderRadius.circular(15),
-                          //image: _image3 != null ? DecorationImage(image: FileImage(_image3!), fit: BoxFit.cover) : null,
-                        ),
-                        child: const Center(child: Icon(Icons.image, size: 50,)),
-                      ),
-                    ),
-
-                    const SizedBox(width: 50),
-
-                    InkWell(
-                      onTap: () async {
-                        // Logik för kamera 4 kommer här
-                      },
-                      borderRadius: BorderRadius.circular(15),
-                      child: Container(
-                        width: 130,
-                        height: 130,
-                        decoration: BoxDecoration(
-                          color: const Color(0xfff8ed76),
-                          borderRadius: BorderRadius.circular(15),
-                          //image: _image4 != null ? DecorationImage(image: FileImage(_image4!), fit: BoxFit.cover) : null,
-                        ),
-                        child: const Center(child: Icon(Icons.image, size: 50,)),
+                        child: image2 == null ? const Center(child: Icon(Icons.image, size: 50)) : null,
                       ),
                     ),
                   ],
@@ -171,9 +197,8 @@ class _BingoPage extends State<BingoGame> {
               onPressed: () async {
                 bool success = await checkBingoCompletionStatus();
 
-                //TODO innan reset ska bilderna skickas till bibliotek
+                if (success) {
 
-                if (success){
                   resetBingo();
 
                   Navigator.push(
@@ -193,7 +218,18 @@ class _BingoPage extends State<BingoGame> {
                           actions: [
                             TextButton(
                               onPressed: () {
-                                Navigator.pop(context);
+
+                                isCompleted = true;
+
+                                resetBingo();
+
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (_) => const HomeScreen(name: 'test'),
+                                    ),
+                                );
+
                               },
                               child: Text('Klar', style: Theme.of(context).textTheme.headlineLarge),
                             ),
@@ -218,7 +254,7 @@ class _BingoPage extends State<BingoGame> {
                 ),
               ),
               child: Text(
-                "DEBUG hem",
+                "Klar",
                 style: Theme.of(context).textTheme.headlineMedium,
               ),
             ),
@@ -232,26 +268,36 @@ class _BingoPage extends State<BingoGame> {
     );
   }
 
-  Future<bool> checkPictureContent(File? file, String token) async {
-    final response = await http.post(
-      Uri.parse('https://group-6-15.pvt.dsv.su.se/pictures'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'jwt': token,
-        'request': file,
-      }),
-    );
 
-    if (response.statusCode == 200) {
-      return true;
-    } else {
+  //Behövs allt detta? Kan man göra det på annat sätt?
+  Future<bool> uploadPicture(File? file) async {
+    try {
+      helpMethodsUploadPicture = UploadPicture(jwtToken: await token);
+      if (file != null) {
+        bool response = await helpMethodsUploadPicture.sendPictureToBackend(file);
+
+        if (response == true) {
+          debugPrint('DEBUG uppladdning lyckades');
+          return true;
+        } else {
+          debugPrint('DEBUG uppladdning misslyckades');
+          return false;
+        }
+
+      } else {
+        debugPrint('DEBUG mottagen fil var null');
+        return false;
+      }
+
+    } catch (e) {
+      debugPrint('DEBUG: $e');
       return false;
     }
   }
 
   //TODO egentligen bättre med andra hållet för true false return
   Future<bool> checkBingoCompletionStatus () async {
-    if (image1 == null || image2 == null || image3 == null || image4 == null) {
+    if (image1 == null || image2 == null) {
       return false;
     } else {
       isCompleted = true;
@@ -260,34 +306,44 @@ class _BingoPage extends State<BingoGame> {
     }
   }
 
-//TODO metod för att rensa bingo efter avklarad utmaning
+// metod för att rensa bingo efter avklarad utmaning
   void resetBingo () {
     if (isCompleted == true) {
       image1 = null;
       image2 = null;
-      image3 = null;
-      image4 = null;
       isCompleted = false;
+
       updateIsCompletedInList(isCompleted);
+      updateImageInList(image1, 0);
+      updateImageInList(image2, 1);
+
+      for(var game in ChooseBingoGame.startedGames) {
+        Map<String, dynamic>? currentGame = findCurrentBingoGame();
+
+        if (currentGame != null) {
+          if (game['name'] == currentGame['name']) {
+            game['status'] = false;
+            game['route'] = null;
+          }
+        }
+      }
+
     }
   }
 
-  void updateImageInList(File image, int index) {
-    Map<String, dynamic>? currentGame = findCurrentBingoGame();
-
+  void updateImageInList(File? image, int index) {
     if(currentGame != null) {
       currentGame!['images'][index] = image;
     }
   }
 
   void updateIsCompletedInList(bool isCompleted) {
-    Map<String, dynamic>? currentGame = findCurrentBingoGame();
-
     if(currentGame != null) {
       currentGame!['isCompleted'] = isCompleted;
     }
   }
 
+  //TODO borde egentligen göra en null check här istället
   Map<String, dynamic>? findCurrentBingoGame() {
     Map<String, dynamic>? currentGame;
 
@@ -300,28 +356,23 @@ class _BingoPage extends State<BingoGame> {
     return currentGame;
   }
 
-  @override
-  void initState() {
-    super.initState();
-
-    loadPictures();
-  }
-
   void loadPictures() {
-    Map<String, dynamic>? currentGame = findCurrentBingoGame();
-
     if(currentGame != null) {
       setState(() {
-        image1 = currentGame['images'][0];
-        image2 = currentGame['images'][1];
-        image3 = currentGame['images'][2];
-        image4 = currentGame['images'][3];
+        image1 = currentGame!['images'][0];
+        image2 = currentGame!['images'][1];
       });
 
-      isCompleted = currentGame['isCompleted'];
+      isCompleted = currentGame!['isCompleted'];
     }
 
   }
-//TODO metod för att skicka bilderna till bibliotek via backend
+
+  void setCurrentChallengeId(Map<String, dynamic> data) {
+    Map<String, dynamic>? currentGame = findCurrentBingoGame();
+    if(currentGame != null) {
+      currentGame['challengeId'] = JsonDecode.jsonDecodeChallengeId(data);
+    }
+  }
 
 }

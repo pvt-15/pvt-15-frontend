@@ -6,6 +6,7 @@ import 'home/choose_bingo_game.dart';
 //import 'bingo/choose_bingo_game.dart';
 import 'home/skattjakt.dart';
 import 'choose_difficulty.dart';
+import '../widgets/auth_guard.dart';
 
 class HomeScreen extends StatelessWidget {
   final String name;
@@ -117,7 +118,9 @@ class HomeScreen extends StatelessWidget {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) => menuItems[index]['page'],
+                            //builder: (_) => menuItems[index]['page'],
+                            builder: (_) => AuthGuard(child: menuItems[index]['page']),
+
                           ),
                         );
                       },
@@ -131,26 +134,19 @@ class HomeScreen extends StatelessWidget {
                 },
               ),
             ),
-            const SizedBox(height: 10)
-
-            /*
+            const SizedBox(height: 10),
 
             ElevatedButton(
               onPressed: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => ChooseDifficulty(
-                      nextPage: (difficulty) => ChooseBingoGame(difficulty: difficulty),
-                    ),
+                    builder: (_) => ChooseDifficulty(),
                   ),
                 );
               },
               child: const Text("Difficulty"),
             ),
-
-             */
-
           ],
         ),
       ),

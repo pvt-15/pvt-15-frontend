@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../widgets/custom_navigation_bar.dart';
 import 'home.dart';
 
 enum Difficulty {
@@ -8,12 +9,12 @@ enum Difficulty {
 }
 
 class ChooseDifficulty extends StatefulWidget {
-  final Widget Function(Difficulty difficulty) nextPage;
+  //final Widget Function(Difficulty difficulty) nextPage;
 
-  const ChooseDifficulty({
-    super.key,
-    required this.nextPage,
-  });
+  //const ChooseDifficulty({
+    //super.key,
+    //required this.nextPage,
+ //});
 
   @override
   State<ChooseDifficulty> createState() => _ChooseDifficultyState();
@@ -117,16 +118,9 @@ class _ChooseDifficultyState extends State<ChooseDifficulty> {
                       ),
 
                       onPressed: () {
-                        final selectedDifficulty =
-                        difficulty[index]['level'] as Difficulty;
-
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) =>
-                                widget.nextPage(selectedDifficulty),
-                          ),
-                        );
+                        // Returnerar den valda svårighetsgraden till föregående skärm
+                        final selected = difficulty[index]['level'] as Difficulty;
+                        Navigator.pop(context, selected);
                       },
 
                       child: Row(
@@ -151,35 +145,8 @@ class _ChooseDifficultyState extends State<ChooseDifficulty> {
         ),
       ),
 
-      bottomNavigationBar: Container(
-        height: 80,
-        decoration: const BoxDecoration(
-          color: Color(0xff84c06c),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black12,
-              blurRadius: 10,
-            ),
-          ],
-        ),
+      bottomNavigationBar: const CustomNavigationBar(selectedIndex: -1),
 
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            IconButton(
-              icon: const Icon(Icons.home),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => HomeScreen(name: 'test'),
-                  ),
-                );
-              },
-            ),
-          ],
-        ),
-      ),
     );
   }
 }
