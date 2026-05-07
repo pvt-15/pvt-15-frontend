@@ -85,8 +85,8 @@ class Quiz extends StatelessWidget {
 
   Widget _answerButton(BuildContext context, String text) {
     return SizedBox(
-      width: 250,
-      height: 70,
+      width: 220,
+      height: 90,
       child: ElevatedButton(
         onPressed: () {
           // TODO: Implementera svarslogik
