@@ -2,8 +2,11 @@ import 'package:Skogsjakten/screens/home.dart';
 import 'package:Skogsjakten/services/check_current_user.dart';
 import 'package:Skogsjakten/services/user_local_storage.dart';
 import 'package:flutter/material.dart';
-import 'screens/login/login.dart';
-//import 'screens/home.dart';
+import 'package:Skogsjakten/screens/login/login.dart';
+import 'package:Skogsjakten/screens/home.dart';
+import 'package:Skogsjakten/services/session_storage.dart';
+import 'package:Skogsjakten/services/session.dart';
+
 
 void main() async {
   //runApp(const MyApp());
@@ -19,7 +22,7 @@ void main() async {
   if (isTokenValid) {
     final user = await UserLocalStorage().getUser();
     userName = user?.username;
-    
+
     if (userName != null) {
       initialScreen = HomeScreen(name: userName);
     } else {
@@ -50,7 +53,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Skogsjakten',
       debugShowCheckedModeBanner: false,
-      
+
       theme: ThemeData(
         primarySwatch: Colors.green,
         scaffoldBackgroundColor: const Color(0xFFBEDBB2),
@@ -85,8 +88,8 @@ class MyApp extends StatelessWidget {
 
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
-            backgroundColor: Color(0xFF84C06C),
-            foregroundColor: Color(0xFF4C290C),
+            backgroundColor: const Color(0xFF84C06C),
+            foregroundColor: const Color(0xFF4C290C),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(15),
             ),
