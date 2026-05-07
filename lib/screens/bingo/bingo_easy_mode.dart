@@ -1,16 +1,14 @@
-import 'dart:convert';
 import 'dart:core';
 import 'dart:io';
 
 import 'package:Skogsjakten/screens/home/choose_bingo_game.dart';
 import 'package:Skogsjakten/services/token_storage.dart';
+import 'package:Skogsjakten/services/upload_picture.dart';
 import 'package:flutter/material.dart';
 import '../../services/camera_service.dart';
 import '../../widgets/custom_navigation_bar.dart';
 import '../home.dart';
-import 'package:http/http.dart' as http;
-
-import 'bingo_help_methods.dart';
+import 'http_help_methods.dart';
 import 'json_decode.dart';
 
 class BingoEasyMode extends StatefulWidget{
@@ -34,7 +32,9 @@ class _BingoEasyMode extends State<BingoEasyMode> {
 
   Future<String?> token = TokenStorage().getToken();
 
-  late final BingoHelpMethods helpMethods;
+  late final HttpHelpMethods helpMethodsChallenge;
+
+  late final UploadPicture helpMethodsUploadPicture;
 
   late Map<String, dynamic>? currentGame = findCurrentBingoGame();
 
@@ -55,10 +55,28 @@ class _BingoEasyMode extends State<BingoEasyMode> {
   }
 
   void startChallenge() async {
-    final String? jwtToken = await token;
-    helpMethods= BingoHelpMethods(jwtToken: jwtToken);
-    String tempQuestion = await helpMethods.getNewQuestion('EASY', 'BINGO');
-    putQuestion(tempQuestion);
+    try {
+      helpMethodsChallenge = HttpHelpMethods(jwtToken: await token);
+      String tempQuestion;
+
+      Map<String, dynamic>? currentGame = findCurrentBingoGame();
+
+      if (currentGame != null) {
+        if (currentGame['challengeId'] == null) {
+          Map<String, dynamic> data = await helpMethodsChallenge.getNewQuestion('EASY', 'BINGO', widget.typeOfBingo);
+          currentGame['challengeId'] = JsonDecode.jsonDecodeChallengeId(data);
+          tempQuestion = JsonDecode.jsonDecodeDescription(data);
+        } else {
+          Map<String, dynamic> data = await helpMethodsChallenge.getStartedQuestion(currentGame['challengeId']);
+          tempQuestion = JsonDecode.jsonDecodeDescription(data);
+        }
+        putQuestion(tempQuestion);
+      }
+    } catch (e) {
+      setState(() {
+        question = '$e';
+      });
+    }
   }
 
   void putQuestion (String tempQuestion) {
@@ -66,26 +84,6 @@ class _BingoEasyMode extends State<BingoEasyMode> {
       question = tempQuestion;
     });
   }
-
-
-  /*
-
-  void startChallenge() {
-    Map<String, dynamic>? currentGame = findCurrentBingoGame();
-    if(currentGame != null) {
-      if(currentGame['challengeId'] != null) {
-        //helpMethods.getStartedQuestion(jwtToken);
-        getStartedQuestion();
-      } else {
-        //helpMethods.getNewQuestion(jwtToken, 'EASY', 'BINGO');
-        getNewQuestion();
-      }
-    }
-  }
-
-   */
-
-
 
 
   @override
@@ -130,8 +128,8 @@ class _BingoEasyMode extends State<BingoEasyMode> {
                         if (image1 == null){
                           final File? file = await CameraService.takePicture();
 
-                          //BingoHelpMethods.sendPictureToGoogleStorage(token as String, file);
-                          sendPictureToGoogleStorage(file);
+                          //UploadPicture.sendPictureToGoogleStorage(file);
+                          //sendPictureToGoogleStorage(file);
 
                           //TODO check om det gick igenom
 
@@ -164,7 +162,7 @@ class _BingoEasyMode extends State<BingoEasyMode> {
                           final File? file = await CameraService.takePicture();
 
                           //BingoHelpMethods.sendPictureToGoogleStorage(token as String, file);
-                          sendPictureToGoogleStorage(file);
+                          //sendPictureToGoogleStorage(file);
 
                           //TODO check om det gick igenom
 
@@ -270,6 +268,33 @@ class _BingoEasyMode extends State<BingoEasyMode> {
     );
   }
 
+
+  //Behövs allt detta? Kan man göra det på annat sätt?
+  Future<bool> uploadPicture(File? file) async {
+    try {
+      helpMethodsUploadPicture = UploadPicture(jwtToken: await token);
+      if (file != null) {
+        bool response = await helpMethodsUploadPicture.sendPictureToBackend(file);
+
+        if (response == true) {
+          debugPrint('DEBUG uppladdning lyckades');
+          return true;
+        } else {
+          debugPrint('DEBUG uppladdning misslyckades');
+          return false;
+        }
+
+      } else {
+        debugPrint('DEBUG mottagen fil var null');
+        return false;
+      }
+
+    } catch (e) {
+      debugPrint('DEBUG: $e');
+      return false;
+    }
+  }
+
   //TODO egentligen bättre med andra hållet för true false return
   Future<bool> checkBingoCompletionStatus () async {
     if (image1 == null || image2 == null) {
@@ -343,7 +368,7 @@ class _BingoEasyMode extends State<BingoEasyMode> {
 
   }
 
-
+/*
 
   Future<http.StreamedResponse?> sendPictureToGoogleStorage(File? imageFile) async {
     try {
@@ -407,58 +432,14 @@ class _BingoEasyMode extends State<BingoEasyMode> {
       return false;
     }
   }
-
-
-
-/*
-
-//TODO ger 500 error
-  Future<void> getStartedQuestion() async {
-    int id = currentGame!['challengeId'];
-
-    debugPrint('DEBUG: $id');
-
-    try {
-      final String? jwtToken = await token;
-      debugPrint('DEBUG: $jwtToken');
-
-      final response = await http.get(
-        Uri.parse('https://group-6-15.pvt.dsv.su.se/challenges/$id'),
-        headers: {
-          'Authorization': 'Bearer $jwtToken',
-          //'Id': 'id: $id',
-        },
-      );
-
-      debugPrint(response.body);
-
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        setState(() {
-          question = jsonDecodeDescription(data);
-        });
-      } else {
-        setState(() {
-          question = 'Kunde inte hämta fråga (${response.statusCode})';
-        });
-      }
-
-    } catch (e) {
-      setState(() {
-        question = 'Något gick fel vid inhämtning av fråga';
-      });
-    }
-  }
+ */
 
   void setCurrentChallengeId(Map<String, dynamic> data) {
     Map<String, dynamic>? currentGame = findCurrentBingoGame();
     if(currentGame != null) {
-      //currentGame['challengeId'] = JsonDecode.jsonDecodeChallengeId(data);
-      currentGame['challengeId'] = jsonDecodeChallengeId(data);
+      currentGame['challengeId'] = JsonDecode.jsonDecodeChallengeId(data);
+      //currentGame['challengeId'] = jsonDecodeChallengeId(data);
     }
   }
-
- */
-
 
 }

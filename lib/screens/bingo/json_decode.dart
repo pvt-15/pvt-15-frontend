@@ -8,7 +8,7 @@ class JsonDecode {
     return data['description'];
   }
 
-  static String jsonDecodeChallengeId(Map<String, dynamic> data) {
+  static int jsonDecodeChallengeId(Map<String, dynamic> data) {
     return data['id'];
   }
 
@@ -30,6 +30,10 @@ class JsonDecode {
 
   static String jsonDecodeStatus(Map<String, dynamic> data) {
     return data['status'];
+  }
+
+  static String jsonDecodeCategory(Map<String, dynamic> data) {
+    return data['category'];
   }
 
 }
