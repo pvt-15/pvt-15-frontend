@@ -9,14 +9,14 @@ class SessionStorage {
   static const _tokenKey = 'auth_token';
   static const _userKey = 'current_user';
 
-  Future<void> save(Session session) async {
+  Future<void> saveUser(Session session) async {
     final prefs = await SharedPreferences.getInstance();
 
     await _secure.write(key: _tokenKey, value: session.token);
     await prefs.setString(_userKey, jsonEncode(session.user.toJson()));
   }
 
-  Future<Session?> get() async {
+  Future<Session?> getUserAndToken() async {
     final prefs = await SharedPreferences.getInstance();
 
     final token = await _secure.read(key: _tokenKey);
@@ -28,6 +28,24 @@ class SessionStorage {
       token: token,
       user: UserModel.fromJson(jsonDecode(userString)),
     );
+  }
+
+  Future<String?> getToken() async {
+    final token = await _secure.read(key: _tokenKey);
+
+    return token;
+  }
+
+  Future<UserModel?> getUser() async {
+    final prefs = await SharedPreferences.getInstance();
+    final userString = prefs.getString('current_user');
+
+    if (userString == null){
+      return null;
+    }
+
+    final userMap = jsonDecode(userString);
+    return UserModel.fromJson(userMap);
   }
 
   Future<void> clear() async {

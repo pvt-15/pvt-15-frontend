@@ -1,6 +1,5 @@
 import 'package:Skogsjakten/screens/home.dart';
 import 'package:Skogsjakten/services/check_current_user.dart';
-import 'package:Skogsjakten/services/user_local_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:Skogsjakten/screens/login/login.dart';
 import 'package:Skogsjakten/screens/home.dart';
@@ -20,7 +19,7 @@ void main() async {
   Widget initialScreen;
 
   if (isTokenValid) {
-    final user = await UserLocalStorage().getUser();
+    final user = await SessionStorage().getUser();
     userName = user?.username;
 
     if (userName != null) {

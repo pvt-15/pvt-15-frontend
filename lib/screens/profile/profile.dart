@@ -26,8 +26,7 @@ class _ProfileState extends State<Profile> {
 
   Future<void> loadPoints() async {
     try {
-      final session = await sessionStorage.get();
-
+      final session = await sessionStorage.getUserAndToken();
 
       if (session == null) {
         if (mounted) {

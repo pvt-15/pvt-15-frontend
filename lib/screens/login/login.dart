@@ -226,11 +226,11 @@ class _LoginScreenState extends State<LoginScreen> {
       if (response.statusCode == 200 && mounted) {
         final data = jsonDecode(response.body);
 
-        await SessionStorage().save(
+        await SessionStorage().saveUser(
           Session(
             token: data['token'],
             user: UserModel(
-              userId: data['userId'].toString(),
+              id: data['userId'].toString(),
               username: data['name'],
               email: data['email'],
             ),

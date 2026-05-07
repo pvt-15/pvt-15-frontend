@@ -2,10 +2,10 @@ import 'dart:core';
 import 'dart:io';
 
 import 'package:Skogsjakten/screens/home/choose_bingo_game.dart';
-import 'package:Skogsjakten/services/token_storage.dart';
 import 'package:Skogsjakten/services/upload_picture.dart';
 import 'package:flutter/material.dart';
 import '../../services/camera_service.dart';
+import '../../services/session_storage.dart';
 import '../../widgets/custom_navigation_bar.dart';
 import '../home.dart';
 import 'http_help_methods.dart';
@@ -30,7 +30,7 @@ class _BingoEasyMode extends State<BingoEasyMode> {
     {'name': 'Blandad', 'images': <File?>[null, null], "isCompleted": false, 'challengeId': null},
   ];
 
-  Future<String?> token = TokenStorage().getToken();
+  Future<String?> token = SessionStorage().getToken();
 
   late final HttpHelpMethods helpMethodsChallenge;
 
@@ -63,7 +63,7 @@ class _BingoEasyMode extends State<BingoEasyMode> {
 
       if (currentGame != null) {
         if (currentGame['challengeId'] == null) {
-          Map<String, dynamic> data = await helpMethodsChallenge.getNewQuestion('EASY', 'BINGO', widget.typeOfBingo);
+          Map<String, dynamic> data = await helpMethodsChallenge.getNewQuestion('MEDIUM', 'BINGO', null);
           currentGame['challengeId'] = JsonDecode.jsonDecodeChallengeId(data);
           tempQuestion = JsonDecode.jsonDecodeDescription(data);
         } else {
@@ -368,77 +368,10 @@ class _BingoEasyMode extends State<BingoEasyMode> {
 
   }
 
-/*
-
-  Future<http.StreamedResponse?> sendPictureToGoogleStorage(File? imageFile) async {
-    try {
-      if (imageFile != null) {
-        final request = http.MultipartRequest(
-          'POST',
-          Uri.parse('https://group-6-15.pvt.dsv.su.se/uploads/picture'),
-        );
-
-        request.headers['Authorization'] = 'Bearer $token';
-
-        request.files.add(
-            await http.MultipartFile.fromPath(
-                'file',
-                imageFile.path
-            ),
-        );
-
-        final response = await request.send();
-
-        return response;
-
-      } else {
-        debugPrint('Mottagen fil var null');
-        return null;
-      }
-    } catch (e) {
-      debugPrint('GoogleStorage Error $e');
-      return null;
-    }
-
-  }
-
-
-  Future<bool> sendPictureToBackend(File? imageFile) async {
-    try {
-      //Vänta på att bilden laddas upp och få tillbaka URL:en
-      final imageURL = await sendPictureToGoogleStorage(imageFile);
-
-      //Skicka URL till backend
-      final response = await http.post(
-        Uri.parse('https://group-6-15.pvt.dsv.su.se/pictures'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'token': token,
-          //skicka med url till backend som google ger tillbaka
-          'imageUrl': imageURL,
-          'targetType': 'PLANT',
-          'PictureMode': 'CHALLENGE',
-
-        }),
-      );
-      if (response.statusCode == 200) {
-        return true;
-      } else {
-        debugPrint('Backend Error: ${response.statusCode}');
-        return false;
-      }
-    } catch (e) {
-      debugPrint('Skicka bild till backend Error $e');
-      return false;
-    }
-  }
- */
-
   void setCurrentChallengeId(Map<String, dynamic> data) {
     Map<String, dynamic>? currentGame = findCurrentBingoGame();
     if(currentGame != null) {
       currentGame['challengeId'] = JsonDecode.jsonDecodeChallengeId(data);
-      //currentGame['challengeId'] = jsonDecodeChallengeId(data);
     }
   }
 

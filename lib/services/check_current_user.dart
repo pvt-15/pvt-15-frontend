@@ -1,10 +1,10 @@
-import 'package:Skogsjakten/services/token_storage.dart';
+import 'package:Skogsjakten/services/session_storage.dart';
 import 'package:http/http.dart' as http;
 
 class CheckCurrentUser {
 
   Future<bool> checkValidToken() async {
-    final String? storedToken = await TokenStorage().getToken();
+    final String? storedToken = await SessionStorage().getToken();
 
     if (storedToken == null) return false;
 
