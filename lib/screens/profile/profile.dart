@@ -32,6 +32,7 @@ class _ProfileState extends State<Profile> {
   }
 
    Future<void> loadBadges() async{
+    // lägg till try catch
       print("loadBadges START");
       final token = await sessionStorage.get();
 

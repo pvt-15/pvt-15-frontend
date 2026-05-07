@@ -1,3 +1,4 @@
+import 'package:Skogsjakten/screens/identify_species/identify_camera.dart';
 import 'package:Skogsjakten/screens/profile/profile.dart';
 import 'package:flutter/material.dart';
 import 'package:Skogsjakten/screens/login/login.dart';
@@ -100,9 +101,10 @@ class MyApp extends StatelessWidget {
       //home: const LoginScreen(),
       //home: const Profile(),
       //home: const HomeScreen(name: 'test'),
+      home: const IdentifyCamera(),
 
 
-      home: FutureBuilder<Session?>(
+      /*home: FutureBuilder<Session?>(
         future: SessionStorage().get(),
         builder: (context, snapshot) {
           final session = snapshot.data;
@@ -113,7 +115,7 @@ class MyApp extends StatelessWidget {
 
           return const LoginScreen();
         },
-      ),
+      ),*/
 
     );
   }
