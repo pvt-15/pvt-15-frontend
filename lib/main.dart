@@ -5,8 +5,6 @@ import 'package:Skogsjakten/screens/login/login.dart';
 import 'package:Skogsjakten/services/session_storage.dart';
 
 void main() async {
-  //runApp(const MyApp());
-
   //gör main asynkron och ladda in Flutter-motorn
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -29,15 +27,19 @@ void main() async {
   }
 
   //Starta appen och skicka med resultatet
-  runApp(MyApp(startScreen: initialScreen));
+
+  runApp(
+      MyApp(
+        startScreen: initialScreen,
+      )
+  );
+
 }
 
 class MyApp extends StatelessWidget {
   final Widget startScreen;
 
   const MyApp({super.key, required this.startScreen});
-
-  //const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -124,10 +126,10 @@ class MyApp extends StatelessWidget {
           errorStyle: const TextStyle(fontFamily: 'WinkySans', fontSize: 12),
 
           //bordern runt
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.all(Radius.circular(20)),
-          ),
+
+          border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(20))),
         ),
+
 
         navigationBarTheme: NavigationBarThemeData(
           height: 70,
@@ -139,11 +141,11 @@ class MyApp extends StatelessWidget {
           ),
           shadowColor: Colors.black12,
         ),
+
       ),
 
-      home:
-          //const LoginScreen(),
-          startScreen,
+      home: startScreen,
+
     );
   }
 }

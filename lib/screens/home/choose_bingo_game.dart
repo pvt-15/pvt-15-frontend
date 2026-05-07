@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
-import '../../services/check_current_user.dart';
 import '../../widgets/custom_navigation_bar.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import '../bingo/bingo_easy_mode.dart';
 import '../bingo/bingo_hard_mode.dart';
 import '../bingo/bingo_medium_mode.dart';
 import '../choose_difficulty.dart';
-import '../login/login.dart';
 
 class ChooseBingoGame extends StatefulWidget {
 
