@@ -57,36 +57,38 @@ class _AnimalsLibraryState extends State<AnimalsLibrary> {
 
       if (token == null) {
         setState(() {
-          _errorMessage = 'Ingen inloggning hittades.';
+          _errorMessage = 'Du är inte inloggad';
           _isLoading = false;
         });
         return;
       }
 
-      final uri = Uri.parse(
-        'https://group-6-15.pvt.dsv.su.se/pictures?category=ANIMAL',
+      // Hämta alla tre kategorier av djur parallellt
+      final categories = ['INSECT', 'BIRD', 'ANIMAL'];
+      final responses = await Future.wait(
+        categories.map((category) => http.get(
+          Uri.parse('https://group-6-15.pvt.dsv.su.se/pictures?category=$category'),
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+        )),
       );
 
-      final response = await http.get(
-        uri,
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-        },
-      );
-
-      if (response.statusCode == 200) {
-        final List<dynamic> data = jsonDecode(response.body);
-        setState(() {
-          _animals = data.map((e) => AnimalPicture.fromJson(e)).toList();
-          _isLoading = false;
-        });
-      } else {
-        setState(() {
-          _errorMessage = 'Kunde inte hämta bilder (${response.statusCode}).';
-          _isLoading = false;
-        });
+      // Slå ihop alla listor
+      final List<AnimalPicture> allAnimals = [];
+      for (final response in responses) {
+        if (response.statusCode == 200) {
+          final List<dynamic> data = jsonDecode(response.body);
+          allAnimals.addAll(data.map((e) => AnimalPicture.fromJson(e)));
+        }
       }
+
+      setState(() {
+        _animals = allAnimals;
+        _isLoading = false;
+      });
+
     } catch (e) {
       setState(() {
         _errorMessage = 'Nätverksfel: $e';
@@ -99,6 +101,11 @@ class _AnimalsLibraryState extends State<AnimalsLibrary> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFBEDBB2),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFFBEDBB2),
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Color(0xFF4C290C)),
+      ),
       body: SafeArea(
         child: Column(
           children: [

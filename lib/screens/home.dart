@@ -19,7 +19,7 @@ class HomeScreen extends StatelessWidget {
       {'name': 'Bingo', 'page': ChooseBingoGame()},
       {'name': 'Skattjakt', 'page': const Skattjakt()},
       {'name': 'Samla art', 'page': const SpeciesProfile()},
-      {'name': 'Quiz', 'page': const Quiz()},
+      {'name': 'Quiz', 'page': const ChooseDifficulty()},
       {'name': 'Platsuppdrag', 'page': const HomeLibrary()},
     ];
 

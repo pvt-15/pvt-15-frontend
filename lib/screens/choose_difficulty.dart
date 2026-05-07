@@ -1,19 +1,11 @@
 import 'package:flutter/material.dart';
 import 'home.dart';
+import 'home/quiz.dart';
 
-enum Difficulty {
-  easy,
-  medium,
-  hard,
-}
+enum Difficulty { easy, medium, hard }
 
 class ChooseDifficulty extends StatefulWidget {
-  final Widget Function(Difficulty difficulty) nextPage;
-
-  const ChooseDifficulty({
-    super.key,
-    required this.nextPage,
-  });
+  const ChooseDifficulty({super.key});
 
   @override
   State<ChooseDifficulty> createState() => _ChooseDifficultyState();
@@ -21,27 +13,30 @@ class ChooseDifficulty extends StatefulWidget {
 
 class _ChooseDifficultyState extends State<ChooseDifficulty> {
   final List<Map<String, dynamic>> difficulty = [
-    {'name': 'Lätt', 'level': Difficulty.easy,},
-    {'name': 'Medel', 'level': Difficulty.medium,},
-    {'name': 'Svårt', 'level': Difficulty.hard,},
+    {'name': 'Lätt', 'level': Difficulty.easy},
+    {'name': 'Medel', 'level': Difficulty.medium},
+    {'name': 'Svårt', 'level': Difficulty.hard},
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFBEDBB2),
-
+      appBar: AppBar(
+        backgroundColor: const Color(0xFFBEDBB2),
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Color(0xFF000000)),
+      ),
       body: SafeArea(
         child: Column(
           children: [
             const SizedBox(height: 20),
 
-            // vårt troll och pratbubbla
+            // Troll + pratbubbla
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Pratbubbla
                 Stack(
                   clipBehavior: Clip.none,
                   children: [
@@ -49,40 +44,29 @@ class _ChooseDifficultyState extends State<ChooseDifficulty> {
                       constraints: const BoxConstraints(maxWidth: 210),
                       padding: const EdgeInsets.all(14),
                       decoration: BoxDecoration(
-                        color: Color (0xff84c06c),
+                        color: const Color(0xff84c06c),
                         borderRadius: BorderRadius.circular(20),
-                        /*border: Border.all(
-                          color: Colors.black26,
-                          width: 1.5,
-                        ),*/
                         boxShadow: const [
-                          BoxShadow(
-                            color: Colors.black12,
-                            blurRadius: 4,
-                          ),
+                          BoxShadow(color: Colors.black12, blurRadius: 4),
                         ],
                       ),
                       child: Text(
-                        "Roligt att du vill lära dig mer om skogen! \nVälj svårighetsgrad så sätter vi igång! ",
+                        "Roligt att du vill lära dig mer om skogen! \nVälj svårighetsgrad så sätter vi igång!",
                         style: Theme.of(context).textTheme.bodyMedium,
                       ),
                     ),
-
-                    // Spets så det sset ut som en pratbubbla
-                    Positioned(
+                    const Positioned(
                       right: -35,
                       top: 26,
                       child: Icon(
                         Icons.arrow_right,
                         size: 60,
-                        color: Color (0xff84c06c),
+                        color: Color(0xff84c06c),
                       ),
                     ),
                   ],
                 ),
-
                 const SizedBox(width: 12),
-
                 Image.asset(
                   'assets/maskot_skogstroll.png',
                   width: 140,
@@ -90,19 +74,12 @@ class _ChooseDifficultyState extends State<ChooseDifficulty> {
                 ),
               ],
             ),
-/*
-            Text(
-              'Välj svårighetsgrad',
-              style: Theme.of(context).textTheme.headlineLarge,
-            ),*/
 
             const SizedBox(height: 20),
+
             Expanded(
               child: ListView.builder(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 30,
-                  vertical: 20,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
                 itemCount: difficulty.length,
                 itemBuilder: (context, index) {
                   return Padding(
@@ -115,32 +92,18 @@ class _ChooseDifficultyState extends State<ChooseDifficulty> {
                           borderRadius: BorderRadius.circular(15),
                         ),
                       ),
-
                       onPressed: () {
-                        final selectedDifficulty =
-                        difficulty[index]['level'] as Difficulty;
-
+                        final selected = difficulty[index]['level'] as Difficulty;
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) =>
-                                widget.nextPage(selectedDifficulty),
+                            builder: (_) => Quiz(difficulty: selected),
                           ),
                         );
                       },
-
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const SizedBox(width: 20),
-
-                          Text(
-                            difficulty[index]['name'],
-                            style: Theme.of(context)
-                                .textTheme
-                                .headlineLarge,
-                          ),
-                        ],
+                      child: Text(
+                        difficulty[index]['name'],
+                        style: Theme.of(context).textTheme.headlineLarge,
                       ),
                     ),
                   );
@@ -150,32 +113,21 @@ class _ChooseDifficultyState extends State<ChooseDifficulty> {
           ],
         ),
       ),
-
       bottomNavigationBar: Container(
         height: 80,
         decoration: const BoxDecoration(
           color: Color(0xff84c06c),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black12,
-              blurRadius: 10,
-            ),
-          ],
+          boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 10)],
         ),
-
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             IconButton(
               icon: const Icon(Icons.home),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => HomeScreen(name: 'test'),
-                  ),
-                );
-              },
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const HomeScreen(name: 'test')),
+              ),
             ),
           ],
         ),

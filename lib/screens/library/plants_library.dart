@@ -57,39 +57,38 @@ class _PlantsLibraryState extends State<PlantsLibrary> {
 
       if (token == null) {
         setState(() {
-          _errorMessage = 'Ingen inloggning hittades.';
+          _errorMessage = 'Du är inte inloggad';
           _isLoading = false;
         });
         return;
       }
 
-      final uri = Uri.parse(
-        'https://group-6-15.pvt.dsv.su.se/pictures?category=FLOWER',
+      // Hämta alla tre kategorier parallellt
+      final categories = ['FLOWER', 'PLANT', 'TREE'];
+      final responses = await Future.wait(
+        categories.map((category) => http.get(
+          Uri.parse('https://group-6-15.pvt.dsv.su.se/pictures?category=$category'),
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+        )),
       );
 
-      final response = await http.get(
-        uri,
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-        },
-      );
-
-      print('Status: ${response.statusCode}');
-      print('Body: ${response.body}');
-
-      if (response.statusCode == 200) {
-        final List<dynamic> data = jsonDecode(response.body);
-        setState(() {
-          _plants = data.map((e) => PlantPicture.fromJson(e)).toList();
-          _isLoading = false;
-        });
-      } else {
-        setState(() {
-          _errorMessage = 'Kunde inte hämta bilder (${response.statusCode}).';
-          _isLoading = false;
-        });
+      // Slå ihop alla listor
+      final List<PlantPicture> allPlants = [];
+      for (final response in responses) {
+        if (response.statusCode == 200) {
+          final List<dynamic> data = jsonDecode(response.body);
+          allPlants.addAll(data.map((e) => PlantPicture.fromJson(e)));
+        }
       }
+
+      setState(() {
+        _plants = allPlants;
+        _isLoading = false;
+      });
+
     } catch (e) {
       setState(() {
         _errorMessage = 'Nätverksfel: $e';
@@ -102,6 +101,11 @@ class _PlantsLibraryState extends State<PlantsLibrary> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFBEDBB2),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFFBEDBB2),
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Color(0xFF4C290C)),
+      ),
       body: SafeArea(
         child: Column(
           children: [
