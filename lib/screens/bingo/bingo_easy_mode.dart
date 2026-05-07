@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:Skogsjakten/screens/home/choose_bingo_game.dart';
 import 'package:Skogsjakten/services/upload_picture.dart';
 import 'package:flutter/material.dart';
+import 'package:http/src/response.dart';
 import '../../services/camera_service.dart';
 import '../../services/session_storage.dart';
 import '../../widgets/custom_navigation_bar.dart';
@@ -60,18 +61,20 @@ class _BingoEasyMode extends State<BingoEasyMode> {
       String tempQuestion;
 
       Map<String, dynamic>? currentGame = findCurrentBingoGame();
+      String response = await helpMethodsChallenge.getAllChallenges();
 
-      if (currentGame != null) {
-        if (currentGame['challengeId'] == null) {
-          Map<String, dynamic> data = await helpMethodsChallenge.getNewQuestion('MEDIUM', 'BINGO', null);
-          currentGame['challengeId'] = JsonDecode.jsonDecodeChallengeId(data);
-          tempQuestion = JsonDecode.jsonDecodeDescription(data);
-        } else {
-          Map<String, dynamic> data = await helpMethodsChallenge.getStartedQuestion(currentGame['challengeId']);
-          tempQuestion = JsonDecode.jsonDecodeDescription(data);
-        }
-        putQuestion(tempQuestion);
-      }
+      //if (currentGame != null) {
+        debugPrint('DEBUG: $response');
+        //if (currentGame['challengeId'] == null) {
+          //Map<String, dynamic> data = await helpMethodsChallenge.getNewQuestion('MEDIUM', 'BINGO', null);
+          //currentGame['challengeId'] = JsonDecode.jsonDecodeChallengeId(data);
+          //tempQuestion = JsonDecode.jsonDecodeDescription(data);
+        //} else {
+          //Map<String, dynamic> data = await helpMethodsChallenge.getStartedQuestion(currentGame['challengeId']);
+          //tempQuestion = JsonDecode.jsonDecodeDescription(data);
+        //}
+        //putQuestion(tempQuestion);
+      //}
     } catch (e) {
       setState(() {
         question = '$e';

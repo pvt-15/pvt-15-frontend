@@ -67,6 +67,25 @@ class HttpHelpMethods {
     }
   }
 
+  Future<String> getAllChallenges() async {
+    try {
+      final response = await http.get(
+          Uri.parse('https://group-6-15.pvt.dsv.su.se/challenges'),
+          headers: {
+            'Authorization': 'Bearer $jwtToken',
+          }
+      );
+      return response.body;
+    } catch (e) {
+      throw Exception('Något gick fel vid inhämtning av fråga $e');
+    }
+  }
+
+  Future<Map<String, dynamic>> decodeAllChallenges() async {
+    String challenges = await getAllChallenges();
+
+  }
+
 
 
 }
