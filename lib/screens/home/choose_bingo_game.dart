@@ -91,14 +91,9 @@ class _ChooseBingoGame extends State<ChooseBingoGame> {
                             if (game['name'] == games[index]['name']) {
                               if (game['status'] == false){
 
-                                final Difficulty? result = await Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => ChooseDifficulty(
-                                      gameTitle: games[index]['name'],
-                                    ),
-                                  ),
-                                );
+                                final Difficulty? result = await Navigator.push(context, MaterialPageRoute(builder: (context) => const ChooseDifficulty(
+                                  gameTitle: 'Bingo',
+                                )),);
 
                                 if (result != null) {
                                   if (result == Difficulty.easy) {
@@ -186,7 +181,7 @@ class _ChooseBingoGame extends State<ChooseBingoGame> {
             ],
           ),
         ),
-      bottomNavigationBar: const CustomNavigationBar(),
+      bottomNavigationBar: const CustomNavigationBar(selectedIndex: -1),
     );
   }
 }

@@ -1,8 +1,10 @@
 import 'package:Skogsjakten/screens/home.dart';
+import 'package:Skogsjakten/screens/profile/profile.dart';
 import 'package:Skogsjakten/services/check_current_user.dart';
 import 'package:flutter/material.dart';
 import 'package:Skogsjakten/screens/login/login.dart';
 import 'package:Skogsjakten/services/session_storage.dart';
+import 'package:Skogsjakten/screens/profile/settings.dart';
 
 
 void main() async {
@@ -156,17 +158,17 @@ class MyApp extends StatelessWidget {
           elevation: 0,
           centerTitle: true,
           iconTheme: IconThemeData(
-            color: Color(0xFF4C290C),
+            color: Color(0xFF000000),
           ),
           titleTextStyle: TextStyle(
             fontFamily: 'YoungSerif',
             fontSize: 30,
             fontWeight: FontWeight.bold,
-            color: Color(0xFF4C290C),
+            color: Color(0xFF000000),
           ),
         ),
       ),
-      home: startScreen,
+      home: const SettingsScreen(),
     );
   }
 }
