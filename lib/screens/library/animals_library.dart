@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../services/token_storage.dart'; // justera sökvägen efter ditt projekt
+import '../../services/token_storage.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
@@ -63,7 +63,7 @@ class _AnimalsLibraryState extends State<AnimalsLibrary> {
         return;
       }
 
-      // Hämta alla tre kategorier av djur parallellt
+      // Hämta alla tre kategorier av djur parallellt från backend
       final categories = ['INSECT', 'BIRD', 'ANIMAL'];
       final responses = await Future.wait(
         categories.map((category) => http.get(
@@ -104,7 +104,7 @@ class _AnimalsLibraryState extends State<AnimalsLibrary> {
       appBar: AppBar(
         backgroundColor: const Color(0xFFBEDBB2),
         elevation: 0,
-        iconTheme: const IconThemeData(color: Color(0xFF4C290C)),
+        iconTheme: const IconThemeData(color: Color(0xFF000000)),
       ),
       body: SafeArea(
         child: Column(
@@ -137,7 +137,7 @@ class _AnimalsLibraryState extends State<AnimalsLibrary> {
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: _fetchAnimals,
-              child: const Text('Försök igen'),
+              child: const Text('Något är fel, försök igen'),
             ),
           ],
         ),
@@ -209,99 +209,3 @@ class _AnimalsLibraryState extends State<AnimalsLibrary> {
     );
   }
 }
-
-
-
-
-
-/*
-import 'package:flutter/material.dart';
-
-
-class AnimalsLibrary extends StatefulWidget{
-  const AnimalsLibrary({super.key});
-
-  @override
-  State<AnimalsLibrary> createState() => _AnimalsLibrary();
-}
-
-class _AnimalsLibrary extends State<AnimalsLibrary> {
-// Ändra sen när vi har riktiga bilder
-  final List<String> animals = [
-    'Älg',
-    'Humla',
-    'Myra',
-    'Ko',
-    'Snigel',
-    'Ekorre',
-  ];
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFBEDBB2),
-      body: SafeArea(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(top: 40, bottom: 30),
-              child: Text(
-                'Mina djur',
-                style: Theme.of(context).textTheme.headlineLarge,
-              ),
-            ),
-
-            // Grid för bilder
-            Expanded(
-              child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child:GridView.builder(
-                    itemCount: animals.length,
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: animals.length <= 3 ? 1 : 2,
-                      crossAxisSpacing: 16,
-                      mainAxisSpacing: 16,
-                      childAspectRatio: animals.length <= 3 ? 1.4 : 0.8,
-                    ),
-                    itemBuilder: (context, index) {
-                      return Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: Color(0xfff8ed76),
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: Column(
-                          children: [
-                            Expanded(
-                              child: Container(
-                                width: double.infinity,
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: const Icon(
-                                  Icons.emoji_nature,
-                                  size: 50,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 10),
-                            Text(
-                              animals[index],
-                              style: Theme.of(context).textTheme.titleMedium,
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                  )
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
- */

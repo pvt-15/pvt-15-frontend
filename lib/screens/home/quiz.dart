@@ -6,8 +6,9 @@ import '../../services/token_storage.dart';
 import '../home.dart';
 import '../choose_difficulty.dart';
 
-// ─── Datamodeller ─────────────────────────────────────────────────────────────
+// Datamodeller, gör klasser av det vi får (data) från backend
 
+// svars alt.
 class QuizOption {
   final int id;
   final String text;
@@ -17,11 +18,12 @@ class QuizOption {
       QuizOption(id: j['id'] as int, text: j['optionText'] as String);
 }
 
+// quiz fråga
 class QuizQuestion {
   final int id;
   final String text;
   final List<QuizOption> options;
-  final int? correctOptionId;
+  final int? correctOptionId; // kan vara okänt, vi får svar efter vi skickar. Så null nu
   const QuizQuestion({
     required this.id,
     required this.text,
@@ -29,6 +31,7 @@ class QuizQuestion {
     this.correctOptionId,
   });
 
+  // backend skcikar id, questionText och options
   factory QuizQuestion.fromJson(Map<String, dynamic> j) => QuizQuestion(
     id: j['id'] as int,
     text: j['questionText'] as String,
@@ -39,23 +42,57 @@ class QuizQuestion {
   );
 }
 
+// Modell för ett svar från review-endpointen
+class ReviewAnswer {
+  final int questionId;
+  final String questionText;
+  final int selectedOptionId;
+  final String selectedOptionText;
+  final int correctOptionId;
+  final String correctOptionText;
+  final bool correct; // true om rätt, false om fel svar
+  final String explanation; // förklaring till svaret, "En gran är oftast grön"
+
+  const ReviewAnswer({
+    required this.questionId,
+    required this.questionText,
+    required this.selectedOptionId,
+    required this.selectedOptionText,
+    required this.correctOptionId,
+    required this.correctOptionText,
+    required this.correct,
+    required this.explanation,
+  });
+
+  factory ReviewAnswer.fromJson(Map<String, dynamic> j) => ReviewAnswer(
+    questionId: j['questionId'] as int,
+    questionText: j['questionText'] as String,
+    selectedOptionId: j['selectedOptionId'] as int,
+    selectedOptionText: j['selectedOptionText'] as String,
+    correctOptionId: j['correctOptionId'] as int,
+    correctOptionText: j['correctOptionText'] as String,
+    correct: j['correct'] as bool,
+    explanation: j['explanation'] as String,
+  );
+}
+
+// resultatet från quizet
 class QuizResult {
   final int correct;
   final int total;
   final int pointsAwarded;
-  final List<QuizQuestion> questions;
+  final List<ReviewAnswer> answers; // från review-endpointen
   const QuizResult({
     required this.correct,
     required this.total,
     required this.pointsAwarded,
-    required this.questions,
+    required this.answers,
   });
 }
 
-// ─── Quiz-widget ───────────────────────────────────────────────────────────────
-
+// Här börjar Quiz-klassen
 class Quiz extends StatefulWidget {
-  final Difficulty difficulty;
+  final Difficulty difficulty; // Alternativet vi valde i choose_difficulty.dart
   final int questionCount;
 
   const Quiz({
@@ -69,21 +106,23 @@ class Quiz extends StatefulWidget {
 }
 
 class _QuizState extends State<Quiz> {
+  // bas URL till backend
   static const String _baseUrl = 'https://group-6-15.pvt.dsv.su.se';
 
   bool _loading = true;
   String? _error;
   String? _jwtToken;
 
-  int _attemptId = -1;
-  List<QuizQuestion> _questions = [];
-  int _currentIndex = 0;
+  int _attemptId = -1;  // ID för detta quiz (för att kunna skicka in svaren)
+  List<QuizQuestion> _questions = []; // alla frågor
+  int _currentIndex = 0; // index för den aktuella frågan
+  // sparar användarens svar
   final Map<int, int> _answers = {};
 
-  bool _submitting = false;
-  QuizResult? _result;
+  bool _submitting = false; // true medan vi väntar på svar från backend
+  QuizResult? _result; // null tills quiz är rättat
 
-  // ── Difficulty → API-sträng ──
+  // enum för olika nivåer av svårighet
   String get _difficultyParam {
     switch (widget.difficulty) {
       case Difficulty.easy:
@@ -101,27 +140,26 @@ class _QuizState extends State<Quiz> {
     _init();
   }
 
-  // Hämta token först, sedan frågor
+  // hämta JWT token, hämta frågor
   Future<void> _init() async {
     final token = await TokenStorage().getToken();
     setState(() => _jwtToken = token);
     await _fetchQuestions();
   }
 
+  // frågor från backend
   Future<void> _fetchQuestions() async {
     setState(() {
       _loading = true;
       _error = null;
     });
+    // URL med svårighetsgrad och antal frågor
     try {
       final uri = Uri.parse(
         '$_baseUrl/quiz?difficulty=$_difficultyParam&count=${widget.questionCount}',
       );
-
       final headers = <String, String>{};
-      if (_jwtToken != null) {
-        headers['Authorization'] = 'Bearer $_jwtToken';
-      }
+      if (_jwtToken != null) headers['Authorization'] = 'Bearer $_jwtToken';
 
       final response = await http.get(uri, headers: headers);
 
@@ -148,16 +186,19 @@ class _QuizState extends State<Quiz> {
     }
   }
 
+  // skicka in svaren till backend
   Future<void> _submitAnswers() async {
     setState(() => _submitting = true);
     try {
-      final uri = Uri.parse('$_baseUrl/quiz/submit');
-      final response = await http.post(
-        uri,
+      // Skicka in svaren
+      final submitUri = Uri.parse('$_baseUrl/quiz/submit');
+      final submitResponse = await http.post(
+        submitUri,
         headers: {
           if (_jwtToken != null) 'Authorization': 'Bearer $_jwtToken',
           'Content-Type': 'application/json',
         },
+        // request body med attemptID och alla svar
         body: jsonEncode({
           'attemptId': _attemptId,
           'answers': _answers.entries
@@ -166,25 +207,48 @@ class _QuizState extends State<Quiz> {
         }),
       );
 
-      if (response.statusCode == 200) {
-        final body = jsonDecode(response.body) as Map<String, dynamic>;
-        setState(() {
-          _result = QuizResult(
-            correct: body['score'] as int,
-            total: body['totalQuestions'] as int,
-            pointsAwarded: body['pointsAwarded'] as int,
-            questions: _questions,
-          );
-          _submitting = false;
-        });
-      } else {
+      // fel vid inlämning
+      if (submitResponse.statusCode != 200) {
         setState(() => _submitting = false);
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Fel vid inlämning (${response.statusCode})')),
+            SnackBar(content: Text('Fel vid inlämning (${submitResponse.statusCode})')),
           );
         }
+        return;
       }
+
+      // Plocka poäng från submit svaret
+      final submitBody = jsonDecode(submitResponse.body) as Map<String, dynamic>;
+      final score = submitBody['score'] as int;
+      final total = submitBody['totalQuestions'] as int;
+      final points = submitBody['pointsAwarded'] as int;
+
+      // Hämta rättning GET för att få rätt/fel per fråga
+      final reviewUri = Uri.parse('$_baseUrl/quiz/attempts/$_attemptId/review');
+      final reviewResponse = await http.get(reviewUri, headers: {
+        if (_jwtToken != null) 'Authorization': 'Bearer $_jwtToken',
+      });
+
+      // Tolka svaret om det lyckas, annars tom lista
+      List<ReviewAnswer> reviewAnswers = [];
+      if (reviewResponse.statusCode == 200) {
+        final reviewBody = jsonDecode(reviewResponse.body) as Map<String, dynamic>;
+        reviewAnswers = (reviewBody['answers'] as List)
+            .map((a) => ReviewAnswer.fromJson(a as Map<String, dynamic>))
+            .toList();
+      }
+
+      // spara resultatet
+      setState(() {
+        _result = QuizResult(
+          correct: score,
+          total: total,
+          pointsAwarded: points,
+          answers: reviewAnswers,
+        );
+        _submitting = false;
+      });
     } catch (e) {
       setState(() => _submitting = false);
       if (mounted) {
@@ -199,13 +263,12 @@ class _QuizState extends State<Quiz> {
       _questions.isNotEmpty &&
           _questions.every((q) => _answers.containsKey(q.id));
 
+  // spara svar och uppdatera UI
   void _selectAnswer(int questionId, int optionId) =>
       setState(() => _answers[questionId] = optionId);
 
   void _goTo(int index) =>
       setState(() => _currentIndex = index.clamp(0, _questions.length - 1));
-
-  // ─── Build ────────────────────────────────────────────────────────────────
 
   @override
   Widget build(BuildContext context) {
@@ -215,6 +278,7 @@ class _QuizState extends State<Quiz> {
     return _buildQuiz();
   }
 
+  // laddningsskärm, visar när vi väntar på svar från backend
   Widget _buildLoading() => Scaffold(
     backgroundColor: const Color(0xFFBEDBB2),
     body: const Center(
@@ -246,6 +310,7 @@ class _QuizState extends State<Quiz> {
     ),
   );
 
+  // screen för Quiz, en fråga i taget med navigeringspilar
   Widget _buildQuiz() {
     final question = _questions[_currentIndex];
     final selectedOptionId = _answers[question.id];
@@ -258,7 +323,7 @@ class _QuizState extends State<Quiz> {
         backgroundColor: const Color(0xFFBEDBB2),
         elevation: 0,
         iconTheme: const IconThemeData(color: Color(0xFF000000)),
-        actions: [
+        actions: [ // visar 3/5 besvarade
           Padding(
             padding: const EdgeInsets.only(right: 16),
             child: Center(
@@ -277,14 +342,16 @@ class _QuizState extends State<Quiz> {
           child: Column(
             children: [
               Text(
-                'Fråga ${_currentIndex + 1} av ${_questions.length}',
+                'Fråga ${_currentIndex + 1} av ${_questions.length}', // frågenummer
                 style: Theme.of(context).textTheme.headlineLarge,
               ),
               const SizedBox(height: 10),
+
+              // prickar som visar progress, klickbara
               _buildProgressDots(),
               const SizedBox(height: 20),
 
-              // Frågetext
+              // gul ruta med frågan
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
@@ -303,7 +370,7 @@ class _QuizState extends State<Quiz> {
               ),
               const SizedBox(height: 30),
 
-              // Svarsalternativ
+              // svarsalternativ, klickbara.
               ...question.options.map((option) {
                 final isSelected = selectedOptionId == option.id;
                 return Padding(
@@ -315,7 +382,7 @@ class _QuizState extends State<Quiz> {
                       onPressed: () => _selectAnswer(question.id, option.id),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: isSelected
-                            ? const Color(0xFF84C06C)
+                            ? const Color(0xFF84C06C) // valda alternativ
                             : const Color(0xFFFFEE7A),
                         foregroundColor: const Color(0xFF000000),
                         elevation: isSelected ? 2 : 5,
@@ -340,7 +407,7 @@ class _QuizState extends State<Quiz> {
 
               const Spacer(),
 
-              // Navigeringspilarna
+              // navigeringsrad, bakåtpil, lämna in, framåtpil
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -358,7 +425,7 @@ class _QuizState extends State<Quiz> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor:
                         _allAnswered ? const Color(0xFFC0008F) : Colors.grey,
-                        foregroundColor: Colors.white,
+                        foregroundColor: Colors.white, // knapp är grå tills alla frågor är besvarade
                         padding: const EdgeInsets.symmetric(
                             horizontal: 28, vertical: 14),
                         shape: RoundedRectangleBorder(
@@ -392,6 +459,7 @@ class _QuizState extends State<Quiz> {
     );
   }
 
+  // progressprickar
   Widget _buildProgressDots() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -407,11 +475,11 @@ class _QuizState extends State<Quiz> {
             height: 12,
             decoration: BoxDecoration(
               color: isCurrent
-                  ? const Color(0xFFB1067E) // aktiv fråga
+                  ? const Color(0xFFB1067E) //nuvarande
                   : answered
-                  ? const Color(0xFFB1067E) // besvarad fråga
-                  : const Color(0xFF84C06C),
-              borderRadius: BorderRadius.circular(6), // nästa fråga
+                  ? const Color(0xFFB1067E) //besvarad
+                  : const Color(0xFF84C06C), // ej besvarad
+              borderRadius: BorderRadius.circular(6),
             ),
           ),
         );
@@ -426,7 +494,7 @@ class _QuizState extends State<Quiz> {
         ? 'Toppen! Du är en riktig skogsexpert!'
         : pct >= 0.6
         ? 'Riktigt bra jobbat!'
-        : 'Bra jobbat! Forstätt öva så blir du bättre och bättre!';
+        : 'Bra jobbat! Fortsätt öva så blir du bättre och bättre!';
 
     return Scaffold(
       backgroundColor: const Color(0xFFBEDBB2),
@@ -441,7 +509,7 @@ class _QuizState extends State<Quiz> {
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
           child: Column(
             children: [
-              // Resultatkort
+              // Resultatkort med maskot
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 20),
@@ -454,11 +522,7 @@ class _QuizState extends State<Quiz> {
                 ),
                 child: Column(
                   children: [
-                    Image.asset(
-                      'assets/mascot_happy.png',
-                      width: 120,
-                      height: 120,
-                    ),
+                    Image.asset('assets/mascot_happy.png', width: 120, height: 120),
                     const SizedBox(height: 8),
                     Text(
                       '${result.correct}/${result.total} rätt!',
@@ -468,18 +532,20 @@ class _QuizState extends State<Quiz> {
                           ?.copyWith(fontSize: 36),
                     ),
                     const SizedBox(height: 6),
-                    Text(text,
-                        style: Theme.of(context)
-                            .textTheme
-                            .titleMedium
-                            ?.copyWith(color: const Color(0xFF000000))),
+                    Text(
+                      text,
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleMedium
+                          ?.copyWith(color: const Color(0xFF000000)),
+                    ),
                     const SizedBox(height: 10),
                     Text(
                       '+${result.pointsAwarded} poäng!',
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleLarge
-                          ?.copyWith(color: const Color(0xFFC0008F), fontWeight: FontWeight.bold),
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          color: const Color(0xFFC0008F),
+                          fontWeight: FontWeight.bold),
                     ),
                   ],
                 ),
@@ -490,13 +556,10 @@ class _QuizState extends State<Quiz> {
                   style: Theme.of(context).textTheme.headlineMedium),
               const SizedBox(height: 14),
 
-              ...result.questions.asMap().entries.map((entry) {
-                final i = entry.key;
-                final q = entry.value;
-                final userOptionId = _answers[q.id];
-                // Backend returnerar inte correctOptionId – vi vet ej vilket som är rätt
-                final hasCorrectInfo = q.correctOptionId != null;
-                final isCorrect = hasCorrectInfo && userOptionId == q.correctOptionId;
+              // loopar alla rättade svar och visar en ruta per fråga
+              ...result.answers.asMap().entries.map((entry) {
+                final i = entry.key; // fråga 1, fråga 2 osv.
+                final a = entry.value;
 
                 return Container(
                   margin: const EdgeInsets.only(bottom: 16),
@@ -505,30 +568,29 @@ class _QuizState extends State<Quiz> {
                     color: const Color(0x6484c06c),
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
-                      color: hasCorrectInfo
-                          ? (isCorrect ? const Color(0xFFFFFFFF) : const Color(0xFFE53935))
-                          : Colors.black12,
+                      color: a.correct
+                      // grön kant om rättad, röd om fel
+                          ? const Color(0xFF84C06C)
+                          : const Color(0xFFE53935),
                       width: 2,
                     ),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      // Frågetext + ikon
                       Row(
                         children: [
-                          if (hasCorrectInfo)
-                            Icon(
-                              isCorrect ? Icons.check_circle : Icons.cancel,
-                              color: isCorrect
-                                  ? const Color(0xFFFFFFFF)
-                                  : const Color(0xFFE53935),
-                            )
-                          else
-                            const Icon(Icons.help_outline, color: Colors.black38),
+                          Icon(
+                            a.correct ? Icons.check_circle : Icons.cancel,
+                            color: a.correct
+                                ? const Color(0xFF4C290C)
+                                : const Color(0xFFE53935),
+                          ),
                           const SizedBox(width: 8),
                           Expanded(
                             child: Text(
-                              'Fråga ${i + 1}: ${q.text}',
+                              'Fråga ${i + 1}: ${a.questionText}',
                               style: const TextStyle(
                                   fontWeight: FontWeight.w700, fontSize: 15),
                             ),
@@ -536,47 +598,81 @@ class _QuizState extends State<Quiz> {
                         ],
                       ),
                       const SizedBox(height: 10),
-                      ...q.options.map((opt) {
-                        final isRight = hasCorrectInfo && opt.id == q.correctOptionId;
-                        final isUserPick = opt.id == userOptionId;
-                        Color? bg;
-                        if (isRight) bg = const Color(0xFF84C06C).withOpacity(0.25);
-                        if (isUserPick && !isRight)
-                          bg = const Color(0xFFE53935).withOpacity(0.15);
-                        if (isUserPick && !hasCorrectInfo)
-                          bg = const Color(0xFFFFEE7A).withOpacity(0.6);
 
-                        return Container(
-                          margin: const EdgeInsets.only(bottom: 6),
+                      // Ditt svar
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: a.correct
+                              ? const Color(0xFF84C06C).withOpacity(0.3)
+                              : const Color(0xFFE53935).withOpacity(0.15),
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(
+                            color: a.correct
+                                ? const Color(0xFF84C06C)
+                                : const Color(0xFFE53935),
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              a.correct ? Icons.check : Icons.close,
+                              size: 16,
+                              color: a.correct
+                                  ? const Color(0xFF000000)
+                                  : const Color(0xFFE53935),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                'Ditt svar: ${a.selectedOptionText}',
+                                style: const TextStyle(fontSize: 14),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      // Rätt svar (visas bara om fel)
+                      if (!a.correct) ...[
+                        const SizedBox(height: 6),
+                        Container(
                           padding: const EdgeInsets.symmetric(
                               horizontal: 12, vertical: 8),
                           decoration: BoxDecoration(
-                            color: bg ?? Colors.transparent,
+                            color: const Color(0xFF84C06C).withOpacity(0.3),
                             borderRadius: BorderRadius.circular(10),
-                            border: Border.all(
-                              color: isRight
-                                  ? const Color(0xFF84C06C)
-                                  : isUserPick
-                                  ? const Color(0xFFE53935)
-                                  : Colors.black12,
-                            ),
+                            border: Border.all(color: const Color(0xFF84C06C)),
                           ),
                           child: Row(
                             children: [
-                              if (isRight)
-                                const Icon(Icons.check,
-                                    size: 16, color: Color(0xFF000000))
-                              else if (isUserPick)
-                                const Icon(Icons.close,
-                                    size: 16, color: Color(0xFFE53935))
-                              else
-                                const SizedBox(width: 16),
+                              const Icon(Icons.check,
+                                  size: 16, color: Color(0xFF000000)),
                               const SizedBox(width: 8),
-                              Expanded(child: Text(opt.text)),
+                              Expanded(
+                                child: Text(
+                                  'Rätt svar: ${a.correctOptionText}',
+                                  style: const TextStyle(fontSize: 14),
+                                ),
+                              ),
                             ],
                           ),
-                        );
-                      }),
+                        ),
+                      ],
+
+                      // Förklaring på svaret från backend
+                      if (a.explanation != null && a.explanation!.isNotEmpty) ...[
+                        const SizedBox(height: 8),
+                        Text(
+                          a.explanation!,
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: Colors.black.withOpacity(0.6),
+                            fontStyle: FontStyle.italic,
+                          ),
+                        ),
+                      ],
                     ],
                   ),
                 );
@@ -584,16 +680,17 @@ class _QuizState extends State<Quiz> {
 
               const SizedBox(height: 24),
 
+              // knappar längst ner
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   ElevatedButton.icon(
-                    onPressed: () => Navigator.pop(context),
+                    onPressed: () => Navigator.pop(context), // tillbaka till ChooseDifficulty
                     icon: const Icon(Icons.replay),
                     label: const Text('Försök igen'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFFB1067E),
-                      foregroundColor: const Color(0xFF000000),
+                      foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(
                           horizontal: 20, vertical: 14),
                       shape: RoundedRectangleBorder(
@@ -607,6 +704,7 @@ class _QuizState extends State<Quiz> {
                           builder: (_) => const HomeScreen(name: 'test')),
                           (route) => false,
                     ),
+                    // TODO hemikonen
                     icon: const Icon(Icons.home_outlined),
                     label: const Text('Hem'),
                     style: ElevatedButton.styleFrom(
