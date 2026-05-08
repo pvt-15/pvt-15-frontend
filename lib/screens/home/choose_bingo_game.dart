@@ -86,7 +86,6 @@ class _ChooseBingoGame extends State<ChooseBingoGame> {
                           ),
                         ),
                         onPressed: () async {
-                          //check om det redan finns ett startat spel för typ (ex 'träd')
 
                           for(var game in ChooseBingoGame.startedGames) {
                             if (game['name'] == games[index]['name']) {
@@ -137,30 +136,6 @@ class _ChooseBingoGame extends State<ChooseBingoGame> {
                               }
                             }
                           }
-
-                          /*
-                          final Difficulty? result = await Navigator.push(context, MaterialPageRoute(builder: (context) => ChooseDifficulty()),);
-
-                          if (result == Difficulty.easy){
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (context) => BingoEasyMode(typeOfBingo: games[index]['name'])),);
-                          }
-
-                          if (result == Difficulty.medium){
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => BingoMediumMode(typeOfBingo: games[index]['name'])),);
-                          }
-
-                          if (result == Difficulty.hard){
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => BingoHardMode(typeOfBingo: games[index]['name'])),);
-                          }
-
-                           */
-
                         },
 
                         child: Row(
