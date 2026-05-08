@@ -102,6 +102,15 @@ class _AnimalsLibraryState extends State<AnimalsLibrary> {
     return Scaffold(
       backgroundColor: const Color(0xFFBEDBB2),
       appBar: AppBar(
+        leading: IconButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+          icon: const Icon(Icons.arrow_back),
+        ),
+        title: const Text('Bibliotek'),
+      ),
+      appBar: AppBar(
         backgroundColor: const Color(0xFFBEDBB2),
         elevation: 0,
         iconTheme: const IconThemeData(color: Color(0xFF000000)),

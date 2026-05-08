@@ -34,55 +34,15 @@ class PlantsLibrary extends StatefulWidget {
 }
 
 class _PlantsLibraryState extends State<PlantsLibrary> {
-  final TokenStorage _tokenStorage = TokenStorage();
-
-  List<PlantPicture> _plants = [];
-  bool _isLoading = true;
-  String? _errorMessage;
-
-  @override
-  void initState() {
-    super.initState();
-    _fetchPlants();
-  }
-
-  Future<void> _fetchPlants() async {
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
-    });
-
-    try {
-      final token = await _tokenStorage.getToken();
-
-      if (token == null) {
-        setState(() {
-          _errorMessage = 'Du är inte inloggad';
-          _isLoading = false;
-        });
-        return;
-      }
-
-      // Hämta alla tre kategorier parallellt
-      final categories = ['FLOWER', 'PLANT', 'TREE'];
-      final responses = await Future.wait(
-        categories.map((category) => http.get(
-          Uri.parse('https://group-6-15.pvt.dsv.su.se/pictures?category=$category'),
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
-        )),
-      );
-
-      // Slå ihop alla listor
-      final List<PlantPicture> allPlants = [];
-      for (final response in responses) {
-        if (response.statusCode == 200) {
-          final List<dynamic> data = jsonDecode(response.body);
-          allPlants.addAll(data.map((e) => PlantPicture.fromJson(e)));
-        }
-      }
+  // Ändra sen när vi har riktiga bilder
+  final List<String> plants = [
+    'Vitsippa',
+    'Ros',
+    'Tulpan',
+    'Blåklocka',
+    //'Lavendel',
+    //'Maskros',
+  ];
 
       setState(() {
         _plants = allPlants;

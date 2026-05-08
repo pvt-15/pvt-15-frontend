@@ -18,7 +18,6 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # of the product and file versions while build-number is used as the build suffix.
 version: 1.0.0+1
 
-
 environment:
   sdk: ^3.11.4
 
@@ -72,7 +71,6 @@ flutter:
     - family: WinkySans
       fonts:
         - asset: assets/WinkySans-VariableFont_wght.ttf
-
     - family: YoungSerif
       fonts:
         - asset: assets/YoungSerif-Regular.ttf
@@ -86,11 +84,21 @@ flutter:
   assets:
     - assets/maskot_skogstroll.png
     - assets/mascot_happy.png
-
-
+    - assets/ros.jpg
+    - assets/vitsippa.png
+    - assets/tulpan.jpg
+    - assets/blaklocka.jpg
+    - assets/nyckelpiga.png
+    - assets/alg.png
+    - assets/bjorn.png
+    - assets/gravling.png
+    - assets/mus.png
+    - assets/orm.png
+    - assets/rav.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
+
 
   # For details regarding adding assets from package dependencies, see
   # https://flutter.dev/to/asset-from-package
