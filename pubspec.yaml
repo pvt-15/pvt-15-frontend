@@ -84,11 +84,11 @@ flutter:
   assets:
     - assets/maskot_skogstroll.png
     - assets/mascot_happy.png
-    - assets/ros.jpg
-    - assets/vitsippa.png
-    - assets/tulpan.jpg
-    - assets/blaklocka.jpg
     - assets/nyckelpiga.png
+    - assets/maskot_quiz.png
+    - assets/maskot_skattjakt.png
+    - assets/maskot_bingo.png
+    - assets/maskot_kamera.png
     - assets/alg.png
     - assets/bjorn.png
     - assets/gravling.png
