@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../widgets/custom_navigation_bar.dart';
 import 'home/home_library.dart';
 import 'home/species_profile.dart';
 import 'home/quiz.dart';
@@ -184,6 +185,7 @@ class HomeScreen extends StatelessWidget {
           textAlign: TextAlign.center,
         ),
       ),
+      bottomNavigationBar: const CustomNavigationBar(selectedIndex: 1),
     );
   }
 

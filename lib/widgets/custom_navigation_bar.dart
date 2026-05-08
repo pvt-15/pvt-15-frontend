@@ -6,6 +6,8 @@ import '../screens/profile/profile.dart';
 
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
+import '../screens/profile/profile.dart';
+
 
 class CustomNavigationBar extends StatelessWidget {
   final int selectedIndex;
