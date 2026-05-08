@@ -35,7 +35,7 @@ class HomeScreen extends StatelessWidget {
       {
         'name': 'Quiz',
         'page': ChooseDifficulty(
-          nextPage: (difficulty) => Quiz(difficulty: difficulty),
+          gameTitle: 'Quiz',
         ),
         'image': 'assets/maskot_quiz.png',
       },
@@ -53,7 +53,7 @@ class HomeScreen extends StatelessWidget {
                 style: Theme.of(context).textTheme.headlineLarge,
                 textAlign: TextAlign.center,
               ),
-            ),
+
 
               const SizedBox(height: 16),
 

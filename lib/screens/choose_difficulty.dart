@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'home.dart';
+import '../../widgets/custom_navigation_bar.dart';
 
 enum Difficulty {
   easy,
