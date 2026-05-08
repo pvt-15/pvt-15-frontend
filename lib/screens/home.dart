@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'home/home_library.dart';
 import 'home/species_profile.dart';
-import 'home/quiz.dart';
+//import 'home/quiz.dart';
 import 'home/choose_bingo_game.dart';
 import 'home/skattjakt.dart';
 import 'choose_difficulty.dart';

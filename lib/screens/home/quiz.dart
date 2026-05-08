@@ -605,8 +605,8 @@ class _QuizState extends State<Quiz> {
                             horizontal: 12, vertical: 8),
                         decoration: BoxDecoration(
                           color: a.correct
-                              ? const Color(0xFF84C06C).withOpacity(0.3)
-                              : const Color(0xFFE53935).withOpacity(0.15),
+                              ? const Color(0xFF84C06C).withValues(alpha: 0.3)
+                              : const Color(0xFFE53935).withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(10),
                           border: Border.all(
                             color: a.correct
@@ -641,7 +641,7 @@ class _QuizState extends State<Quiz> {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 12, vertical: 8),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF84C06C).withOpacity(0.3),
+                            color: const Color(0xFF84C06C).withValues(alpha: 0.3),
                             borderRadius: BorderRadius.circular(10),
                             border: Border.all(color: const Color(0xFF84C06C)),
                           ),
@@ -662,13 +662,13 @@ class _QuizState extends State<Quiz> {
                       ],
 
                       // Förklaring på svaret från backend
-                      if (a.explanation != null && a.explanation!.isNotEmpty) ...[
+                      if (a.explanation.isNotEmpty) ...[
                         const SizedBox(height: 8),
                         Text(
-                          a.explanation!,
+                          a.explanation,
                           style: TextStyle(
                             fontSize: 13,
-                            color: Colors.black.withOpacity(0.6),
+                            color: Colors.black.withValues(alpha: 0.6),
                             fontStyle: FontStyle.italic,
                           ),
                         ),
