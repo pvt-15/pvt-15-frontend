@@ -36,6 +36,15 @@ class _BingoHardMode extends State<BingoHardMode> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFBEDBB2),
+      appBar: AppBar(
+        leading: IconButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+          icon: const Icon(Icons.arrow_back),
+        ),
+        title: const Text('Bingo'),
+      ),
       body: SafeArea(
         child: Column(
           children: [
@@ -102,7 +111,16 @@ class _BingoHardMode extends State<BingoHardMode> {
 
                     InkWell(
                       onTap: () async {
-                        // Logik för kamera 2 kommer här
+                        if (image2 == null) {
+                          final File? file = await CameraService.takePicture();
+
+                          if (file != null) {
+                            setState(() {
+                              image2 = file;
+                              updateImageInList(file, 1);
+                            });
+                          }
+                        }
                       },
                       borderRadius: BorderRadius.circular(15),
                       child: Container(
@@ -111,9 +129,9 @@ class _BingoHardMode extends State<BingoHardMode> {
                         decoration: BoxDecoration(
                           color: const Color(0xfff8ed76),
                           borderRadius: BorderRadius.circular(15),
-                          //image: _image2 != null ? DecorationImage(image: FileImage(_image2!), fit: BoxFit.cover) : null,
+                          image: image2 != null ? DecorationImage(image: FileImage(image2!), fit: BoxFit.cover) : null,
                         ),
-                        child: const Center(child: Icon(Icons.image, size: 50,)),
+                        child: image2 == null ? const Center(child: Icon(Icons.image, size: 50,)) : null,
                       ),
                     ),
                   ],
@@ -126,7 +144,16 @@ class _BingoHardMode extends State<BingoHardMode> {
                   children: [
                     InkWell(
                       onTap: () async {
-                        // Logik för kamera 3 kommer här
+                        if (image3 == null) {
+                          final File? file = await CameraService.takePicture();
+
+                          if (file != null) {
+                            setState(() {
+                              image3 = file; 
+                              updateImageInList(file, 2);
+                            });
+                          }
+                        }
                       },
                       borderRadius: BorderRadius.circular(15),
                       child: Container(
@@ -135,9 +162,9 @@ class _BingoHardMode extends State<BingoHardMode> {
                         decoration: BoxDecoration(
                           color: const Color(0xfff8ed76),
                           borderRadius: BorderRadius.circular(15),
-                          //image: _image3 != null ? DecorationImage(image: FileImage(_image3!), fit: BoxFit.cover) : null,
+                          image: image3 != null ? DecorationImage(image: FileImage(image3!), fit: BoxFit.cover) : null,
                         ),
-                        child: const Center(child: Icon(Icons.image, size: 50,)),
+                        child: image3 == null ? const Center(child: Icon(Icons.image, size: 50)) : null,
                       ),
                     ),
 
@@ -145,7 +172,16 @@ class _BingoHardMode extends State<BingoHardMode> {
 
                     InkWell(
                       onTap: () async {
-                        // Logik för kamera 4 kommer här
+                        if (image4 == null) {
+                          final File? file = await CameraService.takePicture();
+
+                          if (file != null) {
+                            setState(() {
+                              image4 = file;
+                              updateImageInList(file, 3);
+                            });
+                          }
+                        }
                       },
                       borderRadius: BorderRadius.circular(15),
                       child: Container(
@@ -154,9 +190,9 @@ class _BingoHardMode extends State<BingoHardMode> {
                         decoration: BoxDecoration(
                           color: const Color(0xfff8ed76),
                           borderRadius: BorderRadius.circular(15),
-                          //image: _image4 != null ? DecorationImage(image: FileImage(_image4!), fit: BoxFit.cover) : null,
+                          image: image4 != null ? DecorationImage(image: FileImage(image4!), fit: BoxFit.cover) : null,
                         ),
-                        child: const Center(child: Icon(Icons.image, size: 50,)),
+                        child: image4 == null ? const Center(child: Icon(Icons.image, size: 50)) : null,
                       ),
                     ),
                   ],

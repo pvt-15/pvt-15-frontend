@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:Skogsjakten/screens/login/login.dart';
 import 'package:Skogsjakten/services/session_storage.dart';
 
+
 void main() async {
   //gör main asynkron och ladda in Flutter-motorn
   WidgetsFlutterBinding.ensureInitialized();
@@ -135,22 +136,37 @@ class MyApp extends StatelessWidget {
           ),
 
           //bordern runt
-          border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(20))),
+          border: OutlineInputBorder(
+              borderRadius: BorderRadius.all(Radius.circular(20))),
         ),
 
 
         navigationBarTheme: NavigationBarThemeData(
           height: 70,
-          backgroundColor: const Color(0xff84c06c), indicatorColor: Colors.transparent,
+          backgroundColor: const Color(0xff84c06c),
+          indicatorColor: Colors.transparent,
           labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
-          iconTheme: WidgetStateProperty.all(const IconThemeData(color: Color(0xFF000000), size: 45),),
+          iconTheme: WidgetStateProperty.all(
+            const IconThemeData(color: Color(0xFF000000), size: 45),),
           shadowColor: Colors.black12,
         ),
 
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Color(0xFFBEDBB2),
+          elevation: 0,
+          centerTitle: true,
+          iconTheme: IconThemeData(
+            color: Color(0xFF4C290C),
+          ),
+          titleTextStyle: TextStyle(
+            fontFamily: 'YoungSerif',
+            fontSize: 30,
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF4C290C),
+          ),
+        ),
       ),
-
       home: startScreen,
-
     );
   }
 }

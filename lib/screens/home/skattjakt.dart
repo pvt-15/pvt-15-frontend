@@ -1,28 +1,33 @@
 import 'package:flutter/material.dart';
+import 'dart:io';
+import '../../services/camera_service.dart';
 
 import '../../widgets/custom_navigation_bar.dart';
 
-class Skattjakt extends StatelessWidget {
+class Skattjakt extends StatefulWidget {
   const Skattjakt({super.key});
+
+  @override
+  State<Skattjakt> createState() => _SkattjaktState();
+}
+
+class _SkattjaktState extends State<Skattjakt> {
+
+  File? image;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFBEDBB2),
       appBar: AppBar(
-        backgroundColor: const Color(0xFFBEDBB2),
-        elevation: 0,
-        centerTitle: true,
-        toolbarHeight: 100,
-        title: const Text(
-          "Skattjakt",
-          style: TextStyle(
-            fontFamily: 'YoungSerif',
-            fontSize: 30,
-            fontWeight: FontWeight.bold,
-            color: Color(0xFF4C290C),
-          ),
+        leading: IconButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+          icon: const Icon(Icons.arrow_back),
         ),
+        title: const Text('Skattjakt'),
+        toolbarHeight: 100,
       ),
       body: SafeArea(
         child: Center(
@@ -50,14 +55,18 @@ class Skattjakt extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: const Color(0xFFF8ED76),
                   borderRadius: BorderRadius.circular(20),
+                  image: image != null ? DecorationImage(image: FileImage(image!),
+                  fit: BoxFit.cover,) : null,
                 ),
-                child: const Center(
-                  child: Icon(
-                    Icons.image_outlined,
-                    size: 70,
-                    color: Color(0xFF4C290C),
+                child: image == null
+                    ? const Center(
+                      child: Icon(
+                        Icons.image_outlined,
+                        size: 70,
+                        color: Color(0xFF4C290C),
                   ),
-                ),
+                )
+                    : null,
               ),
 
               const SizedBox(height: 30),
@@ -76,8 +85,17 @@ class Skattjakt extends StatelessWidget {
               const SizedBox(height: 60),
 
               InkWell(
-                onTap: () {
-                  // TODO: Implementera kamerafunktion
+                onTap: () async {
+                  final File? file = await CameraService.takePicture();
+
+                  if (file != null) {
+                    // Tillfällig lösning för att verifiera att kameran fungerar.
+                    // Just nu visas bilden kvar på samma sida.
+                    // Om flödet ska följa Figma senare kan detta bytas mot navigation till nästa screen.
+                    setState(() {
+                      image = file;
+                    });
+                  }
                 },
                 borderRadius: BorderRadius.circular(18),
                 child: Container(

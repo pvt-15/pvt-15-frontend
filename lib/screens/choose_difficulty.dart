@@ -8,6 +8,12 @@ enum Difficulty {
 }
 
 class ChooseDifficulty extends StatefulWidget {
+  final String gameTitle;
+
+  const ChooseDifficulty({
+    super.key,
+    required this.gameTitle
+  });
   //final Widget Function(Difficulty difficulty) nextPage;
 
   //const ChooseDifficulty({
@@ -30,6 +36,15 @@ class _ChooseDifficultyState extends State<ChooseDifficulty> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFBEDBB2),
+      appBar: AppBar(
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          icon: const Icon(Icons.arrow_back),
+        ),
+        title: Text(widget.gameTitle),
+      ),
 
       body: SafeArea(
         child: Column(

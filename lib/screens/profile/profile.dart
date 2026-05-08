@@ -141,7 +141,7 @@ class _ProfileState extends State<Profile> {
     return Scaffold(
       backgroundColor: const Color(0xFFBEDBB2),
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+          backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
 
