@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 
 import 'package:Skogsjakten/services/session_storage.dart';
 import 'package:Skogsjakten/screens/login/login.dart';
+import 'package:Skogsjakten/screens/profile/settings.dart';
 
 class Profile extends StatefulWidget {
   const Profile({super.key});
@@ -156,7 +157,12 @@ class _ProfileState extends State<Profile> {
           IconButton(
             icon: const Icon(Icons.settings, size:50, color: Color(0xFF000000)/*, color: Color(0xFF4C290C)*/),
             onPressed: () {
-              print('clicked');
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (_) => const SettingsScreen(),
+                ),
+              );
             },
           )
         ]
