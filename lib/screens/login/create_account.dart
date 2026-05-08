@@ -5,7 +5,7 @@ import 'dart:convert';
 import 'profile_pic.dart';
 import 'package:Skogsjakten/services/session_storage.dart';
 import 'package:Skogsjakten/services/session.dart';
-import '../../Authorization/user_model.dart';
+import 'package:Skogsjakten/Authorization/user_model.dart';
 
 class CreateAccount extends StatefulWidget {
   const CreateAccount({super.key});
@@ -37,17 +37,19 @@ class _CreateAccountState extends State<CreateAccount> {
       if (response.statusCode == 200 || response.statusCode == 201) {
         final data = jsonDecode(response.body);
 
-        // Sparar sessionen så att ProfilePic kan använda token
-        await SessionStorage().save(
-          Session(
-            token: data['token'],
-            user: UserModel(
-              userId: data['userId'].toString(),
-              username: data['name'],
-              email: data['email'],
+        // Kontrollera att vi faktiskt fick en token innan vi sparar sessionen
+        if (data['token'] != null) {
+          await SessionStorage().saveUser(
+            Session(
+              token: data['token'],
+              user: UserModel(
+                id: data['userId']?.toString() ?? data['id']?.toString() ?? "",
+                username: data['name'] ?? name,
+                email: data['email'] ?? email,
+              ),
             ),
-          ),
-        );
+          );
+        }
 
         return true;
       } else {
@@ -138,7 +140,7 @@ class _CreateAccountState extends State<CreateAccount> {
 
                     validator: (value){
                       if(value == null || value.isEmpty) return "Ogiltigt lösenord";
-                      if(value.length <= 10) return "Lösenordet måste vara minst 10 tecken";
+                      if(value.length < 10) return "Lösenordet måste vara minst 10 tecken";
                       if(!value.contains(RegExp(r'[A-Z]'))) return "Lösenordet måste innehålla en stor bokstav";
                       if(!value.contains(RegExp(r'[0-9]'))) return "Lösenordet måste innehålla en siffra";
                       return null;
