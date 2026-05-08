@@ -15,6 +15,7 @@ class IdentifyCamera extends StatefulWidget{
 
 class _IdentifyCameraState extends State<IdentifyCamera> {
   File? selectedImage;
+  String? selectedCategory;
 
 
   @override
@@ -32,6 +33,37 @@ class _IdentifyCameraState extends State<IdentifyCamera> {
     setState(() {
       selectedImage = image;
     });
+    final category = await showDialog<String>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Vad tog du bild på?"),
+          content: const Text("Välj kategori för identifieringen."),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context, "PLANT");
+              },
+              child: const Text("Planta"),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context, "ANIMAL");
+              },
+              child: const Text("Djur"),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (category == null) return;
+
+    setState(() {
+      selectedCategory = category;
+    });
+
+    print("Vald kategori: $selectedCategory");
   }
 
   @override
@@ -50,19 +82,34 @@ class _IdentifyCameraState extends State<IdentifyCamera> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              if (selectedCategory != null)
+                Text("Kategori: $selectedCategory"),
+              const SizedBox(height: 15),
               if (selectedImage !=null)
-                Image.file(
-                  selectedImage!,
-                  width: 250,
-                  height: 250,
-                  fit: BoxFit.cover,
+                SizedBox(
+                  width: 350,
+                  height: 600,
+                  child: Image.file(
+                    selectedImage!,
+                    width: 300,
+                    height: 500,
+                    fit: BoxFit.contain,
+                  ),
                 ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 0),
 
               ElevatedButton(
                 onPressed: takePicture,
-                child: const Text("Ta bild"),
-              )
+                child: Text(selectedImage == null ? "Ta bild": "Ta om bild"),
+              ),
+
+              if (selectedImage != null)
+                ElevatedButton(
+                  onPressed: () {
+                    print("vidare till art info");
+                  },
+                  child: Text("Ta reda på art")
+                )
             ],
           )
       )
