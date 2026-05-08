@@ -7,22 +7,21 @@ import '../../widgets/custom_navigation_bar.dart';
 import '../home.dart';
 import 'package:http/http.dart' as http;
 
-class BingoGame extends StatefulWidget{
+class BingoHardMode extends StatefulWidget{
   final String typeOfBingo;
 
-  const BingoGame({super.key, required this.typeOfBingo});
+  const BingoHardMode({super.key, required this.typeOfBingo});
 
   @override
-  State<BingoGame> createState() => _BingoPage();
+  State<BingoHardMode> createState() => _BingoHardMode();
 }
 
-class _BingoPage extends State<BingoGame> {
+class _BingoHardMode extends State<BingoHardMode> {
 
   static final List<Map<String, dynamic>> games = [
     {'name': 'Träd', 'images': <File?>[null, null, null, null], "isCompleted": false},
-    {'name': 'Svamp', 'images': <File?>[null, null, null, null], "isCompleted": false},
-    {'name': 'Blomma', 'images': <File?>[null, null, null, null], "isCompleted": false},
-    {'name': 'Insekt', 'images': <File?>[null, null, null, null], "isCompleted": false},
+    {'name': 'Växter', 'images': <File?>[null, null, null, null], "isCompleted": false},
+    {'name': 'Djur', 'images': <File?>[null, null, null, null], "isCompleted": false},
     {'name': 'Blandad', 'images': <File?>[null, null, null, null], "isCompleted": false},
   ];
 
@@ -37,6 +36,15 @@ class _BingoPage extends State<BingoGame> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFBEDBB2),
+      appBar: AppBar(
+        leading: IconButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+          icon: const Icon(Icons.arrow_back),
+        ),
+        title: const Text('Bingo'),
+      ),
       body: SafeArea(
         child: Column(
           children: [
@@ -58,7 +66,7 @@ class _BingoPage extends State<BingoGame> {
                   right: 40
               ),
               child: Text(
-                'Hitta och fota 4 stycken olika träd!',
+                'test svår',
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.headlineMedium,
               ),
@@ -103,7 +111,16 @@ class _BingoPage extends State<BingoGame> {
 
                     InkWell(
                       onTap: () async {
-                        // Logik för kamera 2 kommer här
+                        if (image2 == null) {
+                          final File? file = await CameraService.takePicture();
+
+                          if (file != null) {
+                            setState(() {
+                              image2 = file;
+                              updateImageInList(file, 1);
+                            });
+                          }
+                        }
                       },
                       borderRadius: BorderRadius.circular(15),
                       child: Container(
@@ -112,9 +129,9 @@ class _BingoPage extends State<BingoGame> {
                         decoration: BoxDecoration(
                           color: const Color(0xfff8ed76),
                           borderRadius: BorderRadius.circular(15),
-                          //image: _image2 != null ? DecorationImage(image: FileImage(_image2!), fit: BoxFit.cover) : null,
+                          image: image2 != null ? DecorationImage(image: FileImage(image2!), fit: BoxFit.cover) : null,
                         ),
-                        child: const Center(child: Icon(Icons.image, size: 50,)),
+                        child: image2 == null ? const Center(child: Icon(Icons.image, size: 50,)) : null,
                       ),
                     ),
                   ],
@@ -127,7 +144,16 @@ class _BingoPage extends State<BingoGame> {
                   children: [
                     InkWell(
                       onTap: () async {
-                        // Logik för kamera 3 kommer här
+                        if (image3 == null) {
+                          final File? file = await CameraService.takePicture();
+
+                          if (file != null) {
+                            setState(() {
+                              image3 = file; 
+                              updateImageInList(file, 2);
+                            });
+                          }
+                        }
                       },
                       borderRadius: BorderRadius.circular(15),
                       child: Container(
@@ -136,9 +162,9 @@ class _BingoPage extends State<BingoGame> {
                         decoration: BoxDecoration(
                           color: const Color(0xfff8ed76),
                           borderRadius: BorderRadius.circular(15),
-                          //image: _image3 != null ? DecorationImage(image: FileImage(_image3!), fit: BoxFit.cover) : null,
+                          image: image3 != null ? DecorationImage(image: FileImage(image3!), fit: BoxFit.cover) : null,
                         ),
-                        child: const Center(child: Icon(Icons.image, size: 50,)),
+                        child: image3 == null ? const Center(child: Icon(Icons.image, size: 50)) : null,
                       ),
                     ),
 
@@ -146,7 +172,16 @@ class _BingoPage extends State<BingoGame> {
 
                     InkWell(
                       onTap: () async {
-                        // Logik för kamera 4 kommer här
+                        if (image4 == null) {
+                          final File? file = await CameraService.takePicture();
+
+                          if (file != null) {
+                            setState(() {
+                              image4 = file;
+                              updateImageInList(file, 3);
+                            });
+                          }
+                        }
                       },
                       borderRadius: BorderRadius.circular(15),
                       child: Container(
@@ -155,9 +190,9 @@ class _BingoPage extends State<BingoGame> {
                         decoration: BoxDecoration(
                           color: const Color(0xfff8ed76),
                           borderRadius: BorderRadius.circular(15),
-                          //image: _image4 != null ? DecorationImage(image: FileImage(_image4!), fit: BoxFit.cover) : null,
+                          image: image4 != null ? DecorationImage(image: FileImage(image4!), fit: BoxFit.cover) : null,
                         ),
-                        child: const Center(child: Icon(Icons.image, size: 50,)),
+                        child: image4 == null ? const Center(child: Icon(Icons.image, size: 50)) : null,
                       ),
                     ),
                   ],
@@ -276,7 +311,7 @@ class _BingoPage extends State<BingoGame> {
     Map<String, dynamic>? currentGame = findCurrentBingoGame();
 
     if(currentGame != null) {
-      currentGame!['images'][index] = image;
+      currentGame['images'][index] = image;
     }
   }
 
@@ -284,7 +319,7 @@ class _BingoPage extends State<BingoGame> {
     Map<String, dynamic>? currentGame = findCurrentBingoGame();
 
     if(currentGame != null) {
-      currentGame!['isCompleted'] = isCompleted;
+      currentGame['isCompleted'] = isCompleted;
     }
   }
 

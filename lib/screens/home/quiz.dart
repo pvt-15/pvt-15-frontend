@@ -18,9 +18,13 @@ class Quiz extends StatelessWidget {
     return Scaffold(
       backgroundColor: const Color(0xFFBEDBB2),
       appBar: AppBar(
-        backgroundColor: const Color(0xFFBEDBB2),
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Color(0xFF4C290C)),
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          icon: const Icon(Icons.arrow_back),
+        ),
+      title: const Text('Quiz'),
       ),
       body: SafeArea(
         child: Padding(
@@ -70,8 +74,8 @@ class Quiz extends StatelessWidget {
 
   Widget _answerButton(BuildContext context, String text) {
     return SizedBox(
-      width: 250,
-      height: 70,
+      width: 220,
+      height: 90,
       child: ElevatedButton(
         onPressed: () {
           // TODO: Implementera svarslogik

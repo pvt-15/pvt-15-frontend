@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import '../../widgets/custom_navigation_bar.dart';
-import '../home.dart';
 import '../library/animals_library.dart';
 import '../library/plants_library.dart';
 import '../library/medals_library.dart';
@@ -25,6 +24,15 @@ class _HomeLibraryState extends State<HomeLibrary> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Color(0xFFBEDBB2),
+      appBar: AppBar(
+        leading: IconButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+          icon: const Icon(Icons.arrow_back),
+      ),
+        // Lägga in någon text antingen 'Skattjakt' eller 'Bibliotek' istället för att ha det i body?
+      ),
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,

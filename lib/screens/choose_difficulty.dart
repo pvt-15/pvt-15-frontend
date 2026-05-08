@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-//import 'home.dart';
-import '../../widgets/custom_navigation_bar.dart';
+import 'home.dart';
 
 enum Difficulty {
   easy,
@@ -9,12 +8,18 @@ enum Difficulty {
 }
 
 class ChooseDifficulty extends StatefulWidget {
-  final Widget Function(Difficulty difficulty) nextPage;
+  final String gameTitle;
 
   const ChooseDifficulty({
     super.key,
-    required this.nextPage,
+    required this.gameTitle
   });
+  //final Widget Function(Difficulty difficulty) nextPage;
+
+  //const ChooseDifficulty({
+    //super.key,
+    //required this.nextPage,
+ //});
 
   @override
   State<ChooseDifficulty> createState() => _ChooseDifficultyState();
@@ -31,6 +36,15 @@ class _ChooseDifficultyState extends State<ChooseDifficulty> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFBEDBB2),
+      appBar: AppBar(
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          icon: const Icon(Icons.arrow_back),
+        ),
+        title: Text(widget.gameTitle),
+      ),
 
       body: SafeArea(
         child: Column(
@@ -118,16 +132,9 @@ class _ChooseDifficultyState extends State<ChooseDifficulty> {
                       ),
 
                       onPressed: () {
-                        final selectedDifficulty =
-                        difficulty[index]['level'] as Difficulty;
-
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) =>
-                                widget.nextPage(selectedDifficulty),
-                          ),
-                        );
+                        // Returnerar den valda svårighetsgraden till föregående skärm
+                        final selected = difficulty[index]['level'] as Difficulty;
+                        Navigator.pop(context, selected);
                       },
 
                       child: Row(
@@ -151,7 +158,9 @@ class _ChooseDifficultyState extends State<ChooseDifficulty> {
           ],
         ),
       ),
-      bottomNavigationBar: const CustomNavigationBar(),
+
+      bottomNavigationBar: const CustomNavigationBar(selectedIndex: -1),
+
     );
   }
 }

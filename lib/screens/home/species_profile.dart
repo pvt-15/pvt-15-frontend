@@ -11,6 +11,9 @@ class SpeciesProfile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFBEDBB2),
+      appBar: AppBar(
+        title: const Text('Bibliotek'),
+      ),
       body: SafeArea(
         child: SizedBox(
           width: double.infinity,

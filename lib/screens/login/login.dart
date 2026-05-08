@@ -21,16 +21,14 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final nameController = TextEditingController();
   final passwordController = TextEditingController();
-  final _formKey = GlobalKey<
-      FormState>(); //lägg till denna för att valideringen ska fungera vid användarnamn formfield.
+  final _formKey = GlobalKey<FormState>(); //lägg till denna för att valideringen ska fungera vid användarnamn formfield.
   String serverClientId = '171324929378-o6f6ehfj8vtte1fasnhdd2jnjf376uto.apps.googleusercontent.com';
 
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset: false,
-      //testa om detta löser hoppandet med "nytt konto" osv
+      resizeToAvoidBottomInset: false, //testa om detta löser hoppandet med "nytt konto" osv
       backgroundColor: Color(0xFFBEDBB2),
       body: Stack(
         children: [
@@ -44,10 +42,7 @@ class _LoginScreenState extends State<LoginScreen> {
               children: [
                 Text(
                     "Skogsjakten",
-                    style: Theme
-                        .of(context)
-                        .textTheme
-                        .headlineLarge
+                    style: Theme.of(context).textTheme.headlineLarge
                 ),
                 Image.asset(
                   'assets/maskot_skogstroll.png',
@@ -130,8 +125,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         if (result == null)
                           return; // Användaren avbröt inloggningen
 
-                        bool success = await loginWithGoogle(
-                            result['idToken']!);
+                        bool success = await loginWithGoogle(result['idToken']!);
 
                         if (success) {
                           if (!mounted) return;
@@ -232,11 +226,11 @@ class _LoginScreenState extends State<LoginScreen> {
       if (response.statusCode == 200 && mounted) {
         final data = jsonDecode(response.body);
 
-        await SessionStorage().save(
+        await SessionStorage().saveUser(
           Session(
             token: data['token'],
             user: UserModel(
-              userId: data['userId'].toString(),
+              id: data['userId'].toString(),
               username: data['name'],
               email: data['email'],
             ),
@@ -262,7 +256,6 @@ class _LoginScreenState extends State<LoginScreen> {
       }
     }
   }
-
 
   Future<Map<String, String?>?> signIn() async {
     try {
