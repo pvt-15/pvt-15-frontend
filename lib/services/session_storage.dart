@@ -16,6 +16,11 @@ class SessionStorage {
     await prefs.setString(_userKey, jsonEncode(session.user.toJson()));
   }
 
+  Future<void> updateUser(UserModel user) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_userKey, jsonEncode(user.toJson()));
+  }
+
   Future<Session?> getUserAndToken() async {
     final prefs = await SharedPreferences.getInstance();
 

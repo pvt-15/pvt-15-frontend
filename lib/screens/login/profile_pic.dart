@@ -1,11 +1,8 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:http/http.dart' as http;
-import 'package:Skogsjakten/services/session_storage.dart';
 import 'package:Skogsjakten/screens/home.dart';
-import 'package:Skogsjakten/widgets/custom_navigation_bar.dart';
+import 'package:Skogsjakten/services/session_storage.dart';
 import 'package:Skogsjakten/services/upload_picture.dart';
+import 'package:Skogsjakten/widgets/custom_navigation_bar.dart';
 
 class ProfilePic extends StatefulWidget {
   const ProfilePic({super.key});
@@ -35,47 +32,40 @@ class _ProfilePicState extends State<ProfilePic> {
     });
 
     try {
-      await UploadPictureService.saveProfileImage(
-        selectedImagePath!,
+      final storage = SessionStorage();
+      final token = await storage.getToken();
+      final uploadService = UploadPicture(jwtToken: token);
+
+      await uploadService.saveProfileImage(selectedImagePath!);
+
+      if (!mounted) return;
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => const HomeScreen(name: 'Användare'),
+        ),
       );
-
-      final session =
-      await SessionStorage()
-          .getUserAndToken();
-
-      if (mounted) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (_) => HomeScreen(
-              name:
-              session?.user.username ??
-                  "Användare",
-            ),
-          ),
-        );
-      }
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(
-          const SnackBar(
-            content: Text(
-              'Kunde inte spara bilden. Försök igen.',
-              style: TextStyle(
-                color: Color(0xFF4C290C),
-              ),
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Kunde inte spara bilden. Försök igen.',
+            style: TextStyle(
+              color: Color(0xFF4C290C),
             ),
-            backgroundColor: Colors.white,
           ),
-        );
-      }
+          backgroundColor: Colors.white,
+        ),
+      );
     } finally {
-      if (mounted) {
-        setState(() {
-          isSaving = false;
-        });
-      }
+      if (!mounted) return;
+
+      setState(() {
+        isSaving = false;
+      });
     }
   }
 
@@ -86,9 +76,7 @@ class _ProfilePicState extends State<ProfilePic> {
       appBar: AppBar(
         title: Text(
           'Välj profilbild',
-          style: Theme.of(context)
-              .textTheme
-              .titleLarge,
+          style: Theme.of(context).textTheme.titleLarge,
         ),
         centerTitle: true,
         backgroundColor: Colors.transparent,
@@ -98,43 +86,32 @@ class _ProfilePicState extends State<ProfilePic> {
         children: [
           Expanded(
             child: GridView.builder(
-              padding:
-              const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16),
               itemCount: imagePaths.length,
-              gridDelegate:
-              const SliverGridDelegateWithFixedCrossAxisCount(
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
                 crossAxisSpacing: 16,
                 mainAxisSpacing: 16,
               ),
-              itemBuilder:
-                  (context, index) {
-                final imagePath =
-                imagePaths[index];
-
-                final isSelected =
-                    selectedImagePath ==
-                        imagePath;
+              itemBuilder: (context, index) {
+                final imagePath = imagePaths[index];
+                final isSelected = selectedImagePath == imagePath;
 
                 return GestureDetector(
                   onTap: () {
                     setState(() {
-                      selectedImagePath =
-                          imagePath;
+                      selectedImagePath = imagePath;
                     });
                   },
                   child: Container(
                     width: 120,
                     height: 120,
-                    decoration:
-                    BoxDecoration(
+                    decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       border: Border.all(
                         color: isSelected
-                            ? const Color(
-                            0xFF84C06C)
-                            : const Color(
-                            0xFFC0008F),
+                            ? const Color(0xFF84C06C)
+                            : const Color(0xFFC0008F),
                         width: 8,
                       ),
                     ),
@@ -152,51 +129,34 @@ class _ProfilePicState extends State<ProfilePic> {
             ),
           ),
           Padding(
-            padding:
-            const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(16),
             child: SizedBox(
               width: 220,
               child: ElevatedButton(
-                style:
-                ElevatedButton.styleFrom(
-                  backgroundColor:
-                  const Color(
-                      0xFF4CAF50),
-                  foregroundColor:
-                  const Color(
-                      0xFF000000),
-                  minimumSize:
-                  const Size(220, 60),
-                  padding:
-                  const EdgeInsets.symmetric(
-                    vertical: 16,
-                  ),
-                  shape:
-                  RoundedRectangleBorder(
-                    borderRadius:
-                    BorderRadius.circular(
-                        18),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF4CAF50),
+                  foregroundColor: const Color(0xFF000000),
+                  minimumSize: const Size(220, 60),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(18),
                   ),
                 ),
                 onPressed: (isSaving || selectedImagePath == null)
                     ? null
                     : handleSave,
                 child: Text(
-                  isSaving
-                      ? 'Sparar...'
-                      : 'Spara',
-                  style:
-                  Theme.of(context)
-                      .textTheme
-                      .titleMedium,
+                  isSaving ? 'Sparar...' : 'Spara',
+                  style: Theme.of(context).textTheme.titleMedium,
                 ),
               ),
             ),
           ),
-
         ],
       ),
-      bottomNavigationBar: const CustomNavigationBar(selectedIndex: 0),
+      bottomNavigationBar: const CustomNavigationBar(
+        selectedIndex: 0,
+      ),
     );
   }
 }

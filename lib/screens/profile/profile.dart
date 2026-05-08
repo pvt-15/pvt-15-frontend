@@ -4,7 +4,6 @@ import 'package:http/http.dart' as http;
 
 import 'package:Skogsjakten/services/session_storage.dart';
 import 'package:Skogsjakten/screens/login/login.dart';
-import 'package:Skogsjakten/screens/profile/settings.dart';
 
 class Profile extends StatefulWidget {
   const Profile({super.key});
@@ -34,16 +33,18 @@ class _ProfileState extends State<Profile> {
 
    Future<void> loadBadges() async{
       print("loadBadges START");
-      final token = await sessionStorage.getUserAndToken();
+      final session = await sessionStorage.getUserAndToken();
+
+      if (session == null) return;
 
       final response = await http.get(
         Uri.parse('https://group-6-15.pvt.dsv.su.se/badges/me'),
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
+          'Authorization': 'Bearer ${session.token}',
         },
       );
-      print("TOKEN: $token");
+      print("TOKEN: ${session.token}");
 
       
       print("BADGES STATUS: ${response.statusCode}");
@@ -155,14 +156,14 @@ class _ProfileState extends State<Profile> {
 
         actions: [
           IconButton(
-            icon: const Icon(Icons.settings, size:50, color: Color(0xFF000000)/*, color: Color(0xFF4C290C)*/),
+            icon: const Icon(Icons.logout, color: Color(0xFF000000)),
+            onPressed: _logout,
+            tooltip: 'Logga ut',
+          ),
+          IconButton(
+            icon: const Icon(Icons.settings, size: 50, color: Color(0xFF000000)),
             onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (_) => const SettingsScreen(),
-                ),
-              );
+              print('clicked settings');
             },
           )
         ]
