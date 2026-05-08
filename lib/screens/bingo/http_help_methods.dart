@@ -82,4 +82,19 @@ class HttpHelpMethods {
     }
   }
 
+  Future<List<dynamic>> getPicturesForChallenge(int id) async {
+    try {
+      final response = await http.get(
+        Uri.parse('https://group-6-15.pvt.dsv.su.se/$id/pictures'),
+        headers: {
+          'Authorization': 'Bearer $jwtToken',
+        }
+      );
+      final data = jsonDecode(response.body);
+      return data;
+    } catch (e) {
+      throw Exception('Något gick fel vid inhämtning av bilder $e');
+    }
+  }
+
 }

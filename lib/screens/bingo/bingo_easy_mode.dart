@@ -53,11 +53,23 @@ class _BingoEasyMode extends State<BingoEasyMode> {
     //loadPictures();
   }
 
+  void getPictures() async {
+    try {
+      helpMethodsChallenge = HttpHelpMethods(jwtToken: await token);
+      //helpMethodsChallenge.getPicturesForChallenge();
+    } catch (e) {
+      debugPrint('DEBUG $e');
+    }
+
+  }
+
   void startChallenge() async {
     try {
+      //TODO hitta ett bättre sätt med instansera http
       helpMethodsChallenge = HttpHelpMethods(jwtToken: await token);
 
       Map<String, dynamic>? currentGame = findCurrentBingoGame();
+
       List<dynamic> response = await helpMethodsChallenge.getAllChallenges();
 
       if (currentGame != null) {
@@ -66,6 +78,7 @@ class _BingoEasyMode extends State<BingoEasyMode> {
         bool success = setStartedQuestion(response);
 
         if (success == false) {
+          //TODO va?
           Map<String, dynamic> data = await helpMethodsChallenge.getStartedQuestion(currentGame['challengeId']);
           setState(() {
             question = data['description'];
