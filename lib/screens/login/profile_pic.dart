@@ -1,12 +1,11 @@
 import 'dart:convert';
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:Skogsjakten/services/session_storage.dart';
-import 'package:Skogsjakten/services/session.dart';
 import 'package:Skogsjakten/screens/home.dart';
-
+import 'package:Skogsjakten/widgets/custom_navigation_bar.dart';
+import 'package:Skogsjakten/services/upload_picture.dart';
 
 class ProfilePic extends StatefulWidget {
   const ProfilePic({super.key});
@@ -28,84 +27,6 @@ class _ProfilePicState extends State<ProfilePic> {
   String? selectedImagePath;
   bool isSaving = false;
 
-  // Upload image to Google Storage through backend
-  Future<String> sendPictureToGoogleStorage(
-      Uint8List bytes,
-      String filename,
-      ) async {
-    final request = http.MultipartRequest(
-      'POST',
-      Uri.parse(
-        'https://group-6-15.pvt.dsv.su.se/upload',
-      ),
-    );
-
-    request.files.add(
-      http.MultipartFile.fromBytes(
-        'file',
-        bytes,
-        filename: filename,
-      ),
-    );
-
-    final response = await request.send();
-
-    final responseBody =
-    await response.stream.bytesToString();
-
-    if (response.statusCode == 200 ||
-        response.statusCode == 201) {
-      final data = jsonDecode(responseBody);
-
-      return data['imageUrl'];
-    } else {
-      throw Exception(
-        'Misslyckades att ladda upp bild',
-      );
-    }
-  }
-
-  // Save image URL to backend user
-  Future<void> saveProfileImage(String assetPath) async {
-    const baseUrl = 'https://group-6-15.pvt.dsv.su.se';
-
-    try {
-      // 1. Hämta sessionen
-      final session = await SessionStorage().get();
-      final token = session?.token;
-
-      if (token == null) throw Exception("Ingen aktiv session hittades");
-
-      // 2. Konvertera asset till bytes
-      final Uint8List bytes = (await rootBundle.load(assetPath)).buffer.asUint8List();
-
-      // 3. Ladda upp till Google Storage
-      final imageUrl = await sendPictureToGoogleStorage(
-        bytes,
-        assetPath.split('/').last,
-      );
-
-      // 4. Spara URL:en i backend
-      final response = await http.patch(
-        Uri.parse('$baseUrl/users/me/profile-image'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode({
-          'profileImageUrl': imageUrl,
-        }),
-      );
-
-      if (response.statusCode != 200) {
-        throw Exception('Misslyckades att spara profilbild');
-      }
-    } catch (e) {
-      debugPrint("Fel vid sparande: $e");
-      rethrow;
-    }
-  }
-
   Future<void> handleSave() async {
     if (selectedImagePath == null) return;
 
@@ -114,21 +35,39 @@ class _ProfilePicState extends State<ProfilePic> {
     });
 
     try {
-      await saveProfileImage(selectedImagePath!);
+      await UploadPictureService.saveProfileImage(
+        selectedImagePath!,
+      );
+
+      final session =
+      await SessionStorage()
+          .getUserAndToken();
 
       if (mounted) {
-        final session = await SessionStorage().get();
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (_) => HomeScreen(name: session?.user.username ?? "Användare"),
+            builder: (_) => HomeScreen(
+              name:
+              session?.user.username ??
+                  "Användare",
+            ),
           ),
         );
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Kunde inte spara bilden. Försök igen.')),
+        ScaffoldMessenger.of(context)
+            .showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Kunde inte spara bilden. Försök igen.',
+              style: TextStyle(
+                color: Color(0xFF4C290C),
+              ),
+            ),
+            backgroundColor: Colors.white,
+          ),
         );
       }
     } finally {
@@ -143,6 +82,7 @@ class _ProfilePicState extends State<ProfilePic> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFBEDBB2),
       appBar: AppBar(
         title: Text(
           'Välj profilbild',
@@ -253,32 +193,10 @@ class _ProfilePicState extends State<ProfilePic> {
               ),
             ),
           ),
-          TextButton(
-            onPressed: () async {
-              final session = await SessionStorage().get();
-              if (mounted) {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => HomeScreen(
-                      name: session?.user.username ?? "Användare",
-                    ),
-                  ),
-                );
-              }
-            },
-            child: const Text(
-              'Hoppa över för nu',
-              style: TextStyle(
-                color: Color(0xFF4C290C),
-                fontSize: 16,
-                decoration: TextDecoration.underline,
-              ),
-            ),
-          ),
-          const SizedBox(height: 20),
+
         ],
       ),
+      bottomNavigationBar: const CustomNavigationBar(selectedIndex: 0),
     );
   }
 }
