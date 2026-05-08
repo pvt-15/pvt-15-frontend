@@ -4,6 +4,8 @@ import '../screens/home/home_library.dart';
 import '../screens/home/species_profile.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
+import '../screens/profile/profile.dart';
+
 
 class CustomNavigationBar extends StatelessWidget {
   final int selectedIndex;
@@ -25,7 +27,7 @@ class CustomNavigationBar extends StatelessWidget {
         if (index == 0) {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (_) => const SpeciesProfile()),
+            MaterialPageRoute(builder: (_) => const Profile()),
           );
         } else if (index == 1) {
           Navigator.pushReplacement(
