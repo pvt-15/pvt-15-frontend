@@ -25,11 +25,7 @@ class HomeScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: const Color(0xFFBEDBB2),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFFBEDBB2),
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Color(0xFF4C290C)),
-      ),
+      appBar: AppBar(),
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
