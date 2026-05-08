@@ -11,6 +11,8 @@ class UploadPicture {
 
   //se till att man innan anropet, skickar token med await
 
+
+
   Future<http.StreamedResponse?> sendPictureToGoogleStorage(File? imageFile) async {
     try {
       if (imageFile != null) {

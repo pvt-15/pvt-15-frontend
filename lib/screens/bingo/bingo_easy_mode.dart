@@ -4,13 +4,11 @@ import 'dart:io';
 import 'package:Skogsjakten/screens/home/choose_bingo_game.dart';
 import 'package:Skogsjakten/services/upload_picture.dart';
 import 'package:flutter/material.dart';
-import 'package:http/src/response.dart';
 import '../../services/camera_service.dart';
 import '../../services/session_storage.dart';
 import '../../widgets/custom_navigation_bar.dart';
 import '../home.dart';
 import 'http_help_methods.dart';
-import 'json_decode.dart';
 
 class BingoEasyMode extends StatefulWidget{
   final String typeOfBingo;
@@ -58,23 +56,24 @@ class _BingoEasyMode extends State<BingoEasyMode> {
   void startChallenge() async {
     try {
       helpMethodsChallenge = HttpHelpMethods(jwtToken: await token);
-      String tempQuestion;
 
       Map<String, dynamic>? currentGame = findCurrentBingoGame();
-      String response = await helpMethodsChallenge.getAllChallenges();
+      List<dynamic> response = await helpMethodsChallenge.getAllChallenges();
 
-      //if (currentGame != null) {
-        debugPrint('DEBUG: $response');
-        //if (currentGame['challengeId'] == null) {
-          //Map<String, dynamic> data = await helpMethodsChallenge.getNewQuestion('MEDIUM', 'BINGO', null);
-          //currentGame['challengeId'] = JsonDecode.jsonDecodeChallengeId(data);
-          //tempQuestion = JsonDecode.jsonDecodeDescription(data);
-        //} else {
-          //Map<String, dynamic> data = await helpMethodsChallenge.getStartedQuestion(currentGame['challengeId']);
-          //tempQuestion = JsonDecode.jsonDecodeDescription(data);
-        //}
-        //putQuestion(tempQuestion);
-      //}
+      if (currentGame != null) {
+        debugPrint('DEBUG: $response\n');
+
+        bool success = setStartedQuestion(response);
+
+        if (success == false) {
+          Map<String, dynamic> data = await helpMethodsChallenge.getStartedQuestion(currentGame['challengeId']);
+          setState(() {
+            question = data['description'];
+          });
+        } else {
+          setStartedQuestion(response);
+        }
+      }
     } catch (e) {
       setState(() {
         question = '$e';
@@ -82,12 +81,18 @@ class _BingoEasyMode extends State<BingoEasyMode> {
     }
   }
 
-  void putQuestion (String tempQuestion) {
-    setState(() {
-      question = tempQuestion;
-    });
+  bool setStartedQuestion(List<dynamic> response) {
+    //TODO if check för om det var blandad bingo
+    for (var challenge in response) {
+      if(challenge['type'] == 'BINGO' && challenge['category'] == null && challenge['difficulty'] == 'HARD' && challenge['status'] == 'IN_PROGRESS') {
+        setState(() {
+          question = challenge['description'];
+        });
+        return true;
+      }
+    }
+    return false;
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -346,7 +351,6 @@ class _BingoEasyMode extends State<BingoEasyMode> {
     }
   }
 
-  //TODO borde egentligen göra en null check här istället
   Map<String, dynamic>? findCurrentBingoGame() {
     Map<String, dynamic>? currentGame;
 
@@ -374,7 +378,7 @@ class _BingoEasyMode extends State<BingoEasyMode> {
   void setCurrentChallengeId(Map<String, dynamic> data) {
     Map<String, dynamic>? currentGame = findCurrentBingoGame();
     if(currentGame != null) {
-      currentGame['challengeId'] = JsonDecode.jsonDecodeChallengeId(data);
+      currentGame['challengeId'] = data['id'];
     }
   }
 
