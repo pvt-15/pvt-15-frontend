@@ -113,7 +113,7 @@ class MyApp extends StatelessWidget {
           contentTextStyle: const TextStyle(
             fontFamily: 'WinkySans',
             fontSize: 16,
-            color: Color(0xFF4C290C),
+            color: Color(0xFF000000),
           ),
         ),
 
