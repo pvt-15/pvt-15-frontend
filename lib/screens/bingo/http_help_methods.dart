@@ -19,7 +19,7 @@ class HttpHelpMethods {
         },
       );
 
-      debugPrint(response.body);
+      //debugPrint(response.body);
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -53,7 +53,7 @@ class HttpHelpMethods {
         }),
       );
 
-      debugPrint(response.body);
+      //debugPrint(response.body);
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -82,14 +82,15 @@ class HttpHelpMethods {
     }
   }
 
-  Future<List<dynamic>> getPicturesForChallenge(int id) async {
+  Future<Map<String, dynamic>> getPicturesForChallenge(int id) async {
     try {
       final response = await http.get(
-        Uri.parse('https://group-6-15.pvt.dsv.su.se/$id/pictures'),
+        Uri.parse('https://group-6-15.pvt.dsv.su.se/challenges/$id/pictures'),
         headers: {
           'Authorization': 'Bearer $jwtToken',
         }
       );
+      //debugPrint(response.body);
       final data = jsonDecode(response.body);
       return data;
     } catch (e) {
@@ -97,4 +98,19 @@ class HttpHelpMethods {
     }
   }
 
+  Future<List<dynamic>> getPictures() async {
+    try {
+      final response = await http.get(
+          Uri.parse('https://group-6-15.pvt.dsv.su.se/pictures'),
+          headers: {
+            'Authorization': 'Bearer $jwtToken',
+          }
+      );
+      //debugPrint(response.body);
+      final data = jsonDecode(response.body);
+      return data;
+    } catch (e) {
+      throw Exception('Något gick fel vid inhämtning av bilder $e');
+    }
+  }
 }

@@ -21,6 +21,7 @@ void main() async {
     if (userName != null) {
       initialScreen = HomeScreen(name: userName);
     } else {
+      await SessionStorage().clear();
       initialScreen = const LoginScreen();
     }
   } else {
@@ -140,7 +141,6 @@ class MyApp extends StatelessWidget {
               borderRadius: BorderRadius.all(Radius.circular(20))),
         ),
 
-
         navigationBarTheme: NavigationBarThemeData(
           height: 70,
           backgroundColor: const Color(0xff84c06c),
@@ -149,6 +149,25 @@ class MyApp extends StatelessWidget {
           iconTheme: WidgetStateProperty.all(
             const IconThemeData(color: Color(0xFF000000), size: 45),),
           shadowColor: Colors.black12,
+        ),
+
+        dialogTheme: DialogThemeData(
+          backgroundColor: Colors.white,
+          elevation: 10,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+          ),
+          titleTextStyle: TextStyle(
+          fontFamily: 'YoungSerif',
+          fontSize: 30,
+          color: Color(0xFF000000),
+          ),
+          contentTextStyle: TextStyle(
+            fontFamily: 'YoungSerif',
+            fontSize: 26,
+            color: Color(0xFF000000),
+          ),
+
         ),
 
         appBarTheme: const AppBarTheme(

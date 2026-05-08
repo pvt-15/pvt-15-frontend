@@ -11,9 +11,7 @@ class UploadPicture {
 
   //se till att man innan anropet, skickar token med await
 
-
-
-  Future<http.StreamedResponse?> sendPictureToGoogleStorage(File? imageFile) async {
+  Future<String?> sendPictureToGoogleStorage(File? imageFile) async {
     try {
       if (imageFile != null) {
         final request = http.MultipartRequest(
@@ -32,7 +30,14 @@ class UploadPicture {
 
         final response = await request.send();
 
-        return response;
+        final responseBody = await response.stream.bytesToString();
+
+
+        final data = jsonDecode(responseBody);
+
+        return data['objectKey'];
+
+        //return response;
 
       } else {
         debugPrint('Mottagen fil var null');
@@ -47,21 +52,28 @@ class UploadPicture {
   Future<bool> sendPictureToBackend(File? imageFile) async {
     try {
       //Vänta på att bilden laddas upp och få tillbaka URL:en
-      final imageURL = await sendPictureToGoogleStorage(imageFile);
+      final imageObjectKey = await sendPictureToGoogleStorage(imageFile);
 
       //Skicka URL till backend
       final response = await http.post(
         Uri.parse('https://group-6-15.pvt.dsv.su.se/pictures'),
-        headers: {'Content-Type': 'application/json'},
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $jwtToken',
+        },
+
         body: jsonEncode({
           'token': jwtToken,
-          //skicka med url till backend som google ger tillbaka
-          'imageUrl': imageURL,
+          'imageObjectKey': imageObjectKey,
           'targetType': 'PLANT',
           'PictureMode': 'CHALLENGE',
 
         }),
       );
+
+      print(response.statusCode);
+      print(response.body);
+
       if (response.statusCode == 200) {
         return true;
       } else {

@@ -212,6 +212,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _handleLogin() async {
+
     if (_formKey.currentState!.validate()) {
       final response = await http.post(
         Uri.parse('https://group-6-15.pvt.dsv.su.se/auth/login'),

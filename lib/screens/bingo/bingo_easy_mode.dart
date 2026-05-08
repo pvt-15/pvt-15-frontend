@@ -4,6 +4,9 @@ import 'dart:io';
 import 'package:Skogsjakten/screens/home/choose_bingo_game.dart';
 import 'package:Skogsjakten/services/upload_picture.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'package:path_provider/path_provider.dart';
 import '../../services/camera_service.dart';
 import '../../services/session_storage.dart';
 import '../../widgets/custom_navigation_bar.dart';
@@ -31,9 +34,9 @@ class _BingoEasyMode extends State<BingoEasyMode> {
 
   Future<String?> token = SessionStorage().getToken();
 
-  late final HttpHelpMethods helpMethodsChallenge;
+  late HttpHelpMethods helpMethodsHttp;
 
-  late final UploadPicture helpMethodsUploadPicture;
+  late UploadPicture helpMethodsUploadPicture;
 
   late Map<String, dynamic>? currentGame = findCurrentBingoGame();
 
@@ -49,14 +52,40 @@ class _BingoEasyMode extends State<BingoEasyMode> {
   void initState() {
     super.initState();
     question = 'Laddar utmaning...';
-    startChallenge();
+    initStart();
     //loadPictures();
+  }
+
+  Future<void> initStart() async {
+    try {
+      final jwtToken = await token;
+
+      helpMethodsHttp = HttpHelpMethods(jwtToken: jwtToken);
+
+      helpMethodsUploadPicture = UploadPicture(jwtToken: jwtToken);
+
+      startChallenge();
+      getPictures();
+
+      List<dynamic> pictures = await helpMethodsHttp.getPictures();
+      debugPrint('DEBUG: $pictures');
+
+    } catch (e) {
+      debugPrint('Initieringsfel: $e');
+    }
   }
 
   void getPictures() async {
     try {
-      helpMethodsChallenge = HttpHelpMethods(jwtToken: await token);
-      //helpMethodsChallenge.getPicturesForChallenge();
+      int? id = getStartedQuestion(await helpMethodsHttp.getAllChallenges());
+      if (id != null) {
+        Map<String, dynamic> response = await helpMethodsHttp.getPicturesForChallenge(id);
+        //debugPrint('DEBUG: $response');
+        setState(() {
+          image1 = response['pictures'];
+        });
+      }
+
     } catch (e) {
       debugPrint('DEBUG $e');
     }
@@ -65,21 +94,18 @@ class _BingoEasyMode extends State<BingoEasyMode> {
 
   void startChallenge() async {
     try {
-      //TODO hitta ett bättre sätt med instansera http
-      helpMethodsChallenge = HttpHelpMethods(jwtToken: await token);
-
       Map<String, dynamic>? currentGame = findCurrentBingoGame();
 
-      List<dynamic> response = await helpMethodsChallenge.getAllChallenges();
+      List<dynamic> response = await helpMethodsHttp.getAllChallenges();
 
       if (currentGame != null) {
-        debugPrint('DEBUG: $response\n');
+        //debugPrint('DEBUG: $response\n');
 
         bool success = setStartedQuestion(response);
 
         if (success == false) {
-          //TODO va?
-          Map<String, dynamic> data = await helpMethodsChallenge.getStartedQuestion(currentGame['challengeId']);
+          //TODO if check för om det var blandad bingo
+          Map<String, dynamic> data = await helpMethodsHttp.getNewQuestion('HARD', 'BINGO', 'TREE');
           setState(() {
             question = data['description'];
           });
@@ -94,10 +120,20 @@ class _BingoEasyMode extends State<BingoEasyMode> {
     }
   }
 
-  bool setStartedQuestion(List<dynamic> response) {
+  int? getStartedQuestion(List<dynamic> data) {
+    for (var challenge in data) {
+      if(challenge['type'] == 'BINGO' && challenge['category'] == 'TREE' && challenge['difficulty'] == 'HARD' && challenge['status'] == 'IN_PROGRESS') {
+        debugPrint('DEBUG: $challenge');
+        return challenge['id'];
+      }
+    }
+    return null;
+  }
+
+  bool setStartedQuestion(List<dynamic> data) {
     //TODO if check för om det var blandad bingo
-    for (var challenge in response) {
-      if(challenge['type'] == 'BINGO' && challenge['category'] == null && challenge['difficulty'] == 'HARD' && challenge['status'] == 'IN_PROGRESS') {
+    for (var challenge in data) {
+      if(challenge['type'] == 'BINGO' && challenge['category'] == 'TREE' && challenge['difficulty'] == 'HARD' && challenge['status'] == 'IN_PROGRESS') {
         setState(() {
           question = challenge['description'];
         });
@@ -105,6 +141,13 @@ class _BingoEasyMode extends State<BingoEasyMode> {
       }
     }
     return false;
+  }
+
+  Future<File> getAssetFile(String assetPath) async {
+    final byteData = await rootBundle.load(assetPath);
+    final file = File('${(await getTemporaryDirectory()).path}/test_ek.jpg');
+    await file.writeAsBytes(byteData.buffer.asUint8List());
+    return file;
   }
 
   @override
@@ -147,12 +190,14 @@ class _BingoEasyMode extends State<BingoEasyMode> {
                     InkWell(
                       onTap: () async {
                         if (image1 == null){
-                          final File? file = await CameraService.takePicture();
+                          //final File? file = await CameraService.takePicture();
+                          final file = await getAssetFile('assets/ek.jpg');
 
-                          //UploadPicture.sendPictureToGoogleStorage(file);
-                          //sendPictureToGoogleStorage(file);
+                          final compressedXFile = await FlutterImageCompress.compressAndGetFile(file.path, '${file.path}_compressed.jpg', quality: 70,);
 
-                          //TODO check om det gick igenom
+                          final File compressedFile = File(compressedXFile!.path);
+
+                          helpMethodsUploadPicture.sendPictureToBackend(compressedFile);
 
                           if (file != null) {
                             setState(() {
@@ -289,7 +334,7 @@ class _BingoEasyMode extends State<BingoEasyMode> {
     );
   }
 
-
+/*
   //Behövs allt detta? Kan man göra det på annat sätt?
   Future<bool> uploadPicture(File? file) async {
     try {
@@ -316,8 +361,10 @@ class _BingoEasyMode extends State<BingoEasyMode> {
     }
   }
 
+ */
+
   //TODO egentligen bättre med andra hållet för true false return
-  Future<bool> checkBingoCompletionStatus () async {
+  Future<bool> checkBingoCompletionStatus() async {
     if (image1 == null || image2 == null) {
       return false;
     } else {
@@ -328,7 +375,7 @@ class _BingoEasyMode extends State<BingoEasyMode> {
   }
 
 // metod för att rensa bingo efter avklarad utmaning
-  void resetBingo () {
+  void resetBingo() {
     if (isCompleted == true) {
       image1 = null;
       image2 = null;
