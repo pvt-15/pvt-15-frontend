@@ -22,8 +22,6 @@ class CustomNavigationBar extends StatelessWidget {
       onDestinationSelected: (int index) {
         if (index == selectedIndex) return;
 
-        //TODO ändra till profil när screen läggs till
-
         if (index == 0) {
           Navigator.pushReplacement(
             context,
