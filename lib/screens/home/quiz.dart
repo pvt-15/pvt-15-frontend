@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import '../../widgets/custom_navigation_bar.dart';
-import '../../services/token_storage.dart';
+import '../../services/session_storage.dart';
 import '../home.dart';
 import '../choose_difficulty.dart';
 
@@ -142,8 +142,12 @@ class _QuizState extends State<Quiz> {
 
   // hämta JWT token, hämta frågor
   Future<void> _init() async {
-    final token = await TokenStorage().getToken();
-    setState(() => _jwtToken = token);
+    final token = await SessionStorage().getToken();
+
+    setState(() {
+      _jwtToken = token;
+    });
+
     await _fetchQuestions();
   }
 

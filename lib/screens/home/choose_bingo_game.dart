@@ -12,6 +12,7 @@ class ChooseBingoGame extends StatefulWidget {
     super.key,
   });
 
+  //vill inte spara, static final = går ej att ändra svårighetsgrad senare.
   static final List<Map<String, dynamic>> startedGames = [
     {'name': 'Träd', 'status': false, 'route': null},
     {'name': 'Växter', 'status': false, 'route': null},

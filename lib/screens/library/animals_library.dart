@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../services/token_storage.dart';
+import '../../services/session_storage.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
@@ -34,7 +34,7 @@ class AnimalsLibrary extends StatefulWidget {
 }
 
 class _AnimalsLibraryState extends State<AnimalsLibrary> {
-  final TokenStorage _tokenStorage = TokenStorage();
+  final SessionStorage _sessionStorage = SessionStorage();
 
   List<AnimalPicture> _animals = [];
   bool _isLoading = true;
@@ -53,7 +53,7 @@ class _AnimalsLibraryState extends State<AnimalsLibrary> {
     });
 
     try {
-      final token = await _tokenStorage.getToken();
+      final token = await _sessionStorage.getToken();
 
       if (token == null) {
         setState(() {
@@ -101,15 +101,6 @@ class _AnimalsLibraryState extends State<AnimalsLibrary> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFBEDBB2),
-      appBar: AppBar(
-        leading: IconButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-          icon: const Icon(Icons.arrow_back),
-        ),
-        title: const Text('Bibliotek'),
-      ),
       appBar: AppBar(
         backgroundColor: const Color(0xFFBEDBB2),
         elevation: 0,

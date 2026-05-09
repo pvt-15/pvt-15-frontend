@@ -33,9 +33,7 @@ class HomeScreen extends StatelessWidget {
       },
       {
         'name': 'Quiz',
-        'page': const ChooseDifficulty(
-          gameTitle: 'Quiz',
-        ),
+        'page': Container(),
         'image': 'assets/maskot_quiz.png',
       },
     ];
@@ -79,7 +77,7 @@ class HomeScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      '875 poäng',
+                      '875 poäng', // TODO denna är hårdkodad nu, behöver ändras
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                   ],
@@ -141,7 +139,37 @@ class HomeScreen extends StatelessWidget {
             borderRadius: BorderRadius.circular(18),
           ),
         ),
-        onPressed: () {
+        onPressed: () async {
+
+          // QUIZ
+          if (title == 'Quiz') {
+
+            final Difficulty? result = await Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const ChooseDifficulty(
+                  gameTitle: 'Quiz',
+                ),
+              ),
+            );
+
+            if (result != null && context.mounted) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => AuthGuard(
+                    child: Quiz(
+                      difficulty: result,
+                    ),
+                  ),
+                ),
+              );
+            }
+
+            return;
+          }
+
+          // ALLT ANNAT
           Navigator.push(
             context,
             MaterialPageRoute(
@@ -175,7 +203,30 @@ class HomeScreen extends StatelessWidget {
           borderRadius: BorderRadius.circular(18),
         ),
       ),
-      onPressed: () {
+      onPressed: () async {
+        if (title == 'Quiz') {
+          final Difficulty? result = await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => const ChooseDifficulty(
+                gameTitle: 'Quiz',
+              ),
+            ),
+          );
+
+          if (result != null && context.mounted) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => AuthGuard(
+                  child: Quiz(difficulty: result),
+                ),
+              ),
+            );
+          }
+          return;
+        }
+
         Navigator.push(
           context,
           MaterialPageRoute(

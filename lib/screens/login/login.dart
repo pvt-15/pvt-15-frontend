@@ -250,6 +250,9 @@ class _LoginScreenState extends State<LoginScreen> {
             content: Text(
               "Fel email eller lösenord",
               textAlign: TextAlign.center,
+              style: const TextStyle(
+                color: Colors.white,
+              ),
             ),
           ),
         );

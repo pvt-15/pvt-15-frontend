@@ -7,17 +7,13 @@ enum Difficulty { easy, medium, hard }
 
 class ChooseDifficulty extends StatefulWidget {
   final String gameTitle;
+  //final Widget Function(Difficulty difficulty) nextPage;
 
   const ChooseDifficulty({
     super.key,
-    required this.gameTitle
-  });
-  //final Widget Function(Difficulty difficulty) nextPage;
-
-  //const ChooseDifficulty({
-    //super.key,
+    required this.gameTitle,
     //required this.nextPage,
- //});
+  });
 
   @override
   State<ChooseDifficulty> createState() => _ChooseDifficultyState();
@@ -114,6 +110,13 @@ class _ChooseDifficultyState extends State<ChooseDifficulty> {
                         // Returnerar den valda svårighetsgraden till föregående skärm
                         final selected = difficulty[index]['level'] as Difficulty;
                         Navigator.pop(context, selected);
+                        /*
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => widget.nextPage(selected),
+                          ),
+                        );*/
                       },
                       child: Text(
                         difficulty[index]['name'],
@@ -127,6 +130,7 @@ class _ChooseDifficultyState extends State<ChooseDifficulty> {
           ],
         ),
       ),
+      /*
       bottomNavigationBar: Container(
         height: 80,
         decoration: const BoxDecoration(
@@ -145,7 +149,7 @@ class _ChooseDifficultyState extends State<ChooseDifficulty> {
             ),
           ],
         ),
-      ),
+      ),*/
 
       bottomNavigationBar: const CustomNavigationBar(selectedIndex: -1),
 

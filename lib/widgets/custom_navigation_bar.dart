@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import '../screens/home.dart';
 import '../screens/home/home_library.dart';
-import '../screens/home/species_profile.dart';
+//import '../screens/home/species_profile.dart';
+import '../screens/profile/profile.dart';
+
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 
@@ -25,7 +27,7 @@ class CustomNavigationBar extends StatelessWidget {
         if (index == 0) {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (_) => const SpeciesProfile()),
+            MaterialPageRoute(builder: (_) => const Profile()),
           );
         } else if (index == 1) {
           Navigator.pushReplacement(
