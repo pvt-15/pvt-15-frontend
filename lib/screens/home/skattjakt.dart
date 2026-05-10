@@ -2,53 +2,103 @@ import 'package:flutter/material.dart';
 import 'dart:io';
 import '../../services/camera_service.dart';
 import '../../widgets/custom_navigation_bar.dart';
-import '../../services/translation_service.dart';
+import '../choose_difficulty.dart';
 
 class Skattjakt extends StatefulWidget {
-  const Skattjakt({super.key});
+  final Difficulty difficulty;
+
+  const Skattjakt({
+    super.key,
+    required this.difficulty,
+  });
 
   @override
   State<Skattjakt> createState() => _SkattjaktState();
 }
 
-class _SkattjaktState extends State<Skattjakt> {
-  final List<String> treeNames = [
-    'Björk',
-    'Ek',
-    'Tall',
-    'Gran',
-  ];
+class TreeTarget {
+  final String name;
+  final String imageAsset;
 
-  final List<File?> images = <File?>[null, null, null, null];
-  final List<bool> isVerified = <bool>[false, false, false, false];
-  final List<bool> isChecking = <bool>[false, false, false, false];
+  const TreeTarget({
+    required this.name,
+    required this.imageAsset,
+  });
+}
+
+class _SkattjaktState extends State<Skattjakt> {
+
+  static const Map<String, String> treeImageAssets = {
+    'Björk': 'assets/trees/bjork.jpg',
+    'Ek': 'assets/trees/ek.jpg',
+    'Tall': 'assets/trees/tall.jpg',
+    'Gran': 'assets/trees/gran.jpg',
+    'Alm': 'assets/trees/alm.jpg',
+    'Asp': 'assets/trees/asp.jpg',
+    'Lönn': 'assets/trees/lönn.jpg',
+    'Pil': 'assets/trees/pil.jpg',
+    'Bok': 'assets/trees/bok.jpg',
+    'Hassel': 'assets/trees/hassel.jpg',
+    'Rönn': 'assets/trees/rönn.jpg',
+  };
+
+  late final List<TreeTarget> treeTargets;
+
+  int currentIndex = 0;
+  late List<File?> images;
+  late List<bool> isVerified;
+  late List<bool> isChecking;
   bool allCompleted = false;
 
-  String translationResult = '';
-  bool isTranslating = false;
+  @override
+  void initState() {
+    super.initState();
+    treeTargets = _getTreesForDifficulty(widget.difficulty);
+    images = List.filled(treeTargets.length, null);
+    isVerified = List.filled(treeTargets.length, false);
+    isChecking = List.filled(treeTargets.length, false);
+  }
 
-  Future<void> takePictureAndVerify(int index) async {
-    if (images[index] != null) return;
+  List<TreeTarget> _getTreesForDifficulty(Difficulty difficulty) {
+    switch (difficulty) {
+      case Difficulty.easy:
+        return _createTargets(['Björk', 'Ek', 'Tall', 'Gran']);
+      case Difficulty.medium:
+        return _createTargets(['Björk', 'Ek', 'Tall', 'Gran', 'Alm', 'Asp', 'Lönn', 'Pil']);
+      case Difficulty.hard:
+        return _createTargets([
+          'Björk', 'Ek', 'Tall', 'Gran', 'Alm', 'Asp',
+          'Lönn', 'Pil', 'Bok', 'Hassel', 'Rönn'
+        ]);
+    }
+  }
+
+  List<TreeTarget> _createTargets(List<String> treeNames) {
+    return treeNames.map((name) {
+      final assetPath = treeImageAssets[name] ?? 'assets/trees/default.png';
+      return TreeTarget(name: name, imageAsset: assetPath);
+    }).toList();
+  }
+
+  Future<void> takePictureAndVerify() async {
+    if (currentIndex >= treeTargets.length) return;
+    if (images[currentIndex] != null) return;
 
     final File? file = await CameraService.takePicture();
 
     if (file != null && mounted) {
       setState(() {
-        images[index] = file;
-        isChecking[index] = true;
+        images[currentIndex] = file;
+        isChecking[currentIndex] = true;
       });
 
       // TODO: Implementera AI-verifiering via backend
-      // Exempelanrop:
-      // final bool result = await verifyTreeWithAI(file, treeNames[index]);
-
-      // simulerar verifiering (ersatt med riktigt API-anrop)
       await Future.delayed(const Duration(seconds: 1));
 
       if (mounted) {
         setState(() {
-          isVerified[index] = true;
-          isChecking[index] = false;
+          isVerified[currentIndex] = true;
+          isChecking[currentIndex] = false;
           _checkAllCompleted();
         });
       }
@@ -61,6 +111,22 @@ class _SkattjaktState extends State<Skattjakt> {
     });
   }
 
+  void goToNextTree() {
+    if (currentIndex < treeTargets.length - 1) {
+      setState(() {
+        currentIndex++;
+      });
+    }
+  }
+
+  void goToPreviousTree() {
+    if (currentIndex > 0) {
+      setState(() {
+        currentIndex--;
+      });
+    }
+  }
+
   void resetAll() {
     setState(() {
       for (int i = 0; i < images.length; i++) {
@@ -68,83 +134,30 @@ class _SkattjaktState extends State<Skattjakt> {
         isVerified[i] = false;
         isChecking[i] = false;
       }
+      currentIndex = 0;
       allCompleted = false;
     });
   }
 
-  Future<void> testTranslation() async {
-    setState(() {
-      isTranslating = true;
-      translationResult = 'Översätter...';
-    });
-
-    TranslationService.debugPrintManualTranslations();
-
-    final List<String> testWords = [
-      'Daisy',
-      'Wood anemone',
-      'Bluebell',
-      'Lily of the valley',
-      'Buttercup',
-      'Birch',
-      'Oak',
-      'Pine',
-    ];
-
-    String result = 'Översattningstest från API:\n\n';
-
-    for (final word in testWords) {
-      final translated = await TranslationService.translateWord(word);
-      result += '$word -> $translated\n';
-      await Future.delayed(const Duration(milliseconds: 200));
-    }
-
-    final bool apiAvailable = await TranslationService.checkApiAvailability();
-    result += '\n=== Status ===\n';
-    result += 'API tillgängligt: ${apiAvailable ? "Ja" : "Nej"}\n';
-
-    setState(() {
-      translationResult = result;
-      isTranslating = false;
-    });
-
-    if (mounted) {
-      showDialog(
-        context: context,
-        builder: (dialogContext) => AlertDialog(
-          title: const Text('Översättningstest'),
-          content: Container(
-            width: double.maxFinite,
-            constraints: const BoxConstraints(maxHeight: 400),
-            child: SingleChildScrollView(
-              child: Text(
-                translationResult,
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(dialogContext);
-              },
-              child: const Text('Stäng'),
-            ),
-          ],
-        ),
-      );
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
+    if (treeTargets.isEmpty) {
+      return Scaffold(
+        backgroundColor: const Color(0xFFBEDBB2),
+        body: const Center(child: Text('Inga träd tillgängliga')),
+      );
+    }
+
+    final TreeTarget currentTarget = treeTargets[currentIndex];
+    final File? currentImage = images[currentIndex];
+    final bool currentVerified = isVerified[currentIndex];
+    final bool currentChecking = isChecking[currentIndex];
+
     return Scaffold(
       backgroundColor: const Color(0xFFBEDBB2),
       appBar: AppBar(
         leading: IconButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
+          onPressed: () => Navigator.pop(context),
           icon: const Icon(Icons.arrow_back),
         ),
         title: const Text('Skattjakt'),
@@ -153,6 +166,7 @@ class _SkattjaktState extends State<Skattjakt> {
       body: SafeArea(
         child: Column(
           children: [
+            // Rubrik
             Padding(
               padding: const EdgeInsets.only(
                 top: 20,
@@ -169,40 +183,198 @@ class _SkattjaktState extends State<Skattjakt> {
 
             const SizedBox(height: 10),
 
+            // stegräknare
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List.generate(treeTargets.length, (index) {
+                  return Container(
+                    width: 12,
+                    height: 12,
+                    margin: const EdgeInsets.symmetric(horizontal: 4),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: index == currentIndex
+                          ? const Color(0xFF4C290C)
+                          : isVerified[index]
+                          ? const Color(0xff84c06c)
+                          : Colors.grey.shade400,
+                    ),
+                  );
+                }),
+              ),
+            ),
+
+            const SizedBox(height: 20),
+
+            // navigation och trädnamn
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  IconButton(
+                    onPressed: currentIndex > 0 ? goToPreviousTree : null,
+                    icon: const Icon(Icons.arrow_back_ios),
+                    iconSize: 30,
+                    color: currentIndex > 0
+                        ? const Color(0xFF4C290C)
+                        : Colors.grey,
+                  ),
+                  Text(
+                    currentTarget.name,
+                    style: Theme.of(context).textTheme.headlineLarge,
+                  ),
+                  IconButton(
+                    onPressed: currentIndex < treeTargets.length - 1
+                        ? goToNextTree
+                        : null,
+                    icon: const Icon(Icons.arrow_forward_ios),
+                    iconSize: 30,
+                    color: currentIndex < treeTargets.length - 1
+                        ? const Color(0xFF4C290C)
+                        : Colors.grey,
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 20),
+
+            // bildruta med referensbild
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: GridView.builder(
-                  itemCount: treeNames.length,
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 16,
-                    mainAxisSpacing: 16,
-                    childAspectRatio: 1.0,
+                padding: const EdgeInsets.symmetric(horizontal: 30),
+                child: Container(
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: const Color(0xfff8ed76),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: currentVerified
+                          ? const Color(0xFF4C290C)
+                          : Colors.transparent,
+                      width: 3,
+                    ),
                   ),
-                  itemBuilder: (context, index) {
-                    return _buildTreeCard(index);
-                  },
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(17),
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        // visar antingen den tagna bilden eller referensbilden
+                        if (currentImage != null)
+                          Image.file(
+                            currentImage,
+                            width: double.infinity,
+                            height: double.infinity,
+                            fit: BoxFit.cover,
+                          )
+                        else
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              // visa referensbild for trädet
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(12),
+                                child: Image.asset(
+                                  currentTarget.imageAsset,
+                                  width: 200,
+                                  height: 200,
+                                  fit: BoxFit.contain,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Column(
+                                      children: [
+                                        const Icon(
+                                          Icons.image_outlined,
+                                          size: 80,
+                                          color: Color(0xFF4C290C),
+                                        ),
+                                        const SizedBox(height: 10),
+                                        Text(
+                                          'Referensbild saknas',
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .titleMedium,
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                ),
+                              ),
+                              const SizedBox(height: 10),
+                              Text(
+                                'Ta en bild på en ${currentTarget.name.toLowerCase()}',
+                                textAlign: TextAlign.center,
+                                style: Theme.of(context).textTheme.titleMedium,
+                              ),
+                            ],
+                          ),
+
+                        if (currentChecking)
+                          const CircularProgressIndicator(
+                            color: Color(0xFF4C290C),
+                          ),
+
+                        if (currentVerified)
+                          Positioned(
+                            top: 12,
+                            right: 12,
+                            child: Container(
+                              padding: const EdgeInsets.all(6),
+                              decoration: const BoxDecoration(
+                                color: Color(0xff84c06c),
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.check,
+                                color: Color(0xFF4C290C),
+                                size: 30,
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
                 ),
               ),
             ),
 
-            const SizedBox(height: 10),
+            const SizedBox(height: 20),
 
-            ElevatedButton(
-              onPressed: isTranslating ? null : testTranslation,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF84C06C),
-                minimumSize: const Size(200, 50),
+            // kameraknapp
+            if (!currentVerified && !currentChecking)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: ElevatedButton.icon(
+                  onPressed: takePictureAndVerify,
+                  icon: const Icon(Icons.camera_alt, size: 30),
+                  label: const Text('Ta bild'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xfff8ed76),
+                    foregroundColor: const Color(0xFF4C290C),
+                    minimumSize: const Size(200, 60),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    textStyle: Theme.of(context).textTheme.titleMedium,
+                  ),
+                ),
               ),
-              child: Text(
-                isTranslating ? 'Översätter...' : 'Testa översätt API',
-                style: Theme.of(context).textTheme.titleMedium,
+
+            if (currentVerified && !allCompleted)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: Text(
+                  'Hittad! Gå vidare till nästa träd.',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    color: const Color(0xFF4C290C),
+                  ),
+                ),
               ),
-            ),
 
-            const SizedBox(height: 10),
-
+            // knapp for att börja om
             if (allCompleted)
               Padding(
                 padding: const EdgeInsets.only(bottom: 20),
@@ -227,89 +399,6 @@ class _SkattjaktState extends State<Skattjakt> {
         ),
       ),
       bottomNavigationBar: const CustomNavigationBar(selectedIndex: -1),
-    );
-  }
-
-  Widget _buildTreeCard(int index) {
-    final File? image = images[index];
-    final bool verified = isVerified[index];
-    final bool checking = isChecking[index];
-
-    return InkWell(
-      onTap: () => takePictureAndVerify(index),
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        decoration: BoxDecoration(
-          color: verified
-              ? const Color(0xff84c06c)
-              : const Color(0xfff8ed76),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: verified
-                ? const Color(0xFF4C290C)
-                : Colors.transparent,
-            width: 3,
-          ),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Expanded(
-              flex: 3,
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  if (image != null)
-                    ClipRRect(
-                      borderRadius: const BorderRadius.vertical(
-                        top: Radius.circular(14),
-                      ),
-                      child: Image.file(
-                        image,
-                        width: double.infinity,
-                        height: double.infinity,
-                        fit: BoxFit.cover,
-                      ),
-                    )
-                  else
-                    const Icon(
-                      Icons.image_outlined,
-                      size: 50,
-                      color: Color(0xFF4C290C),
-                    ),
-
-                  if (checking)
-                    const CircularProgressIndicator(
-                      color: Color(0xFF4C290C),
-                    ),
-
-                  if (verified)
-                    const Positioned(
-                      top: 8,
-                      right: 8,
-                      child: Icon(
-                        Icons.check_circle,
-                        color: Color(0xFF4C290C),
-                        size: 30,
-                      ),
-                    ),
-                ],
-              ),
-            ),
-
-            Expanded(
-              flex: 1,
-              child: Center(
-                child: Text(
-                  treeNames[index],
-                  style: Theme.of(context).textTheme.titleMedium,
-                  textAlign: TextAlign.center,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

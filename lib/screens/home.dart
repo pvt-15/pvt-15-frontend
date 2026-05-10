@@ -17,7 +17,7 @@ class HomeScreen extends StatelessWidget {
     final List<Map<String, dynamic>> menuItems = [
       {'name': 'Dagens utmaning', 'page': const HomeLibrary()},
       {'name': 'Bingo', 'page': const ChooseBingoGame()},
-      {'name': 'Skattjakt', 'page': const Skattjakt()},
+      {'name': 'Skattjakt', 'page': const Skattjakt(difficulty: Difficulty.hard,)},
       {'name': 'Samla art', 'page': const SpeciesProfile()},
       {'name': 'Quiz', 'page': const Quiz()},
       {'name': 'Platsuppdrag', 'page': const HomeLibrary()},

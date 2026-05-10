@@ -38,6 +38,7 @@ flutter:
         - asset: assets/YoungSerif-Regular.ttf
   uses-material-design: true
   assets:
+    - assets/trees/
     - assets/maskot_skogstroll.png
     - assets/ros.jpg
     - assets/vitsippa.png
