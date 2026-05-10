@@ -140,7 +140,7 @@ class HomeScreen extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => const ChooseDifficulty(gameTitle: 'Bingo'),
+                    builder: (_) => const ChooseDifficulty(gameTitle: 'Svårighetsgrad'),
                   ),
                 );
               },

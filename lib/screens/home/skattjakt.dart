@@ -12,23 +12,76 @@ class Skattjakt extends StatefulWidget {
 }
 
 class _SkattjaktState extends State<Skattjakt> {
+  final List<String> treeNames = [
+    'Björk',
+    'Ek',
+    'Tall',
+    'Gran',
+  ];
 
-  File? image;
-  String translationResult = ''; // För att visa resultat av översättningstest
+  final List<File?> images = <File?>[null, null, null, null];
+  final List<bool> isVerified = <bool>[false, false, false, false];
+  final List<bool> isChecking = <bool>[false, false, false, false];
+  bool allCompleted = false;
+
+  String translationResult = '';
   bool isTranslating = false;
 
-  // testa översättnings-API:t med några exempelord
+  Future<void> takePictureAndVerify(int index) async {
+    if (images[index] != null) return;
+
+    final File? file = await CameraService.takePicture();
+
+    if (file != null && mounted) {
+      setState(() {
+        images[index] = file;
+        isChecking[index] = true;
+      });
+
+      // TODO: Implementera AI-verifiering via backend
+      // Exempelanrop:
+      // final bool result = await verifyTreeWithAI(file, treeNames[index]);
+
+      // simulerar verifiering (ersatt med riktigt API-anrop)
+      await Future.delayed(const Duration(seconds: 1));
+
+      if (mounted) {
+        setState(() {
+          isVerified[index] = true;
+          isChecking[index] = false;
+          _checkAllCompleted();
+        });
+      }
+    }
+  }
+
+  void _checkAllCompleted() {
+    setState(() {
+      allCompleted = !isVerified.contains(false);
+    });
+  }
+
+  void resetAll() {
+    setState(() {
+      for (int i = 0; i < images.length; i++) {
+        images[i] = null;
+        isVerified[i] = false;
+        isChecking[i] = false;
+      }
+      allCompleted = false;
+    });
+  }
+
   Future<void> testTranslation() async {
     setState(() {
       isTranslating = true;
       translationResult = 'Översätter...';
     });
 
-    // skriv ut alla manuella översättningar för felsökning
     TranslationService.debugPrintManualTranslations();
 
     final List<String> testWords = [
-      'Daisy',  // Testa specifikt Daisy
+      'Daisy',
       'Wood anemone',
       'Bluebell',
       'Lily of the valley',
@@ -38,16 +91,14 @@ class _SkattjaktState extends State<Skattjakt> {
       'Pine',
     ];
 
-    String result = 'Översättningstest från API:\n\n';
+    String result = 'Översattningstest från API:\n\n';
 
-    // testa MyMemory API
     for (final word in testWords) {
       final translated = await TranslationService.translateWord(word);
       result += '$word -> $translated\n';
       await Future.delayed(const Duration(milliseconds: 200));
     }
 
-    // kontrollera API-tillgänglighet
     final bool apiAvailable = await TranslationService.checkApiAvailability();
     result += '\n=== Status ===\n';
     result += 'API tillgängligt: ${apiAvailable ? "Ja" : "Nej"}\n';
@@ -57,7 +108,6 @@ class _SkattjaktState extends State<Skattjakt> {
       isTranslating = false;
     });
 
-    // visa resultat i en dialog
     if (mounted) {
       showDialog(
         context: context,
@@ -101,127 +151,165 @@ class _SkattjaktState extends State<Skattjakt> {
         toolbarHeight: 100,
       ),
       body: SafeArea(
-        child: Center(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const SizedBox(height: 20),
-
-              const Text(
-                'uppdraget ska stå här',
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(
+                top: 20,
+                bottom: 10,
+                left: 20,
+                right: 20,
+              ),
+              child: Text(
+                'Ta bild på dessa träd',
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontFamily: 'WinkySans',
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF4C290C),
-                ),
+                style: Theme.of(context).textTheme.headlineMedium,
               ),
+            ),
 
-              const SizedBox(height: 40),
+            const SizedBox(height: 10),
 
-              Container(
-                width: 300,
-                height: 300,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF8ED76),
-                  borderRadius: BorderRadius.circular(20),
-                  image: image != null ? DecorationImage(image: FileImage(image!),
-                    fit: BoxFit.cover,) : null,
-                ),
-                child: image == null
-                    ? const Center(
-                  child: Icon(
-                    Icons.image_outlined,
-                    size: 70,
-                    color: Color(0xFF4C290C),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: GridView.builder(
+                  itemCount: treeNames.length,
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 16,
+                    mainAxisSpacing: 16,
+                    childAspectRatio: 1.0,
                   ),
-                )
-                    : null,
-              ),
-
-              const SizedBox(height: 30),
-
-              const Text(
-                'titel på vad man ska hitta ex. vitsippa',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontFamily: 'WinkySans',
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF4C290C),
+                  itemBuilder: (context, index) {
+                    return _buildTreeCard(index);
+                  },
                 ),
               ),
+            ),
 
-              const SizedBox(height: 20),
+            const SizedBox(height: 10),
 
-              // Testknapp för översättnings-API
-              ElevatedButton(
-                onPressed: isTranslating ? null : testTranslation,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF84C06C),
-                  minimumSize: const Size(200, 50),
-                ),
-                child: Text(
-                  isTranslating ? 'Översätter...' : 'Testa Översätt API',
-                  style: const TextStyle(
-                    fontFamily: 'WinkySans',
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF000000),
-                  ),
-                ),
+            ElevatedButton(
+              onPressed: isTranslating ? null : testTranslation,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF84C06C),
+                minimumSize: const Size(200, 50),
               ),
+              child: Text(
+                isTranslating ? 'Översätter...' : 'Testa översätt API',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+            ),
 
-              const SizedBox(height: 20),
+            const SizedBox(height: 10),
 
-              InkWell(
-                onTap: () async {
-                  final File? file = await CameraService.takePicture();
-
-                  if (file != null) {
-                    // Tillfällig lösning för att verifiera att kameran fungerar.
-                    // Just nu visas bilden kvar på samma sida.
-                    // Om flödet ska följa Figma senare kan detta bytas mot navigation till nästa screen.
-                    setState(() {
-                      image = file;
-                    });
-                  }
-                },
-                borderRadius: BorderRadius.circular(18),
-                child: Container(
-                  width: 150,
-                  height: 65,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFFFEE7A),
-                    borderRadius: BorderRadius.circular(18),
-                    boxShadow: const [
-                      BoxShadow(
-                        color: Colors.black26,
-                        blurRadius: 4,
-                        offset: Offset(2, 3),
-                      ),
-                    ],
-                  ),
-                  child: const Center(
-                    child: Text(
-                      'Ta bild',
-                      style: TextStyle(
-                        fontFamily: 'WinkySans',
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF4C290C),
-                      ),
+            if (allCompleted)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 20),
+                child: ElevatedButton(
+                  onPressed: resetAll,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xff84c06c),
+                    minimumSize: const Size(200, 60),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15),
                     ),
                   ),
+                  child: Text(
+                    'Alla träd hittade! Börja om?',
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
                 ),
               ),
 
-            ],
-          ),
+            const SizedBox(height: 10),
+          ],
         ),
       ),
       bottomNavigationBar: const CustomNavigationBar(selectedIndex: -1),
+    );
+  }
+
+  Widget _buildTreeCard(int index) {
+    final File? image = images[index];
+    final bool verified = isVerified[index];
+    final bool checking = isChecking[index];
+
+    return InkWell(
+      onTap: () => takePictureAndVerify(index),
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        decoration: BoxDecoration(
+          color: verified
+              ? const Color(0xff84c06c)
+              : const Color(0xfff8ed76),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: verified
+                ? const Color(0xFF4C290C)
+                : Colors.transparent,
+            width: 3,
+          ),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Expanded(
+              flex: 3,
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  if (image != null)
+                    ClipRRect(
+                      borderRadius: const BorderRadius.vertical(
+                        top: Radius.circular(14),
+                      ),
+                      child: Image.file(
+                        image,
+                        width: double.infinity,
+                        height: double.infinity,
+                        fit: BoxFit.cover,
+                      ),
+                    )
+                  else
+                    const Icon(
+                      Icons.image_outlined,
+                      size: 50,
+                      color: Color(0xFF4C290C),
+                    ),
+
+                  if (checking)
+                    const CircularProgressIndicator(
+                      color: Color(0xFF4C290C),
+                    ),
+
+                  if (verified)
+                    const Positioned(
+                      top: 8,
+                      right: 8,
+                      child: Icon(
+                        Icons.check_circle,
+                        color: Color(0xFF4C290C),
+                        size: 30,
+                      ),
+                    ),
+                ],
+              ),
+            ),
+
+            Expanded(
+              flex: 1,
+              child: Center(
+                child: Text(
+                  treeNames[index],
+                  style: Theme.of(context).textTheme.titleMedium,
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
