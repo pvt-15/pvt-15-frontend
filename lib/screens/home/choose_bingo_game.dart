@@ -12,6 +12,7 @@ class ChooseBingoGame extends StatefulWidget {
     super.key,
   });
 
+  //vill inte spara, static final = går ej att ändra svårighetsgrad senare.
   static final List<Map<String, dynamic>> startedGames = [
     {'name': 'Träd', 'status': false, 'route': null},
     {'name': 'Växter', 'status': false, 'route': null},
@@ -90,7 +91,9 @@ class _ChooseBingoGame extends State<ChooseBingoGame> {
                             if (game['name'] == games[index]['name']) {
                               if (game['status'] == false){
 
-                                final Difficulty? result = await Navigator.push(context, MaterialPageRoute(builder: (context) => ChooseDifficulty(gameTitle: 'Bingo',)),);
+                                final Difficulty? result = await Navigator.push(context, MaterialPageRoute(builder: (context) => const ChooseDifficulty(
+                                  gameTitle: 'Bingo',
+                                )),);
 
                                 if (result != null) {
                                   if (result == Difficulty.easy) {

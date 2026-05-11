@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import '../screens/home.dart';
 import '../screens/home/home_library.dart';
-import '../screens/home/species_profile.dart';
+//import '../screens/home/species_profile.dart';
+import '../screens/profile/profile.dart';
+
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 import '../screens/profile/profile.dart';
@@ -21,8 +23,6 @@ class CustomNavigationBar extends StatelessWidget {
 
       onDestinationSelected: (int index) {
         if (index == selectedIndex) return;
-
-        //TODO ändra till profil när screen läggs till
 
         if (index == 0) {
           Navigator.pushReplacement(

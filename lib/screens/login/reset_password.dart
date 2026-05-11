@@ -17,6 +17,15 @@ class _ResetPasswordState extends State<ResetPassword> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Color(0xFFBEDBB2),
+      appBar: AppBar(
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          icon: const Icon(Icons.arrow_back),
+        ),
+        title: const Text('Ändra lösenord'),
+      ),
       body: Align(
         alignment: Alignment.topCenter,
         child: Column(
@@ -25,7 +34,7 @@ class _ResetPasswordState extends State<ResetPassword> {
             Padding(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 20.0,
-                  vertical: 80.0,
+                  vertical: 70.0,
                 ),
                 child: Text("Återställ lösenord (temp)", style: TextStyle(fontSize: 30))
             ),
