@@ -152,6 +152,7 @@ class MyApp extends StatelessWidget {
         ),
 
         dialogTheme: DialogThemeData(
+
           backgroundColor: Colors.white,
           elevation: 10,
           shape: RoundedRectangleBorder(
@@ -159,7 +160,7 @@ class MyApp extends StatelessWidget {
           ),
           titleTextStyle: TextStyle(
           fontFamily: 'YoungSerif',
-          fontSize: 30,
+          fontSize: 22,
           color: Color(0xFF000000),
           ),
           contentTextStyle: TextStyle(
