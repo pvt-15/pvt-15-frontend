@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:Skogsjakten/screens/home.dart';
+import 'package:Skogsjakten/screens/profile/profile.dart';
 import 'package:Skogsjakten/services/session_storage.dart';
 import 'package:Skogsjakten/services/upload_picture.dart';
 import 'package:Skogsjakten/widgets/custom_navigation_bar.dart';
@@ -43,7 +43,7 @@ class _ProfilePicState extends State<ProfilePic> {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (_) => const HomeScreen(name: 'Användare'),
+          builder: (_) => const Profile(),
         ),
       );
     } catch (e) {

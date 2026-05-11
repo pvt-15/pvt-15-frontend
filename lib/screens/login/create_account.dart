@@ -37,6 +37,7 @@ class _CreateAccountState extends State<CreateAccount> {
       if (response.statusCode == 200 || response.statusCode == 201) {
         final data = jsonDecode(response.body);
 
+
         // Kontrollera att vi faktiskt fick en token innan vi sparar sessionen
         if (data['token'] != null) {
           await SessionStorage().saveUser(
