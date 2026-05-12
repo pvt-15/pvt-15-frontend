@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 
 import 'package:Skogsjakten/services/session_storage.dart';
 import 'package:Skogsjakten/screens/login/login.dart';
+import '../../widgets/custom_navigation_bar.dart';
 
 class Profile extends StatefulWidget {
   const Profile({super.key});
@@ -319,6 +320,9 @@ class _ProfileState extends State<Profile> {
             ),
           ),
         ],
+      ),
+      bottomNavigationBar: const CustomNavigationBar(
+        selectedIndex: 2,
       ),
     );
   }
