@@ -5,6 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:Skogsjakten/screens/login/login.dart';
 import 'package:Skogsjakten/services/session_storage.dart';
 import 'package:Skogsjakten/screens/profile/settings.dart';
+import 'package:Skogsjakten/screens/home/species_profile.dart';
+import 'package:Skogsjakten/screens/login/create_account.dart';
+import 'package:Skogsjakten/screens/bingo/bingo_medium_mode.dart';
 
 
 void main() async {
@@ -168,7 +171,7 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
-      home: const SettingsScreen(),
+      home: const BingoMediumMode(typeOfBingo: 'flower'),
     );
   }
 }
