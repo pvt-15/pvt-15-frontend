@@ -2,6 +2,7 @@ import 'dart:core';
 import 'dart:io';
 
 import 'package:Skogsjakten/services/upload_picture.dart';
+import 'package:Skogsjakten/widgets/custom_alert_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
@@ -15,8 +16,9 @@ import 'http_help_methods.dart';
 
 class BingoEasyMode extends StatefulWidget{
   final String typeOfBingo;
+  final int? challengeId;
 
-  const BingoEasyMode({super.key, required this.typeOfBingo});
+  const BingoEasyMode({super.key, required this.typeOfBingo, this.challengeId});
 
   @override
   State<BingoEasyMode> createState() => _BingoEasyMode();
@@ -24,23 +26,12 @@ class BingoEasyMode extends StatefulWidget{
 
 class _BingoEasyMode extends State<BingoEasyMode> {
 
-  //TODO tror inte denna behövs
-  //static final List<Map<String, dynamic>> games = [
-    //alla startade lätta spel
-    //{'name': 'Träd', 'images': <File?>[null, null], "isCompleted": false, 'challengeId': null},
-    //{'name': 'Växter', 'images': <File?>[null, null], "isCompleted": false, 'challengeId': null},
-    //{'name': 'Djur', 'images': <File?>[null, null], "isCompleted": false, 'challengeId': null},
-    //{'name': 'Blandad', 'images': <File?>[null, null], "isCompleted": false, 'challengeId': null},
-  //];
-
   Future<String?> token = SessionStorage().getToken();
 
   late HttpHelpMethods helpMethodsHttp;
-
   late UploadPicture helpMethodsUploadPicture;
 
   late bool isCompleted;
-
   late String question;
   late int challengeId;
 
@@ -61,112 +52,58 @@ class _BingoEasyMode extends State<BingoEasyMode> {
   Future<void> initStart() async {
     try {
       final jwtToken = await token;
-
       helpMethodsHttp = HttpHelpMethods(jwtToken: jwtToken);
-
       helpMethodsUploadPicture = UploadPicture(jwtToken: jwtToken);
 
-      startChallenge();
+      await setupChallenge();
       getPictures();
 
       List<dynamic> pictures = await helpMethodsHttp.getPictures();
       debugPrint('DEBUG: $pictures');
-
-      List<dynamic> all = await helpMethodsHttp.getAllChallenges();
 
     } catch (e) {
       debugPrint('Initieringsfel: $e');
     }
   }
 
-  void getPictures() async {
+  Future<void> setupChallenge() async {
     try {
-      List<dynamic> allChallenges = await helpMethodsHttp.getAllChallenges();
-      int? id = getStartedQuestion(allChallenges);
-
-      if (id != null) {
-        Map<String, dynamic> response = await helpMethodsHttp.getPicturesForChallenge(id);
-        debugPrint('Hämtade bilder: $response');
-        if (response.isNotEmpty) {
-          setState(() {
-            imageUrl1 = response[0]['imageUrl'];
-            if (response.length > 1) {
-              imageUrl2 = response[1]['imageUrl'];
-            }
-          });
-        }
+      Map<String, dynamic> data;
+      if (widget.challengeId != null) {
+        data = await helpMethodsHttp.getStartedQuestion(widget.challengeId!);
+      } else {
+        data = await helpMethodsHttp.getOrCreateBingoChallenge(widget.typeOfBingo, 'EASY');
       }
-    } catch (e) {
-      debugPrint('DEBUG getpictures $e');
-    }
 
-  }
+      setState(() {
+        question = data['description'];
+        challengeId = data['id'];
+      });
 
-  void startChallenge() async {
-    try {
-      List<dynamic> response = await helpMethodsHttp.getAllChallenges();
-
-        bool success = setStartedChallenge(response);
-
-        if (success == false) {
-          //TODO kom ihåg att ändra, kanske också flytta ut logiken
-          if (widget.typeOfBingo == 'Blandad') {
-            Map<String, dynamic> data = await helpMethodsHttp.getNewQuestion('HARD', 'BINGO', null);
-            setState(() {
-              question = data['description'];
-              challengeId = data['id'];
-            });
-          } else {
-            Map<String, dynamic> data = await helpMethodsHttp.getNewQuestion('HARD', 'BINGO', 'TREE');
-            setState(() {
-              question = data['description'];
-              challengeId = data['id'];
-
-            });
-          }
-        } else {
-          setStartedChallenge(response);
-        }
     } catch (e) {
       setState(() {
-        question = '$e';
+        question = 'Kunde inte ladda utmaning: $e';
       });
     }
   }
 
-  int? getStartedQuestion(List<dynamic> data) {
-    for (var challenge in data) {
-      if(challenge['type'] == 'BINGO' && challenge['category'] == 'TREE' && challenge['difficulty'] == 'HARD' && challenge['status'] == 'IN_PROGRESS') {
-        debugPrint('DEBUG: $challenge');
-        return challenge['id'];
+  void getPictures() async {
+    try {
+      Map<String, dynamic> response = await helpMethodsHttp.getPicturesForChallenge(challengeId);
+      debugPrint('Hämtade bilder: $response');
+      if (response.isNotEmpty) {
+        setState(() {
+          if (response is List && response.isNotEmpty) {
+            imageUrl1 = response[0]['imageUrl'];
+            if (response.length > 1) {
+              imageUrl2 = response[1]['imageUrl'];
+            }
+          }
+        });
       }
+    } catch (e) {
+      debugPrint('DEBUG getpictures $e');
     }
-    return null;
-  }
-
-  bool setStartedChallenge(List<dynamic> data) {
-    //TODO kom ihåg att ändra
-    if (widget.typeOfBingo == 'Blandad') {
-      for (var challenge in data) {
-        if (challenge['type'] == 'BINGO' && challenge['category'] == null && challenge['difficulty'] == 'HARD' && challenge['status'] == 'IN_PROGRESS') {
-          setState(() {
-            question = challenge['description'];
-            challengeId = challenge['id'];
-          });
-          return true;
-        }
-      }
-    } else {
-      for (var challenge in data) {
-        if (challenge['type'] == 'BINGO' && challenge['category'] == 'TREE' && challenge['difficulty'] == 'HARD' && challenge['status'] == 'IN_PROGRESS') {
-          setState(() {
-            question = challenge['description'];
-          });
-          return true;
-        }
-      }
-    }
-    return false;
   }
 
   Future<File> getAssetFile(String assetPath) async {
@@ -222,7 +159,7 @@ class _BingoEasyMode extends State<BingoEasyMode> {
 
                           final File compressedFile = File(compressedXFile!.path);
 
-                          helpMethodsUploadPicture.sendPictureToBackend(compressedFile);
+                          //helpMethodsUploadPicture.sendPictureToBackend(compressedFile, helpMethodsHttp.mapCategoryToBackend(widget.typeOfBingo), 'CHALLENGE', challengeId);
 
                           if (file != null) {
                             setState(() {
@@ -314,6 +251,18 @@ class _BingoEasyMode extends State<BingoEasyMode> {
                   showDialog(
                       context: context,
                       builder: (context) {
+                        return CustomAlertDialog(
+                          title: 'Är du säker?',
+                          content: 'Är du säker? Om du avslutar nu registeras inga poäng',
+                          cancelText: 'Avbryt',
+                          confirmText: 'Bekräfta',
+                          onCancel: () => Navigator.pop,
+                          onConfirm: () => Navigator.push(context, MaterialPageRoute(builder: (_) => HomeScreen()),
+                            ),
+                        );
+
+
+                        /*
                         return AlertDialog(
                           actionsAlignment: MainAxisAlignment.spaceBetween,
                           content: Text(
@@ -350,6 +299,11 @@ class _BingoEasyMode extends State<BingoEasyMode> {
                             ),
                           ],
                         );
+
+                         */
+
+
+
                       }
                   );
                 }

@@ -67,7 +67,7 @@ class HttpHelpMethods {
     }
   }
 
-  Future<List<dynamic>> getAllChallenges() async {
+  Future<List<dynamic>>  getAllChallenges() async {
     try {
       final response = await http.get(
           Uri.parse('https://group-6-15.pvt.dsv.su.se/challenges'),
@@ -80,6 +80,25 @@ class HttpHelpMethods {
     } catch (e) {
       throw Exception('Något gick fel vid inhämtning av alla utmaningar $e');
     }
+  }
+
+  String? mapCategoryToBackend(String category) {
+    if (category == 'Träd') return 'TREE';
+    if (category == 'Växter') return 'PLANT';
+    if (category == 'Djur') return 'ANIMAL';
+    return null; // För 'Blandad'
+  }
+
+  Future<Map<String, dynamic>> getOrCreateBingoChallenge(String category, String difficulty) async {
+    List<dynamic> all = await getAllChallenges();
+    String? backendCategory = mapCategoryToBackend(category);
+
+    for (var challenge in all) {
+      if (challenge['type'] == 'BINGO' && challenge['category'] == backendCategory && challenge['status'] == 'IN_PROGRESS') {
+        return challenge;
+      }
+    }
+    return await getNewQuestion(difficulty, 'BINGO', backendCategory);
   }
 
   Future<Map<String, dynamic>> getPicturesForChallenge(int id) async {

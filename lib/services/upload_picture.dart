@@ -17,7 +17,7 @@ class UploadPicture {
 
   //se till att man innan anropet, skickar token med await
 
-  Future<http.StreamedResponse?> sendPictureToGoogleStorage(File? imageFile) async {
+  Future<String?> sendPictureToGoogleStorage(File? imageFile) async {
     try {
       if (imageFile != null) {
         final request = http.MultipartRequest(
@@ -55,10 +55,12 @@ class UploadPicture {
     }
   }
 
-  Future<bool> sendPictureToBackend(File? imageFile) async {
+  Future<bool> sendPictureToBackend(File? imageFile, String targetType, String pictureMode, int challengeId) async {
     try {
       //Vänta på att bilden laddas upp och få tillbaka URL:en
       final imageObjectKey = await sendPictureToGoogleStorage(imageFile);
+
+      if (imageObjectKey != null) {
 
       //Skicka URL till backend
       final response = await http.post(
@@ -69,10 +71,10 @@ class UploadPicture {
         },
 
         body: jsonEncode({
-          'token': jwtToken,
           'imageObjectKey': imageObjectKey,
-          'targetType': 'PLANT',
-          'PictureMode': 'CHALLENGE',
+          'targetType': targetType,
+          'pictureMode': pictureMode,
+          "challengeId": challengeId,
 
         }),
       );
@@ -86,6 +88,8 @@ class UploadPicture {
         debugPrint('Backend Error: ${response.statusCode}');
         return false;
       }
+      }
+      return false;
     } catch (e) {
       debugPrint('Skicka bild till backend Error $e');
       return false;

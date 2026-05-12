@@ -33,6 +33,7 @@ void main() async {
       MyApp(
         startScreen: initialScreen,
         //startScreen: LoginScreen(),
+        //startScreen: HomeScreen(),
       )
   );
 }
@@ -159,12 +160,12 @@ class MyApp extends StatelessWidget {
           ),
           titleTextStyle: TextStyle(
           fontFamily: 'YoungSerif',
-          fontSize: 22,
+          fontSize: 24,
           color: Color(0xFF000000),
           ),
           contentTextStyle: TextStyle(
             fontFamily: 'YoungSerif',
-            fontSize: 26,
+            fontSize: 16,
             color: Color(0xFF000000),
           ),
 
