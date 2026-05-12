@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 class CheckCurrentUser {
 
   Future<bool> checkValidToken() async {
-    final String? storedToken = await SessionStorage().getToken();
+    String? storedToken = await SessionStorage().getToken();
 
     if (storedToken == null) return false;
 

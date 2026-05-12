@@ -1,10 +1,8 @@
 import 'package:Skogsjakten/screens/home.dart';
-import 'package:Skogsjakten/screens/profile/profile.dart';
 import 'package:Skogsjakten/services/check_current_user.dart';
 import 'package:flutter/material.dart';
 import 'package:Skogsjakten/screens/login/login.dart';
 import 'package:Skogsjakten/services/session_storage.dart';
-import 'package:Skogsjakten/screens/profile/settings.dart';
 
 
 void main() async {
@@ -21,8 +19,9 @@ void main() async {
     userName = user?.username;
 
     if (userName != null) {
-      initialScreen = HomeScreen(name: userName);
+      initialScreen = HomeScreen();
     } else {
+      await SessionStorage().clear();
       initialScreen = const LoginScreen();
     }
   } else {
@@ -33,6 +32,7 @@ void main() async {
   runApp(
       MyApp(
         startScreen: initialScreen,
+        //startScreen: LoginScreen(),
       )
   );
 }
@@ -78,12 +78,10 @@ class MyApp extends StatelessWidget {
             fontSize: 16,
             color: Color(0xFF000000),
           ),
-
         ),
 
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
-
             backgroundColor: Color(0xFF84C06C),
             foregroundColor: Color(0xFF000000), //Bruna: 0xFF4C290C
 
@@ -115,7 +113,7 @@ class MyApp extends StatelessWidget {
           contentTextStyle: const TextStyle(
             fontFamily: 'WinkySans',
             fontSize: 16,
-            color: Color(0xFF4C290C),
+            color: Color(0xFF000000),
           ),
         ),
 
@@ -142,7 +140,6 @@ class MyApp extends StatelessWidget {
               borderRadius: BorderRadius.all(Radius.circular(20))),
         ),
 
-
         navigationBarTheme: NavigationBarThemeData(
           height: 70,
           backgroundColor: const Color(0xff84c06c),
@@ -151,6 +148,26 @@ class MyApp extends StatelessWidget {
           iconTheme: WidgetStateProperty.all(
             const IconThemeData(color: Color(0xFF000000), size: 45),),
           shadowColor: Colors.black12,
+        ),
+
+        dialogTheme: DialogThemeData(
+
+          backgroundColor: Colors.white,
+          elevation: 10,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+          ),
+          titleTextStyle: TextStyle(
+          fontFamily: 'YoungSerif',
+          fontSize: 22,
+          color: Color(0xFF000000),
+          ),
+          contentTextStyle: TextStyle(
+            fontFamily: 'YoungSerif',
+            fontSize: 26,
+            color: Color(0xFF000000),
+          ),
+
         ),
 
         appBarTheme: const AppBarTheme(

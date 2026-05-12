@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../widgets/custom_navigation_bar.dart';
 import '../home.dart';
 
 
@@ -11,7 +12,7 @@ class SpeciesProfile extends StatelessWidget {
     return Scaffold(
       backgroundColor: const Color(0xFFBEDBB2),
       appBar: AppBar(
-        title: const Text('Bibliotek'),
+        title: const Text('Artprofil'),
       ),
       body: SafeArea(
         child: SizedBox(
@@ -19,14 +20,6 @@ class SpeciesProfile extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const SizedBox(height: 20),
-
-              Text(
-                "Artprofil",
-                style: Theme.of(context).textTheme.headlineLarge,
-                textAlign: TextAlign.center,
-              ),
-
               const SizedBox(height: 15),
 
               Text(
@@ -74,31 +67,8 @@ class SpeciesProfile extends StatelessWidget {
           ),
         ),
       ),
-      bottomNavigationBar: Container(
-        height: 80,
-        decoration: const BoxDecoration(
-          color: Color(0xff84c06c),
-          boxShadow: [
-            BoxShadow(color: Colors.black12, blurRadius: 10),
-          ],
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            IconButton(
-              icon: const Icon(Icons.home),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const HomeScreen(name: 'test'),
-                  ),
-                );
-              },
-            ),
-          ],
-        ),
-      ),
+      bottomNavigationBar: const CustomNavigationBar(selectedIndex: -1),
+
     );
   }
 }
