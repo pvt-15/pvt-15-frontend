@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../../services/session_storage.dart';
+import '../../widgets/custom_navigation_bar.dart';
 
 class PlantPicture {
   final int id;
@@ -119,6 +120,9 @@ class _PlantsLibraryState extends State<PlantsLibrary> {
             Expanded(child: _buildBody()),
           ],
         ),
+      ),
+      bottomNavigationBar: const CustomNavigationBar(
+        selectedIndex: 2,
       ),
     );
   }
