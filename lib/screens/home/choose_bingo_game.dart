@@ -12,6 +12,7 @@ class ChooseBingoGame extends StatefulWidget {
     super.key,
   });
 
+  //vill inte spara, static final = går ej att ändra svårighetsgrad senare.
   static final List<Map<String, dynamic>> startedGames = [
     {'name': 'Träd', 'status': false, 'route': null},
     {'name': 'Växter', 'status': false, 'route': null},
@@ -42,6 +43,15 @@ class _ChooseBingoGame extends State<ChooseBingoGame> {
   Widget build(BuildContext context) {
     return Scaffold(
         backgroundColor: Color(0xFFBEDBB2),
+        appBar: AppBar(
+          leading: IconButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+          icon: const Icon(Icons.arrow_back)
+          ),
+        title: const Text('Bingo'),
+        ),
         body: SafeArea(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -76,13 +86,14 @@ class _ChooseBingoGame extends State<ChooseBingoGame> {
                           ),
                         ),
                         onPressed: () async {
-                          //check om det redan finns ett startat spel för typ (ex 'träd')
 
                           for(var game in ChooseBingoGame.startedGames) {
                             if (game['name'] == games[index]['name']) {
                               if (game['status'] == false){
 
-                                final Difficulty? result = await Navigator.push(context, MaterialPageRoute(builder: (context) => ChooseDifficulty()),);
+                                final Difficulty? result = await Navigator.push(context, MaterialPageRoute(builder: (context) => const ChooseDifficulty(
+                                  gameTitle: 'Bingo',
+                                )),);
 
                                 if (result != null) {
                                   if (result == Difficulty.easy) {
@@ -125,30 +136,6 @@ class _ChooseBingoGame extends State<ChooseBingoGame> {
                               }
                             }
                           }
-
-                          /*
-                          final Difficulty? result = await Navigator.push(context, MaterialPageRoute(builder: (context) => ChooseDifficulty()),);
-
-                          if (result == Difficulty.easy){
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (context) => BingoEasyMode(typeOfBingo: games[index]['name'])),);
-                          }
-
-                          if (result == Difficulty.medium){
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => BingoMediumMode(typeOfBingo: games[index]['name'])),);
-                          }
-
-                          if (result == Difficulty.hard){
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => BingoHardMode(typeOfBingo: games[index]['name'])),);
-                          }
-
-                           */
-
                         },
 
                         child: Row(

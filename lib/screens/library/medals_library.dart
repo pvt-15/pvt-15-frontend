@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../widgets/custom_navigation_bar.dart';
 
 class MedalsLibrary extends StatefulWidget{
   const MedalsLibrary({super.key});
@@ -20,6 +21,15 @@ class _MedalsLibrary extends State<MedalsLibrary> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFBEDBB2),
+      appBar: AppBar(
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          icon: const Icon(Icons.arrow_back),
+        ),
+        title: const Text('Bibliotek'),
+      ),
       body: SafeArea(
         child: Column(
           children: [
@@ -79,6 +89,9 @@ class _MedalsLibrary extends State<MedalsLibrary> {
             ),
           ],
         ),
+      ),
+      bottomNavigationBar: const CustomNavigationBar(
+        selectedIndex: 2,
       ),
     );
   }

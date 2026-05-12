@@ -24,6 +24,16 @@ class _HomeLibraryState extends State<HomeLibrary> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Color(0xFFBEDBB2),
+      appBar: AppBar(
+        title: const Text('Bibliotek'),
+        leading: IconButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+          icon: const Icon(Icons.arrow_back),
+      ),
+        // Lägga in någon text antingen 'Skattjakt' eller 'Bibliotek' istället för att ha det i body?
+      ),
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -33,10 +43,6 @@ class _HomeLibraryState extends State<HomeLibrary> {
                   left: 30,
                   top: 40,
                   bottom: 30
-              ),
-              child: Text(
-                'Bibliotek',
-                style: Theme.of(context).textTheme.headlineLarge,
               ),
             ),
             Expanded(

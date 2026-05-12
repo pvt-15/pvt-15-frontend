@@ -133,8 +133,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             context,
                             MaterialPageRoute(
                               builder: (_) =>
-                                  HomeScreen(
-                                      name: result['name'] ?? "Användare"),
+                                  HomeScreen(),
                             ),
                           );
                         } else {
@@ -212,6 +211,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _handleLogin() async {
+
     if (_formKey.currentState!.validate()) {
       final response = await http.post(
         Uri.parse('https://group-6-15.pvt.dsv.su.se/auth/login'),
@@ -241,7 +241,7 @@ class _LoginScreenState extends State<LoginScreen> {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (_) => HomeScreen(name: data['name']),
+            builder: (_) => HomeScreen(),
           ),
         );
       } else if (mounted) {
@@ -250,6 +250,9 @@ class _LoginScreenState extends State<LoginScreen> {
             content: Text(
               "Fel email eller lösenord",
               textAlign: TextAlign.center,
+              style: const TextStyle(
+                color: Colors.white,
+              ),
             ),
           ),
         );
@@ -301,10 +304,23 @@ class _LoginScreenState extends State<LoginScreen> {
     debugPrint("Backend svar: ${response.body}");
 
     if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+
+      await SessionStorage().saveUser(
+        Session(
+          token: data['token'],
+          user: UserModel(
+            id: data['userId'].toString(),
+            username: data['name'],
+            email: data['email'],
+          ),
+        ),
+      );
       return true;
     } else {
       print('Fel lösenord eller email: ${response.body}');
       return false;
     }
+
   }
 }

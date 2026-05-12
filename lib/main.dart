@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:Skogsjakten/screens/login/login.dart';
 import 'package:Skogsjakten/services/session_storage.dart';
 
+
 void main() async {
   //gör main asynkron och ladda in Flutter-motorn
   WidgetsFlutterBinding.ensureInitialized();
@@ -18,8 +19,9 @@ void main() async {
     userName = user?.username;
 
     if (userName != null) {
-      initialScreen = HomeScreen(name: userName);
+      initialScreen = HomeScreen();
     } else {
+      await SessionStorage().clear();
       initialScreen = const LoginScreen();
     }
   } else {
@@ -31,6 +33,7 @@ void main() async {
   runApp(
       MyApp(
         startScreen: initialScreen,
+        //startScreen: LoginScreen(),
       )
   );
 
@@ -106,7 +109,7 @@ class MyApp extends StatelessWidget {
           contentTextStyle: const TextStyle(
             fontFamily: 'WinkySans',
             fontSize: 16,
-            color: Color(0xFF4C290C),
+            color: Color(0xFF000000),
           ),
         ),
 
@@ -126,10 +129,9 @@ class MyApp extends StatelessWidget {
           errorStyle: const TextStyle(fontFamily: 'WinkySans', fontSize: 12),
 
           //bordern runt
-
-          border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(20))),
+          border: OutlineInputBorder(
+              borderRadius: BorderRadius.all(Radius.circular(20))),
         ),
-
 
         navigationBarTheme: NavigationBarThemeData(
           height: 70,
@@ -137,15 +139,46 @@ class MyApp extends StatelessWidget {
           indicatorColor: Colors.transparent,
           labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
           iconTheme: WidgetStateProperty.all(
-            const IconThemeData(color: Color(0xFF000000), size: 45),
-          ),
+            const IconThemeData(color: Color(0xFF000000), size: 45),),
           shadowColor: Colors.black12,
         ),
 
+        dialogTheme: DialogThemeData(
+
+          backgroundColor: Colors.white,
+          elevation: 10,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+          ),
+          titleTextStyle: TextStyle(
+          fontFamily: 'YoungSerif',
+          fontSize: 22,
+          color: Color(0xFF000000),
+          ),
+          contentTextStyle: TextStyle(
+            fontFamily: 'YoungSerif',
+            fontSize: 26,
+            color: Color(0xFF000000),
+          ),
+
+        ),
+
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Color(0xFFBEDBB2),
+          elevation: 0,
+          centerTitle: true,
+          iconTheme: IconThemeData(
+            color: Color(0xFF000000),
+          ),
+          titleTextStyle: TextStyle(
+            fontFamily: 'YoungSerif',
+            fontSize: 30,
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF000000),
+          ),
+        ),
       ),
-
       home: startScreen,
-
     );
   }
 }

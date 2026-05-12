@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:Skogsjakten/widgets/custom_navigation_bar.dart';
 
 class SpeciesResults extends StatelessWidget {
   final File image;
@@ -113,20 +114,23 @@ class SpeciesResults extends StatelessWidget {
                     ),
                   ),
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 30),
                 ElevatedButton(
                   onPressed: () {
                     Navigator.pop(context);
                   },
                   child: Text("Identifiera ny art!"),
 
-                )
+                ),
+                const SizedBox(height: 30)
               ]
 
             ),
           
           ),
-        )
+
+        ),
+      bottomNavigationBar: const CustomNavigationBar(selectedIndex: -1,),
 
     );
   }

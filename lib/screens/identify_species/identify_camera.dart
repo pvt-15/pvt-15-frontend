@@ -20,19 +20,35 @@ class _IdentifyCameraState extends State<IdentifyCamera> {
   File? selectedImage;
   String? selectedCategory;
 
+  bool isOpeningCamera = true;
+  bool isIdentifying = false;
 
   @override
   void initState() {
     super.initState();
-    takePicture();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      takePicture();
+    });
   }
   
   Future<void> takePicture() async {
+    setState(() {
+      isOpeningCamera = true;
+    });
+
     final image = await CameraService.takePicture();
 
+    if (!mounted) return;
+
+    setState(() {
+      isOpeningCamera = false;
+    });
+
     if (image == null) {
+      Navigator.pop(context); // går tillbaka om användaren avbryter kameran
       return;
     }
+
     setState(() {
       selectedImage = image;
     });
@@ -81,6 +97,10 @@ class _IdentifyCameraState extends State<IdentifyCamera> {
 
   Future<void> identifySpecies(String category) async {
     if (selectedImage == null) return;
+
+    setState(() {
+      isIdentifying = true;
+    });
 
     final session = await sessionStorage.getUserAndToken();
 
@@ -150,6 +170,10 @@ class _IdentifyCameraState extends State<IdentifyCamera> {
     print("PICTURE BODY: ${pictureResponse.body}");
     print("RESULT: $result");
 
+    setState(() {
+      isIdentifying = false;
+    });
+
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -175,18 +199,12 @@ class _IdentifyCameraState extends State<IdentifyCamera> {
         ),
       ),
       body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              if (selectedImage == null)
-                ElevatedButton(
-                  onPressed: takePicture,
-                  child: Text("Ta bild"),
-                ),
-
-            ],
-          )
-      )
+        child: isOpeningCamera
+            ? const Text("Öppnar kameran...")
+            : isIdentifying
+            ? const Text("Identifierar art...")
+            : const SizedBox(),
+        ),
     );
   }
 
