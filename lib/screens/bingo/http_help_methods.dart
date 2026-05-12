@@ -19,7 +19,7 @@ class HttpHelpMethods {
         },
       );
 
-      debugPrint(response.body);
+      //debugPrint(response.body);
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -53,7 +53,7 @@ class HttpHelpMethods {
         }),
       );
 
-      debugPrint(response.body);
+      //debugPrint(response.body);
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -67,7 +67,7 @@ class HttpHelpMethods {
     }
   }
 
-  Future<String> getAllChallenges() async {
+  Future<List<dynamic>> getAllChallenges() async {
     try {
       final response = await http.get(
           Uri.parse('https://group-6-15.pvt.dsv.su.se/challenges'),
@@ -75,17 +75,60 @@ class HttpHelpMethods {
             'Authorization': 'Bearer $jwtToken',
           }
       );
-      return response.body;
+      final data = jsonDecode(response.body);
+      return data;
     } catch (e) {
-      throw Exception('Något gick fel vid inhämtning av fråga $e');
+      throw Exception('Något gick fel vid inhämtning av alla utmaningar $e');
     }
   }
 
-  //Future<Map<String, dynamic>> decodeAllChallenges() async {
-    //String challenges = await getAllChallenges();
+  Future<Map<String, dynamic>> getPicturesForChallenge(int id) async {
+    try {
+      final response = await http.get(
+        Uri.parse('https://group-6-15.pvt.dsv.su.se/challenges/$id/pictures'),
+        headers: {
+          'Authorization': 'Bearer $jwtToken',
+        }
+      );
+      debugPrint(response.body);
+      final data = jsonDecode(response.body);
+      return data;
+    } catch (e) {
+      throw Exception('Något gick fel vid inhämtning av bilder $e');
+    }
+  }
 
-  //}
+  Future<List<dynamic>> getPictures() async {
+    try {
+      final response = await http.get(
+          Uri.parse('https://group-6-15.pvt.dsv.su.se/pictures'),
+          headers: {
+            'Authorization': 'Bearer $jwtToken',
+          }
+      );
+      debugPrint(jwtToken);
+      //debugPrint(response.body);
+      final data = jsonDecode(response.body);
+      return data;
+    } catch (e) {
+      throw Exception('Något gick fel vid inhämtning av bilder $e');
+    }
+  }
 
-
+  Future<Map<String, dynamic>> endStartedChallenge(int id) async {
+    try {
+      final response = await http.delete(
+          Uri.parse('https://group-6-15.pvt.dsv.su.se/challenges/$id/progress'),
+          headers: {
+            'Authorization': 'Bearer $jwtToken',
+          }
+      );
+      //debugPrint(response.body);
+      final data = jsonDecode(response.body);
+      return data;
+    } catch (e) {
+      throw Exception('Något gick fel avslutande av utmaning $e');
+    }
+  }
 
 }

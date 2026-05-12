@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'login.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import '../home.dart';
+import 'profile_pic.dart';
+import 'package:Skogsjakten/services/session_storage.dart';
+import 'package:Skogsjakten/services/session.dart';
+import 'package:Skogsjakten/Authorization/user_model.dart';
 
 class CreateAccount extends StatefulWidget {
   const CreateAccount({super.key});
@@ -20,24 +23,42 @@ class _CreateAccountState extends State<CreateAccount> {
   final _formKey = GlobalKey<FormState>();
 
   Future<bool> registerUser(String name, String email, String password) async {
-    final response = await http.post(
-      Uri.parse('https://group-6-15.pvt.dsv.su.se/auth/register'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'name': name,
-        'email': email,
-        'password': password,
-      }),
-    );
+    try {
+      final response = await http.post(
+        Uri.parse('https://group-6-15.pvt.dsv.su.se/auth/register'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'name': name,
+          'email': email,
+          'password': password,
+        }),
+      );
 
-    if (response.statusCode == 200 || response.statusCode == 201) {
-      print('Konto skapat!: ${response.body}');
-      return true;
-    } else if (response.statusCode == 409) {
-      print('Användaren finns redan');
-      return false;
-    } else {
-      print('Fel: ${response.body}');
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final data = jsonDecode(response.body);
+
+
+        // Kontrollera att vi faktiskt fick en token innan vi sparar sessionen
+        if (data['token'] != null) {
+          await SessionStorage().saveUser(
+            Session(
+              token: data['token'],
+              user: UserModel(
+                id: data['userId']?.toString() ?? data['id']?.toString() ?? "",
+                username: data['name'] ?? name,
+                email: data['email'] ?? email,
+              ),
+            ),
+          );
+        }
+
+        return true;
+      } else {
+        debugPrint('Fel vid registrering: ${response.body}');
+        return false;
+      }
+    } catch (e) {
+      debugPrint('Nätverksfel vid registrering: $e');
       return false;
     }
   }
@@ -128,7 +149,7 @@ class _CreateAccountState extends State<CreateAccount> {
 
                     validator: (value){
                       if(value == null || value.isEmpty) return "Ogiltigt lösenord";
-                      if(value.length <= 10) return "Lösenordet måste vara minst 10 tecken";
+                      if(value.length < 10) return "Lösenordet måste vara minst 10 tecken";
                       if(!value.contains(RegExp(r'[A-Z]'))) return "Lösenordet måste innehålla en stor bokstav";
                       if(!value.contains(RegExp(r'[0-9]'))) return "Lösenordet måste innehålla en siffra";
                       return null;
@@ -174,14 +195,16 @@ class _CreateAccountState extends State<CreateAccount> {
                     );
 
                     if (success) {
+                      if (!mounted) return;
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(content: Text("Konto skapat!", textAlign: TextAlign.center)),
                       );
 
-                      Navigator.push(
+                      // Navigera till ProfilePic istället för HomeScreen
+                      Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => HomeScreen(name: nameController.text),
+                          builder: (_) => const ProfilePic(),
                         ),
                       );
                     } else {

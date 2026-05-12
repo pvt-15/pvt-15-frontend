@@ -25,6 +25,7 @@ class _HomeLibraryState extends State<HomeLibrary> {
     return Scaffold(
       backgroundColor: Color(0xFFBEDBB2),
       appBar: AppBar(
+        title: const Text('Bibliotek'),
         leading: IconButton(
             onPressed: () {
               Navigator.pop(context);
@@ -42,10 +43,6 @@ class _HomeLibraryState extends State<HomeLibrary> {
                   left: 30,
                   top: 40,
                   bottom: 30
-              ),
-              child: Text(
-                'Bibliotek',
-                style: Theme.of(context).textTheme.headlineLarge,
               ),
             ),
             Expanded(
