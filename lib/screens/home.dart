@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import '../widgets/custom_navigation_bar.dart';
+import '../services/session_storage.dart';
 import 'home/home_library.dart';
 import 'home/species_profile.dart';
 import 'home/quiz.dart';
@@ -7,9 +10,115 @@ import 'home/choose_bingo_game.dart';
 import 'home/skattjakt.dart';
 import 'choose_difficulty.dart';
 
-class HomeScreen extends StatelessWidget {
-
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  final SessionStorage _sessionStorage = SessionStorage();
+
+  String _username = '';
+  int _points = 0;
+  String _level = '';
+  bool _isLoading = true;
+  String? _errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    if (!mounted) return;
+
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      final session = await _sessionStorage.getUserAndToken();
+
+      if (session == null) {
+        if (mounted) {
+          setState(() {
+            _errorMessage = 'Ingen inloggning hittades';
+            _isLoading = false;
+          });
+        }
+        return;
+      }
+
+      // Set username from session
+      if (mounted) {
+        setState(() {
+          _username = session.user.username;
+        });
+      }
+
+      // Fetch user data from backend (same as profile.dart)
+      final response = await http.get(
+        Uri.parse('https://group-6-15.pvt.dsv.su.se/auth/me'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ${session.token}',
+        },
+      );
+
+      if (!mounted) return;
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        setState(() {
+          _points = data['totalPoints'] ?? 0;
+          _level = data['level'] ?? '';
+          _isLoading = false;
+        });
+      } else if (response.statusCode == 401) {
+        // Token expired, clear session
+        await _sessionStorage.clear();
+        if (mounted) {
+          setState(() {
+            _errorMessage = 'Sessionen har gått ut. Vänligen logga in igen.';
+            _isLoading = false;
+          });
+        }
+      } else {
+        setState(() {
+          _errorMessage = 'Kunde inte ladda användardata';
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _errorMessage = 'Nätverksfel: $e';
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  // Calculate progress percentage for level (same as profile.dart)
+  double _getProgressValue() {
+    if (_points == 0) return 0.0;
+    // Assuming each level requires 300 points (as shown in profile.dart)
+    return (_points % 300) / 300;
+  }
+
+  // Method to handle navigation and refresh
+  Future<void> _navigateAndRefresh(Widget page) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => page),
+    );
+    // Refresh data after returning
+    await _loadUserData();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +135,7 @@ class HomeScreen extends StatelessWidget {
       },
       {
         'name': 'Skattjakt',
-        'page': null, // Används inte direkt längre, vi hanterar via onPressed istället
+        'page': null,
         'image': 'assets/maskot_skattjakt.png',
       },
       {
@@ -48,6 +157,7 @@ class HomeScreen extends StatelessWidget {
             children: [
               const SizedBox(height: 16),
 
+              // User info card with dynamic data
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(vertical: 22, horizontal: 20),
@@ -55,24 +165,61 @@ class HomeScreen extends StatelessWidget {
                   color: const Color(0xfff8ed76),
                   borderRadius: BorderRadius.circular(28),
                 ),
-                child: Column(
+                child: _isLoading
+                    ? const Center(
+                  child: CircularProgressIndicator(
+                    color: Color(0xFF84C06C),
+                  ),
+                )
+                    : _errorMessage != null
+                    ? Column(
                   children: [
                     Text(
-                      'Skogsjägare',
+                      _errorMessage!,
+                      style: Theme.of(context).textTheme.bodyMedium,
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 12),
+                    ElevatedButton(
+                      onPressed: _loadUserData,
+                      child: const Text('Försök igen'),
+                    ),
+                  ],
+                )
+                    : Column(
+                  children: [
+                    Text(
+                      _username.isEmpty ? 'Skogsjägare' : _username,
                       style: Theme.of(context).textTheme.headlineMedium,
                     ),
                     const SizedBox(height: 12),
+                    // Poäng ovanför progress bar
+                    Text(
+                      '$_points poäng',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
                     Container(
                       height: 8,
                       width: 200,
                       decoration: BoxDecoration(
-                        color: Colors.pinkAccent,
+                        color: const Color(0xFFDE75BF),
                         borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(20),
+                        child: LinearProgressIndicator(
+                          value: _getProgressValue(),
+                          backgroundColor: Colors.transparent,
+                          color: const Color(0xFFC0008B),
+                        ),
                       ),
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      '875 poäng', // TODO denna är hårdkodad nu, behöver ändras
+                      'Level: $_level',
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                   ],
@@ -147,7 +294,7 @@ class HomeScreen extends StatelessWidget {
             );
 
             if (result != null && context.mounted) {
-              Navigator.push(
+              await Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (_) => Quiz(
@@ -155,6 +302,8 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ),
               );
+              // Refresh user data after quiz (points may have changed)
+              await _loadUserData();
             }
             return;
           }
@@ -171,23 +320,20 @@ class HomeScreen extends StatelessWidget {
             );
 
             if (result != null && context.mounted) {
-              Navigator.push(
+              await Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (_) => Skattjakt(difficulty: result),
                 ),
               );
+              // Refresh user data after skattjakt
+              await _loadUserData();
             }
             return;
           }
 
-          // ALLT ANNAT
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => page,
-            ),
-          );
+          // ALLT ANNAT (Bingo, Identifiera art, etc.)
+          await _navigateAndRefresh(page);
         },
         child: Text(
           title,
@@ -228,12 +374,14 @@ class HomeScreen extends StatelessWidget {
           );
 
           if (result != null && context.mounted) {
-            Navigator.push(
+            await Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (_) => Quiz(difficulty: result),
               ),
             );
+            // Refresh user data after quiz
+            await _loadUserData();
           }
           return;
         }
@@ -250,24 +398,21 @@ class HomeScreen extends StatelessWidget {
           );
 
           if (result != null && context.mounted) {
-            Navigator.push(
+            await Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (_) => Skattjakt(difficulty: result),
               ),
             );
+            // Refresh user data after skattjakt
+            await _loadUserData();
           }
           return;
         }
 
         // ALLA ANDRA (inklusive Bingo och Identifiera art)
         if (page != null) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => page,
-            ),
-          );
+          await _navigateAndRefresh(page);
         }
       },
       child: Column(
