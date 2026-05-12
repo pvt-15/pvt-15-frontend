@@ -90,7 +90,7 @@ class HttpHelpMethods {
           'Authorization': 'Bearer $jwtToken',
         }
       );
-      //debugPrint(response.body);
+      debugPrint(response.body);
       final data = jsonDecode(response.body);
       return data;
     } catch (e) {
@@ -106,6 +106,7 @@ class HttpHelpMethods {
             'Authorization': 'Bearer $jwtToken',
           }
       );
+      debugPrint(jwtToken);
       //debugPrint(response.body);
       final data = jsonDecode(response.body);
       return data;
@@ -113,4 +114,21 @@ class HttpHelpMethods {
       throw Exception('Något gick fel vid inhämtning av bilder $e');
     }
   }
+
+  Future<Map<String, dynamic>> endStartedChallenge(int id) async {
+    try {
+      final response = await http.delete(
+          Uri.parse('https://group-6-15.pvt.dsv.su.se/challenges/$id/progress'),
+          headers: {
+            'Authorization': 'Bearer $jwtToken',
+          }
+      );
+      //debugPrint(response.body);
+      final data = jsonDecode(response.body);
+      return data;
+    } catch (e) {
+      throw Exception('Något gick fel avslutande av utmaning $e');
+    }
+  }
+
 }

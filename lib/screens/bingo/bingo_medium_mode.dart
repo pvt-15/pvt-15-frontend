@@ -159,7 +159,7 @@ class _BingoMediumMode extends State<BingoMediumMode> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => const HomeScreen(name: 'test'),
+                      builder: (_) => const HomeScreen(),
                     ),
                   );
                 } else {

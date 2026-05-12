@@ -705,7 +705,7 @@ class _QuizState extends State<Quiz> {
                     onPressed: () => Navigator.pushAndRemoveUntil(
                       context,
                       MaterialPageRoute(
-                          builder: (_) => const HomeScreen(name: 'test')),
+                          builder: (_) => const HomeScreen()),
                           (route) => false,
                     ),
                     // TODO hemikonen

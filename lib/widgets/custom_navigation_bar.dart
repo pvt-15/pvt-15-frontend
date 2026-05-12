@@ -32,7 +32,7 @@ class CustomNavigationBar extends StatelessWidget {
         } else if (index == 1) {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (_) => const HomeScreen(name: 'test')),
+            MaterialPageRoute(builder: (_) => const HomeScreen()),
           );
         } else if (index == 2) {
           Navigator.pushReplacement(

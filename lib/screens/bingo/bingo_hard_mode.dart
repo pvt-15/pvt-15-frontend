@@ -214,7 +214,7 @@ class _BingoHardMode extends State<BingoHardMode> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => const HomeScreen(name: 'test'),
+                      builder: (_) => const HomeScreen(),
                     ),
                   );
                 } else {

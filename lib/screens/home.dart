@@ -6,13 +6,11 @@ import 'home/quiz.dart';
 import 'home/choose_bingo_game.dart';
 import 'home/skattjakt.dart';
 import 'choose_difficulty.dart';
-import '../widgets/auth_guard.dart';
 import '../widgets/custom_navigation_bar.dart';
 
 class HomeScreen extends StatelessWidget {
-  final String name;
 
-  const HomeScreen({super.key, required this.name});
+  const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -41,18 +39,14 @@ class HomeScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: const Color(0xFFBEDBB2),
-      appBar: AppBar(),
+      appBar: AppBar(
+        title: const Text('Skogsjakten'),
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 18),
           child: Column(
             children: [
-              Text(
-                'Skogsjakten',
-                style: Theme.of(context).textTheme.headlineLarge,
-                textAlign: TextAlign.center,
-              ),
-
               const SizedBox(height: 16),
 
               Container(
@@ -159,10 +153,8 @@ class HomeScreen extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => AuthGuard(
-                    child: Quiz(
+                  builder: (_) => Quiz(
                       difficulty: result,
-                    ),
                   ),
                 ),
               );
@@ -175,7 +167,7 @@ class HomeScreen extends StatelessWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (_) => AuthGuard(child: page),
+              builder: (_) => page,
             ),
           );
         },
@@ -185,7 +177,7 @@ class HomeScreen extends StatelessWidget {
           textAlign: TextAlign.center,
         ),
       ),
-      bottomNavigationBar: const CustomNavigationBar(selectedIndex: 1),
+      //bottomNavigationBar: const CustomNavigationBar(selectedIndex: 1),
     );
   }
 
@@ -221,9 +213,7 @@ class HomeScreen extends StatelessWidget {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (_) => AuthGuard(
-                  child: Quiz(difficulty: result),
-                ),
+                builder: (_) => Quiz(difficulty: result),
               ),
             );
           }
@@ -233,7 +223,7 @@ class HomeScreen extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (_) => AuthGuard(child: page),
+            builder: (_) => page,
           ),
         );
       },
@@ -254,7 +244,6 @@ class HomeScreen extends StatelessWidget {
           ),
         ],
       ),
-      bottomNavigationBar: const CustomNavigationBar(selectedIndex: 1),
     );
   }
 }

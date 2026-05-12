@@ -1,10 +1,8 @@
 import 'package:Skogsjakten/screens/home.dart';
-import 'package:Skogsjakten/screens/profile/profile.dart';
 import 'package:Skogsjakten/services/check_current_user.dart';
 import 'package:flutter/material.dart';
 import 'package:Skogsjakten/screens/login/login.dart';
 import 'package:Skogsjakten/services/session_storage.dart';
-import 'package:Skogsjakten/screens/profile/settings.dart';
 
 
 void main() async {
@@ -21,7 +19,7 @@ void main() async {
     userName = user?.username;
 
     if (userName != null) {
-      initialScreen = HomeScreen(name: userName);
+      initialScreen = HomeScreen();
     } else {
       await SessionStorage().clear();
       initialScreen = const LoginScreen();
@@ -34,6 +32,7 @@ void main() async {
   runApp(
       MyApp(
         startScreen: initialScreen,
+        //startScreen: LoginScreen(),
       )
   );
 }
@@ -186,9 +185,7 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
-      //home: const SettingsScreen(),
-      home: const LoginScreen(),
-      //home: const HomeScreen(name: 'test'),
+      home: startScreen,
     );
   }
 }

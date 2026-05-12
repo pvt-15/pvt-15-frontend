@@ -10,6 +10,7 @@ import '../../services/camera_service.dart';
 import '../../services/session_storage.dart';
 import '../../widgets/custom_navigation_bar.dart';
 import '../home.dart';
+import '../override_dialog.dart';
 import 'http_help_methods.dart';
 
 class BingoEasyMode extends StatefulWidget{
@@ -41,6 +42,7 @@ class _BingoEasyMode extends State<BingoEasyMode> {
   late bool isCompleted;
 
   late String question;
+  late int challengeId;
 
   String? imageUrl1;
   String? imageUrl2;
@@ -69,6 +71,8 @@ class _BingoEasyMode extends State<BingoEasyMode> {
 
       List<dynamic> pictures = await helpMethodsHttp.getPictures();
       debugPrint('DEBUG: $pictures');
+
+      List<dynamic> all = await helpMethodsHttp.getAllChallenges();
 
     } catch (e) {
       debugPrint('Initieringsfel: $e');
@@ -102,23 +106,26 @@ class _BingoEasyMode extends State<BingoEasyMode> {
     try {
       List<dynamic> response = await helpMethodsHttp.getAllChallenges();
 
-        bool success = setStartedQuestion(response);
+        bool success = setStartedChallenge(response);
 
         if (success == false) {
-          //TODO kom ihåg att ändra
+          //TODO kom ihåg att ändra, kanske också flytta ut logiken
           if (widget.typeOfBingo == 'Blandad') {
             Map<String, dynamic> data = await helpMethodsHttp.getNewQuestion('HARD', 'BINGO', null);
             setState(() {
               question = data['description'];
+              challengeId = data['id'];
             });
           } else {
             Map<String, dynamic> data = await helpMethodsHttp.getNewQuestion('HARD', 'BINGO', 'TREE');
             setState(() {
               question = data['description'];
+              challengeId = data['id'];
+
             });
           }
         } else {
-          setStartedQuestion(response);
+          setStartedChallenge(response);
         }
     } catch (e) {
       setState(() {
@@ -137,13 +144,14 @@ class _BingoEasyMode extends State<BingoEasyMode> {
     return null;
   }
 
-  bool setStartedQuestion(List<dynamic> data) {
+  bool setStartedChallenge(List<dynamic> data) {
     //TODO kom ihåg att ändra
     if (widget.typeOfBingo == 'Blandad') {
       for (var challenge in data) {
         if (challenge['type'] == 'BINGO' && challenge['category'] == null && challenge['difficulty'] == 'HARD' && challenge['status'] == 'IN_PROGRESS') {
           setState(() {
             question = challenge['description'];
+            challengeId = challenge['id'];
           });
           return true;
         }
@@ -194,7 +202,6 @@ class _BingoEasyMode extends State<BingoEasyMode> {
               ),
               child: Text(
                 question,
-                //'test lätt',
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.headlineMedium,
               ),
@@ -220,7 +227,6 @@ class _BingoEasyMode extends State<BingoEasyMode> {
                           if (file != null) {
                             setState(() {
                               image1 = file;
-                              //updateImageInList(file, 0);
                             });
                           }
                         }
@@ -255,7 +261,6 @@ class _BingoEasyMode extends State<BingoEasyMode> {
                           if (file != null) {
                             setState(() {
                               image2 = file;
-                              //updateImageInList(file, 1);
                             });
                           }
                         }
@@ -282,8 +287,18 @@ class _BingoEasyMode extends State<BingoEasyMode> {
             const SizedBox(height: 90),
 
             ElevatedButton(
+                onPressed: () async {
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) => const OverrideDialog(),
+                  );
+                }, child: null,
+            ),
+
+            ElevatedButton(
               onPressed: () async {
                 bool success = await checkBingoCompletionStatus();
+                final user = await SessionStorage().getUser();
 
                 if (success) {
 
@@ -292,7 +307,7 @@ class _BingoEasyMode extends State<BingoEasyMode> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => const HomeScreen(name: 'test'),
+                      builder: (_) => HomeScreen(),
                     ),
                   );
                 } else {
@@ -300,12 +315,18 @@ class _BingoEasyMode extends State<BingoEasyMode> {
                       context: context,
                       builder: (context) {
                         return AlertDialog(
-                          //title: Text('Bekräfta', textAlign: TextAlign.center),
-                          content: Text('Är du säker? Om du avslutar nu registeras inga poäng', textAlign: TextAlign.center),
+                          actionsAlignment: MainAxisAlignment.spaceBetween,
+                          content: Text(
+                            'Är du säker? Om du avslutar nu registeras inga poäng',
+                            textAlign: TextAlign.center,
+                          ),
 
                           actions: [
                             TextButton(
                               onPressed: () {
+
+                                //TODO kan behöva någon check för om det gick igenom eller inte
+                                helpMethodsHttp.endStartedChallenge(challengeId);
 
                                 isCompleted = true;
 
@@ -314,18 +335,18 @@ class _BingoEasyMode extends State<BingoEasyMode> {
                                 Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                        builder: (_) => const HomeScreen(name: 'test'),
+                                        builder: (_) => HomeScreen(),
                                     ),
                                 );
 
                               },
-                              child: Text('Bekräfta', style: Theme.of(context).textTheme.headlineMedium, textAlign: TextAlign.left),
+                              child: Text('Bekräfta', style: Theme.of(context).textTheme.headlineMedium),
                             ),
                             TextButton(
                               onPressed: () {
                                 Navigator.pop(context);
                               },
-                              child: Text('Avbryt', style: Theme.of(context).textTheme.headlineMedium, textAlign: TextAlign.right),
+                              child: Text('Avbryt', style: Theme.of(context).textTheme.headlineMedium),
                             ),
                           ],
                         );
