@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:Skogsjakten/screens/identify_species/identify_camera.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import '../widgets/custom_navigation_bar.dart';
 import 'home/home_library.dart';
 import 'home/species_profile.dart';
@@ -7,10 +10,61 @@ import 'home/quiz.dart';
 import 'home/choose_bingo_game.dart';
 import 'home/skattjakt.dart';
 import 'choose_difficulty.dart';
+import 'package:Skogsjakten/services/session_storage.dart';
 
-class HomeScreen extends StatelessWidget {
-
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  final sessionStorage = SessionStorage();
+
+  int points = 0;
+  String level = '';
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    loadUserInfo();
+  }
+
+  Future<void> loadUserInfo() async {
+    final session = await sessionStorage.getUserAndToken();
+
+    if (session == null) {
+      if (mounted) {
+        setState(() => isLoading = false);
+      }
+      return;
+    }
+
+    final response = await http.get(
+      Uri.parse('https://group-6-15.pvt.dsv.su.se/auth/me'),
+      headers: {
+        'Authorization': 'Bearer ${session.token}',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+
+      if (mounted) {
+        setState(() {
+          points = data['totalPoints'] ?? 0;
+          level = data['level'] ?? '';
+          isLoading = false;
+        });
+      }
+    } else {
+      if (mounted) {
+        setState(() => isLoading = false);
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +81,7 @@ class HomeScreen extends StatelessWidget {
       },
       {
         'name': 'Skattjakt',
-        'page': null, // Används inte direkt längre, vi hanterar via onPressed istället
+        'page': null,
         'image': 'assets/maskot_skattjakt.png',
       },
       {
@@ -42,41 +96,51 @@ class HomeScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Skogsjakten'),
       ),
-      body: SafeArea(
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 18),
+          padding:
+          const EdgeInsets.symmetric(horizontal: 28, vertical: 18),
           child: Column(
             children: [
-              const SizedBox(height: 16),
 
               Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(vertical: 22, horizontal: 20),
-                decoration: BoxDecoration(
-                  color: const Color(0xfff8ed76),
-                  borderRadius: BorderRadius.circular(28),
-                ),
-                child: Column(
-                  children: [
-                    Text(
-                      'Skogsjägare',
-                      style: Theme.of(context).textTheme.headlineMedium,
+                width: 350,
+                height: 170,
+                child: Card(
+                  color: const Color(0xFFF8ED76),
+                  child: Padding(
+                    padding: const EdgeInsets.all(5),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(
+                              Icons.eco,
+                              color: Color(0xFF84C06C),
+                              size: 35,
+                            ),
+                            Text("Level: $level"),
+                          ],
+                        ),
+                        const SizedBox(height: 20),
+                        SizedBox(
+                          width: 250,
+                          child: LinearProgressIndicator(
+                            backgroundColor: const Color(0xFFDE75BF),
+                            color: const Color(0xFFC0008B),
+                            value: (points % 300) / 300,
+                            minHeight: 10,
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        Text("Poäng: $points"),
+                      ],
                     ),
-                    const SizedBox(height: 12),
-                    Container(
-                      height: 8,
-                      width: 200,
-                      decoration: BoxDecoration(
-                        color: Colors.pinkAccent,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      '875 poäng', // TODO denna är hårdkodad nu, behöver ändras
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                  ],
+                  ),
                 ),
               ),
 
@@ -94,7 +158,8 @@ class HomeScreen extends StatelessWidget {
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 itemCount: gameItems.length,
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                gridDelegate:
+                const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
                   mainAxisSpacing: 26,
                   crossAxisSpacing: 26,
@@ -136,14 +201,11 @@ class HomeScreen extends StatelessWidget {
           ),
         ),
         onPressed: () async {
-          // QUIZ
           if (title == 'Quiz') {
             final Difficulty? result = await Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (_) => const ChooseDifficulty(
-                  gameTitle: 'Quiz',
-                ),
+                builder: (_) => const ChooseDifficulty(gameTitle: 'Quiz'),
               ),
             );
 
@@ -151,23 +213,18 @@ class HomeScreen extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => Quiz(
-                    difficulty: result,
-                  ),
+                  builder: (_) => Quiz(difficulty: result),
                 ),
               );
             }
             return;
           }
 
-          // SKATTJAKT
           if (title == 'Skattjakt') {
             final Difficulty? result = await Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (_) => const ChooseDifficulty(
-                  gameTitle: 'Skattjakt',
-                ),
+                builder: (_) => const ChooseDifficulty(gameTitle: 'Skattjakt'),
               ),
             );
 
@@ -182,7 +239,6 @@ class HomeScreen extends StatelessWidget {
             return;
           }
 
-          // ALLT ANNAT
           Navigator.push(
             context,
             MaterialPageRoute(
@@ -217,14 +273,11 @@ class HomeScreen extends StatelessWidget {
         ),
       ),
       onPressed: () async {
-        // QUIZ (hanteras för båda vyerna eftersom quiz finns i båda)
         if (title == 'Quiz') {
           final Difficulty? result = await Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (_) => const ChooseDifficulty(
-                gameTitle: 'Quiz',
-              ),
+              builder: (_) => const ChooseDifficulty(gameTitle: 'Quiz'),
             ),
           );
 
@@ -239,14 +292,11 @@ class HomeScreen extends StatelessWidget {
           return;
         }
 
-        // SKATTJAKT
         if (title == 'Skattjakt') {
           final Difficulty? result = await Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (_) => const ChooseDifficulty(
-                gameTitle: 'Skattjakt',
-              ),
+              builder: (_) => const ChooseDifficulty(gameTitle: 'Skattjakt'),
             ),
           );
 
@@ -261,7 +311,6 @@ class HomeScreen extends StatelessWidget {
           return;
         }
 
-        // ALLA ANDRA (inklusive Bingo och Identifiera art)
         if (page != null) {
           Navigator.push(
             context,
