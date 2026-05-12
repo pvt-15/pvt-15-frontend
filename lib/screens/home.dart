@@ -1,3 +1,4 @@
+import 'package:Skogsjakten/screens/identify_species/identify_camera.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -125,7 +126,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final List<Map<String, dynamic>> gameItems = [
       {
         'name': 'Identifiera art',
-        'page': const SpeciesProfile(),
+        'page': const IdentifyCamera(),
         'image': 'assets/maskot_kamera.png',
       },
       {

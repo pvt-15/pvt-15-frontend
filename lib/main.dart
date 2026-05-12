@@ -29,12 +29,14 @@ void main() async {
   }
 
   //Starta appen och skicka med resultatet
+
   runApp(
       MyApp(
         startScreen: initialScreen,
         //startScreen: LoginScreen(),
       )
   );
+
 }
 
 class MyApp extends StatelessWidget {
@@ -88,20 +90,14 @@ class MyApp extends StatelessWidget {
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(15),
             ),
-            textStyle: const TextStyle(
-              fontFamily: 'WinkySans',
-              fontSize: 16,
-            ),
+            textStyle: const TextStyle(fontFamily: 'WinkySans', fontSize: 16),
           ),
         ),
 
         textButtonTheme: TextButtonThemeData(
           style: TextButton.styleFrom(
             foregroundColor: Color(0xFFB1067E),
-            textStyle: const TextStyle(
-              fontFamily: 'WinkySans',
-              fontSize: 14,
-            ),
+            textStyle: const TextStyle(fontFamily: 'WinkySans', fontSize: 14),
           ),
         ),
 
@@ -130,10 +126,7 @@ class MyApp extends StatelessWidget {
           ),
 
           //stilen för errormeddelanden
-          errorStyle: const TextStyle(
-            fontFamily: 'WinkySans',
-            fontSize: 12,
-          ),
+          errorStyle: const TextStyle(fontFamily: 'WinkySans', fontSize: 12),
 
           //bordern runt
           border: OutlineInputBorder(

@@ -27,13 +27,10 @@ class _ProfileState extends State<Profile> {
   @override
   void initState() {
     super.initState();
-    print("PROFILE INIT");
     loadAll();
   }
 
   Future<void> loadBadges() async {
-    print("loadBadges START");
-
     final session = await sessionStorage.getUserAndToken();
     if (session == null) return;
 
@@ -95,9 +92,6 @@ class _ProfileState extends State<Profile> {
           'Authorization': 'Bearer ${session.token}',
         },
       );
-
-      print("PROFILE STATUS: ${response.statusCode}");
-      print("PROFILE BODY: ${response.body}");
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);

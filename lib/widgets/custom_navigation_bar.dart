@@ -1,3 +1,4 @@
+import 'package:Skogsjakten/screens/profile/profile.dart';
 import 'package:flutter/material.dart';
 import '../screens/home.dart';
 import '../screens/home/home_library.dart';
