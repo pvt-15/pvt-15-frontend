@@ -6,7 +6,6 @@ import 'home/quiz.dart';
 import 'home/choose_bingo_game.dart';
 import 'home/skattjakt.dart';
 import 'choose_difficulty.dart';
-import '../widgets/custom_navigation_bar.dart';
 
 class HomeScreen extends StatelessWidget {
 
@@ -27,7 +26,7 @@ class HomeScreen extends StatelessWidget {
       },
       {
         'name': 'Skattjakt',
-        'page': const Skattjakt(),
+        'page': null, // Används inte direkt längre, vi hanterar via onPressed istället
         'image': 'assets/maskot_skattjakt.png',
       },
       {
@@ -136,10 +135,8 @@ class HomeScreen extends StatelessWidget {
           ),
         ),
         onPressed: () async {
-
           // QUIZ
           if (title == 'Quiz') {
-
             final Difficulty? result = await Navigator.push(
               context,
               MaterialPageRoute(
@@ -154,12 +151,33 @@ class HomeScreen extends StatelessWidget {
                 context,
                 MaterialPageRoute(
                   builder: (_) => Quiz(
-                      difficulty: result,
+                    difficulty: result,
                   ),
                 ),
               );
             }
+            return;
+          }
 
+          // SKATTJAKT
+          if (title == 'Skattjakt') {
+            final Difficulty? result = await Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const ChooseDifficulty(
+                  gameTitle: 'Skattjakt',
+                ),
+              ),
+            );
+
+            if (result != null && context.mounted) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => Skattjakt(difficulty: result),
+                ),
+              );
+            }
             return;
           }
 
@@ -177,14 +195,13 @@ class HomeScreen extends StatelessWidget {
           textAlign: TextAlign.center,
         ),
       ),
-      //bottomNavigationBar: const CustomNavigationBar(selectedIndex: 1),
     );
   }
 
   Widget _squareMenuCard({
     required BuildContext context,
     required String title,
-    required Widget page,
+    required Widget? page,
     required String imagePath,
   }) {
     return ElevatedButton(
@@ -199,6 +216,7 @@ class HomeScreen extends StatelessWidget {
         ),
       ),
       onPressed: () async {
+        // QUIZ (hanteras för båda vyerna eftersom quiz finns i båda)
         if (title == 'Quiz') {
           final Difficulty? result = await Navigator.push(
             context,
@@ -220,12 +238,37 @@ class HomeScreen extends StatelessWidget {
           return;
         }
 
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => page,
-          ),
-        );
+        // SKATTJAKT
+        if (title == 'Skattjakt') {
+          final Difficulty? result = await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => const ChooseDifficulty(
+                gameTitle: 'Skattjakt',
+              ),
+            ),
+          );
+
+          if (result != null && context.mounted) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => Skattjakt(difficulty: result),
+              ),
+            );
+          }
+          return;
+        }
+
+        // ALLA ANDRA (inklusive Bingo och Identifiera art)
+        if (page != null) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => page,
+            ),
+          );
+        }
       },
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,

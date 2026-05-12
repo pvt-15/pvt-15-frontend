@@ -6,10 +6,12 @@ import '../choose_difficulty.dart';
 
 class Skattjakt extends StatefulWidget {
   final Difficulty difficulty;
+  final String? category; // Valfri kategori
 
   const Skattjakt({
     super.key,
     required this.difficulty,
+    this.category,
   });
 
   @override
@@ -62,10 +64,13 @@ class _SkattjaktState extends State<Skattjakt> {
   List<TreeTarget> _getTreesForDifficulty(Difficulty difficulty) {
     switch (difficulty) {
       case Difficulty.easy:
+      // Lätt: 4 träd
         return _createTargets(['Björk', 'Ek', 'Tall', 'Gran']);
       case Difficulty.medium:
+      // Medel: 8 träd
         return _createTargets(['Björk', 'Ek', 'Tall', 'Gran', 'Alm', 'Asp', 'Lönn', 'Pil']);
       case Difficulty.hard:
+      // Svår: alla 11 träd
         return _createTargets([
           'Björk', 'Ek', 'Tall', 'Gran', 'Alm', 'Asp',
           'Lönn', 'Pil', 'Bok', 'Hassel', 'Rönn'
