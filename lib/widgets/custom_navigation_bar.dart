@@ -1,3 +1,4 @@
+import 'package:Skogsjakten/screens/profile/profile.dart';
 import 'package:flutter/material.dart';
 import '../screens/home.dart';
 import '../screens/home/home_library.dart';
@@ -25,7 +26,7 @@ class CustomNavigationBar extends StatelessWidget {
         if (index == 0) {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (_) => const SpeciesProfile()),
+            MaterialPageRoute(builder: (_) => const Profile()),
           );
         } else if (index == 1) {
           Navigator.pushReplacement(
