@@ -83,18 +83,29 @@ class _ChooseBingoGame extends State<ChooseBingoGame> {
 
                         },
 
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
+                        child: SizedBox(
+                          width: 200,
+                          child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
                           children: [
-                            Icon(games[index]['icon'], size: 50, color: Colors.black87),
-                            const SizedBox(width: 20),
-                            Text(
-                              games[index]['name'],
+                            SizedBox(
+                              width: 50,
+                              child: Icon(
+                                games[index]['icon'],
+                              size: 50,
+                              color: Colors.black87),
+                          ),
+                              const SizedBox(width: 20),
+                              Expanded(
+                                child: Text(
+                                  games[index]['name'],
                               style: Theme.of(context).textTheme.headlineLarge,
                             ),
+                           ),
                           ],
-                        )
+                        ),
                       ),
+                    ),
                     );
                   },
                 ),
