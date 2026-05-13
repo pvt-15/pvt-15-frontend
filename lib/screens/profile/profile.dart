@@ -316,7 +316,7 @@ class _ProfileState extends State<Profile> {
         ],
       ),
       bottomNavigationBar: const CustomNavigationBar(
-        selectedIndex: 2,
+        selectedIndex: 0,
       ),
     );
   }
