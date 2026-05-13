@@ -31,7 +31,6 @@ class _BingoEasyMode extends State<BingoEasyMode> {
   late HttpHelpMethods helpMethodsHttp;
   late UploadPicture helpMethodsUploadPicture;
 
-  late bool isCompleted;
   late String question;
   late int challengeId;
 
@@ -106,6 +105,39 @@ class _BingoEasyMode extends State<BingoEasyMode> {
     }
   }
 
+  /*
+  //Metod för att hämta ut bilder från en utmaning med flera mindre utmaningar it sig
+  void getPictures() async {
+    try {
+      Map<String, dynamic> response = await helpMethodsHttp.getPicturesForChallenge(challengeId);
+      debugPrint('Hämtade bilder: $response');
+
+      if (response.containsKey('tasks')) {
+        List<dynamic> tasks = response['tasks'];
+        List<String> urls = [];
+
+        for (var task in tasks) {
+          if (task['pictures'] != null && (task['pictures'] as List).isNotEmpty) {
+            // Hämta imageUrl från den första bilden i varje task
+            String? url = task['pictures'][0]['imageUrl'];
+            if (url != null) {
+              urls.add(url);
+            }
+          }
+        }
+
+        setState(() {
+          if (urls.isNotEmpty) imageUrl1 = urls[0];
+          if (urls.length > 1) imageUrl2 = urls[1];
+        });
+      }
+    } catch (e) {
+      debugPrint('DEBUG getpictures $e');
+    }
+  }
+
+   */
+
   Future<File> getAssetFile(String assetPath) async {
     final byteData = await rootBundle.load(assetPath);
     final file = File('${(await getTemporaryDirectory()).path}/test_ek.jpg');
@@ -159,9 +191,11 @@ class _BingoEasyMode extends State<BingoEasyMode> {
 
                           final File compressedFile = File(compressedXFile!.path);
 
-                          //helpMethodsUploadPicture.sendPictureToBackend(compressedFile, helpMethodsHttp.mapCategoryToBackend(widget.typeOfBingo), 'CHALLENGE', challengeId);
+                          //bool success = await helpMethodsUploadPicture.sendPictureToBackend(compressedFile, challengeId);
+                          //bool success = await helpMethodsUploadPicture.sendPictureToBackend(compressedFile, helpMethodsHttp.mapCategoryToBackend(widget.typeOfBingo), 'CHALLENGE', challengeId);
+                          bool success = await helpMethodsUploadPicture.sendPictureToBackend(compressedFile, 'PLANT', 'CHALLENGE', challengeId);
 
-                          if (file != null) {
+                          if (file != null && success) {
                             setState(() {
                               image1 = file;
                             });
@@ -173,11 +207,11 @@ class _BingoEasyMode extends State<BingoEasyMode> {
                         width: 130,
                         height: 130,
                         decoration: BoxDecoration(
-                          color: const Color(0xfff8ed76),
-                          borderRadius: BorderRadius.circular(15),
-                          image: image1 != null ? DecorationImage(image: FileImage(image1!), fit: BoxFit.cover)
-                              : (imageUrl1 != null ? DecorationImage(image: NetworkImage(imageUrl1!), fit: BoxFit.cover)
-                              : null)
+                            color: const Color(0xfff8ed76),
+                            borderRadius: BorderRadius.circular(15),
+                            image: image1 != null ? DecorationImage(image: FileImage(image1!), fit: BoxFit.cover)
+                                : (imageUrl1 != null ? DecorationImage(image: NetworkImage(imageUrl1!), fit: BoxFit.cover)
+                                : null)
                         ),
                         child: (image1 == null && imageUrl1 == null) ? const Center(child: Icon(Icons.image, size: 50)) : null,
                       ),
@@ -207,11 +241,11 @@ class _BingoEasyMode extends State<BingoEasyMode> {
                         width: 130,
                         height: 130,
                         decoration: BoxDecoration(
-                          color: const Color(0xfff8ed76),
-                          borderRadius: BorderRadius.circular(15),
-                          image: image2 != null ? DecorationImage(image: FileImage(image2!), fit: BoxFit.cover)
-                              : (imageUrl2 != null ? DecorationImage(image: NetworkImage(imageUrl2!), fit: BoxFit.cover)
-                              : null)
+                            color: const Color(0xfff8ed76),
+                            borderRadius: BorderRadius.circular(15),
+                            image: image2 != null ? DecorationImage(image: FileImage(image2!), fit: BoxFit.cover)
+                                : (imageUrl2 != null ? DecorationImage(image: NetworkImage(imageUrl2!), fit: BoxFit.cover)
+                                : null)
                         ),
                         child: (image2 == null && imageUrl2 == null) ? const Center(child: Icon(Icons.image, size: 50)) : null,
                       ),
@@ -222,15 +256,6 @@ class _BingoEasyMode extends State<BingoEasyMode> {
             ),
 
             const SizedBox(height: 90),
-
-            ElevatedButton(
-                onPressed: () async {
-                  showDialog(
-                    context: context,
-                    builder: (BuildContext context) => const OverrideDialog(),
-                  );
-                }, child: null,
-            ),
 
             ElevatedButton(
               onPressed: () async {
@@ -251,6 +276,8 @@ class _BingoEasyMode extends State<BingoEasyMode> {
                   showDialog(
                       context: context,
                       builder: (context) {
+
+                        /*
                         return CustomAlertDialog(
                           title: 'Är du säker?',
                           content: 'Är du säker? Om du avslutar nu registeras inga poäng',
@@ -258,11 +285,13 @@ class _BingoEasyMode extends State<BingoEasyMode> {
                           confirmText: 'Bekräfta',
                           onCancel: () => Navigator.pop,
                           onConfirm: () => Navigator.push(context, MaterialPageRoute(builder: (_) => HomeScreen()),
-                            ),
+                          ),
                         );
 
+                         */
 
-                        /*
+
+
                         return AlertDialog(
                           actionsAlignment: MainAxisAlignment.spaceBetween,
                           content: Text(
@@ -277,15 +306,13 @@ class _BingoEasyMode extends State<BingoEasyMode> {
                                 //TODO kan behöva någon check för om det gick igenom eller inte
                                 helpMethodsHttp.endStartedChallenge(challengeId);
 
-                                isCompleted = true;
-
                                 resetBingo();
 
                                 Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (_) => HomeScreen(),
-                                    ),
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => HomeScreen(),
+                                  ),
                                 );
 
                               },
@@ -299,8 +326,6 @@ class _BingoEasyMode extends State<BingoEasyMode> {
                             ),
                           ],
                         );
-
-                         */
 
 
 
@@ -365,20 +390,14 @@ class _BingoEasyMode extends State<BingoEasyMode> {
     if (imageUrl1 == null || imageUrl2 == null) {
       return false;
     } else {
-      isCompleted = true;
-      //updateIsCompletedInList(isCompleted);
       return true;
     }
   }
 
 // metod för att rensa bingo efter avklarad utmaning
   void resetBingo() {
-    if (isCompleted == true) {
-      imageUrl1 = null;
-      imageUrl2 = null;
-      isCompleted = false;
-
-    }
+    imageUrl1 = null;
+    imageUrl2 = null;
   }
 
 }

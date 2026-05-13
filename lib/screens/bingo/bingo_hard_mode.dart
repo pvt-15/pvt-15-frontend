@@ -31,7 +31,6 @@ class _BingoHardMode extends State<BingoHardMode> {
   late HttpHelpMethods helpMethodsHttp;
   late UploadPicture helpMethodsUploadPicture;
 
-  late bool isCompleted;
   late String question;
   late int challengeId;
 
@@ -194,7 +193,18 @@ class _BingoHardMode extends State<BingoHardMode> {
 
                           //bool success = await helpMethodsUploadPicture.sendPictureToBackend(compressedFile, challengeId);
                           //bool success = await helpMethodsUploadPicture.sendPictureToBackend(compressedFile, helpMethodsHttp.mapCategoryToBackend(widget.typeOfBingo), 'CHALLENGE', challengeId);
-                          bool success = await helpMethodsUploadPicture.sendPictureToBackend(compressedFile, 'PLANT', 'CHALLENGE', challengeId);
+
+                          //TODO vet inte om detta är en så bra lösning för success bool
+                          bool success = false;
+
+                          if(widget.typeOfBingo == 'Blandad') {
+                            if(decideTargetTypeMixedBingo() != null) {
+                              String type = decideTargetTypeMixedBingo() as String;
+                              success = await helpMethodsUploadPicture.sendPictureToBackend(compressedFile, type, 'CHALLENGE', challengeId);
+                            }
+                          } else {
+                            success = await helpMethodsUploadPicture.sendPictureToBackend(compressedFile, 'PLANT', 'CHALLENGE', challengeId);
+                          }
 
                           if (file != null && success) {
                             setState(() {
@@ -260,15 +270,6 @@ class _BingoHardMode extends State<BingoHardMode> {
 
             ElevatedButton(
               onPressed: () async {
-                showDialog(
-                  context: context,
-                  builder: (BuildContext context) => const OverrideDialog(),
-                );
-              }, child: null,
-            ),
-
-            ElevatedButton(
-              onPressed: () async {
                 bool success = await checkBingoCompletionStatus();
                 final user = await SessionStorage().getUser();
 
@@ -315,8 +316,6 @@ class _BingoHardMode extends State<BingoHardMode> {
 
                                 //TODO kan behöva någon check för om det gick igenom eller inte
                                 helpMethodsHttp.endStartedChallenge(challengeId);
-
-                                isCompleted = true;
 
                                 resetBingo();
 
@@ -368,6 +367,43 @@ class _BingoHardMode extends State<BingoHardMode> {
     );
   }
 
+  String? decideTargetTypeMixedBingo() {
+
+    AlertDialog(
+      actionsAlignment: MainAxisAlignment.spaceBetween,
+      content: Text(
+        'Bestäm typen! Vad var det du tog en bild på?',
+        textAlign: TextAlign.center,
+      ),
+
+      actions: [
+        ElevatedButton(
+          onPressed: () {
+            Navigator.pop(context, 'PLANT');
+          },
+          child: Text('Växt', style: Theme.of(context).textTheme.bodyMedium),
+        ),
+
+        ElevatedButton(
+          onPressed: () {
+            Navigator.pop(context, 'TREE');
+          },
+          child: Text('Träd', style: Theme.of(context).textTheme.bodyMedium),
+        ),
+
+        ElevatedButton(
+          onPressed: () {
+            Navigator.pop(context, 'ANIMAL');
+          },
+          child: Text('Djur', style: Theme.of(context).textTheme.bodyMedium),
+        ),
+      ],
+    );
+
+    return null;
+
+  }
+
 /*
   //Behövs allt detta? Kan man göra det på annat sätt?
   Future<bool> uploadPicture(File? file) async {
@@ -402,20 +438,14 @@ class _BingoHardMode extends State<BingoHardMode> {
     if (imageUrl1 == null || imageUrl2 == null) {
       return false;
     } else {
-      isCompleted = true;
-      //updateIsCompletedInList(isCompleted);
       return true;
     }
   }
 
 // metod för att rensa bingo efter avklarad utmaning
   void resetBingo() {
-    if (isCompleted == true) {
       imageUrl1 = null;
       imageUrl2 = null;
-      isCompleted = false;
-
-    }
   }
 
 }
