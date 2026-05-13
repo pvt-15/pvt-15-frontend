@@ -143,8 +143,9 @@ class _ProfileState extends State<Profile> {
 
   AssetImage getProfileImage() {
     if (profileImgUrl.isNotEmpty) {
-      return AssetImage(profileImgUrl);
+      return NetworkImage(profileImgUrl);
     }
+
     return const AssetImage('assets/rav.png');
   }
 
@@ -246,7 +247,6 @@ class _ProfileState extends State<Profile> {
                     ),
                   ),
                 ),
-                // Profile image (kept from original)
                 Container(
                   width: 150,
                   height: 150,
@@ -331,7 +331,7 @@ class _ProfileState extends State<Profile> {
         ],
       ),
       bottomNavigationBar: const CustomNavigationBar(
-        selectedIndex: 2,
+        selectedIndex: 0,
       ),
     );
   }

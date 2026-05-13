@@ -33,8 +33,8 @@ void main() async {
 
   runApp(
       MyApp(
-        startScreen: initialScreen,
-        //startScreen: LoginScreen(),
+        //startScreen: initialScreen,
+        startScreen: LoginScreen(),
       )
   );
 
@@ -139,29 +139,42 @@ class MyApp extends StatelessWidget {
           backgroundColor: const Color(0xff84c06c),
           indicatorColor: Colors.transparent,
           labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
-          iconTheme: WidgetStateProperty.all(
-            const IconThemeData(color: Color(0xFF000000), size: 45),),
+
+          iconTheme: WidgetStateProperty.resolveWith<IconThemeData>((states) {
+            if (states.contains(WidgetState.selected)) {
+              return const IconThemeData(
+                color: Colors.black,
+                size: 45,
+              );
+            }
+
+            return const IconThemeData(
+              color: Colors.blueGrey,
+              size: 45,
+            );
+          }),
+
           shadowColor: Colors.black12,
         ),
 
         dialogTheme: DialogThemeData(
-
           backgroundColor: Colors.white,
           elevation: 10,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(15),
           ),
+
           titleTextStyle: TextStyle(
-          fontFamily: 'YoungSerif',
-          fontSize: 22,
-          color: Color(0xFF000000),
+            fontFamily: 'YoungSerif',
+            fontSize: 22,
+            color: Color(0xFF000000),
           ),
+
           contentTextStyle: TextStyle(
             fontFamily: 'YoungSerif',
             fontSize: 26,
             color: Color(0xFF000000),
           ),
-
         ),
 
         appBarTheme: const AppBarTheme(

@@ -12,62 +12,60 @@ class ProfilePic extends StatefulWidget {
 }
 
 class _ProfilePicState extends State<ProfilePic> {
-  final List<String> imagePaths = [
-    'assets/rav.png',
-    'assets/bjorn.png',
-    'assets/gravling.png',
-    'assets/alg.png',
-    'assets/mus.png',
-    'assets/orm.png',
-  ];
+  List<ProfileImageOption> options = [];
+  ProfileImageOption? selectedOption;
+  bool isLoading = true;
 
-  String? selectedImagePath;
-  bool isSaving = false;
+  @override
+  void initState() {
+    super.initState();
+    loadImages();
+  }
 
-  Future<void> handleSave() async {
-    if (selectedImagePath == null) return;
-
-    setState(() {
-      isSaving = true;
-    });
-
+  Future<void> loadImages() async {
     try {
-      final storage = SessionStorage();
-      final token = await storage.getToken();
-      final uploadService = UploadPicture(jwtToken: token);
+      final token = await SessionStorage().getToken();
 
-      await uploadService.saveProfileImage(selectedImagePath!);
+      if (token == null) return;
 
-      if (!mounted) return;
+      final service = UploadPicture(jwtToken: token);
 
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (_) => const Profile(),
-        ),
-      );
-    } catch (e) {
-      if (!mounted) return;
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Kunde inte spara bilden. Försök igen.',
-            style: TextStyle(
-              color: Color(0xFF4C290C),
-            ),
-          ),
-          backgroundColor: Colors.white,
-        ),
-      );
-    } finally {
-      if (!mounted) return;
+      final result = await service.getProfileImageOptions();
 
       setState(() {
-        isSaving = false;
+        options = result;
+        isLoading = false;
+      });
+    } catch (e) {
+      print(e);
+
+      setState(() {
+        isLoading = false;
       });
     }
   }
+
+  Future<void> saveImage() async {
+    if (selectedOption == null) return;
+
+    final token = await SessionStorage().getToken();
+
+    if (token == null) return;
+
+    final service = UploadPicture(jwtToken: token);
+
+    await service.saveProfileImage(selectedOption!.avatarId);
+
+    if (!mounted) return;
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (_) => const Profile()),
+    );
+  }
+
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -82,30 +80,32 @@ class _ProfilePicState extends State<ProfilePic> {
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
-      body: Column(
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : Column(
         children: [
           Expanded(
             child: GridView.builder(
               padding: const EdgeInsets.all(16),
-              itemCount: imagePaths.length,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              itemCount: options.length,
+              gridDelegate:
+              const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
                 crossAxisSpacing: 16,
                 mainAxisSpacing: 16,
               ),
               itemBuilder: (context, index) {
-                final imagePath = imagePaths[index];
-                final isSelected = selectedImagePath == imagePath;
+                final option = options[index];
+                final isSelected =
+                    selectedOption?.avatarId == option.avatarId;
 
                 return GestureDetector(
                   onTap: () {
                     setState(() {
-                      selectedImagePath = imagePath;
+                      selectedOption = option;
                     });
                   },
                   child: Container(
-                    width: 120,
-                    height: 120,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       border: Border.all(
@@ -116,11 +116,9 @@ class _ProfilePicState extends State<ProfilePic> {
                       ),
                     ),
                     child: ClipOval(
-                      child: Image.asset(
-                        imagePath,
+                      child: Image.network(
+                        option.imageUrl,
                         fit: BoxFit.cover,
-                        width: 120,
-                        height: 120,
                       ),
                     ),
                   ),
@@ -135,18 +133,16 @@ class _ProfilePicState extends State<ProfilePic> {
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF4CAF50),
-                  foregroundColor: const Color(0xFF000000),
+                  foregroundColor: Colors.black,
                   minimumSize: const Size(220, 60),
-                  padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(18),
                   ),
                 ),
-                onPressed: (isSaving || selectedImagePath == null)
-                    ? null
-                    : handleSave,
+                onPressed:
+                selectedOption == null ? null : saveImage,
                 child: Text(
-                  isSaving ? 'Sparar...' : 'Spara',
+                  'Spara',
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
               ),

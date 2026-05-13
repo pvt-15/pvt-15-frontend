@@ -21,6 +21,7 @@ class CustomNavigationBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return NavigationBar(
+      selectedIndex: selectedIndex,
 
       onDestinationSelected: (int index) {
         if (index == selectedIndex) return;
@@ -47,16 +48,28 @@ class CustomNavigationBar extends StatelessWidget {
         NavigationDestination(
           icon: Icon(MdiIcons.accountOutline),
           //selectedIcon: Icon(MdiIcons.account),
+          selectedIcon: Icon(
+            MdiIcons.account
+          ),
+
           label: 'Profil',
         ),
         NavigationDestination(
           icon: Icon(MdiIcons.homeOutline),
           //selectedIcon: Icon(MdiIcons.home),
+          selectedIcon: Icon(
+            MdiIcons.home
+          ),
+
           label: 'Hem',
         ),
         NavigationDestination(
           icon: Icon(MdiIcons.bookOpenPageVariantOutline),
           //selectedIcon: Icon(MdiIcons.bookOpenPageVariant),
+          selectedIcon: Icon(
+            MdiIcons.bookOpenPageVariant
+          ),
+
           label: 'Bibliotek',
         ),
       ],
