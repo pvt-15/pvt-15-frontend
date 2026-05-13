@@ -173,38 +173,25 @@ class _ProfileState extends State<Profile> {
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
-          : Column(
-        children: [
-          const SizedBox(height: 40),
-          Center(
-            child: Stack(
-              clipBehavior: Clip.none,
-              alignment: Alignment.topCenter,
-              children: [
-                Container(
-                  margin: const EdgeInsets.only(top: 120),
-                  width: 350,
-                  height: 170,
-                  child: const Card(
-                    color: Color(0xFFF8ED76),
-                    child: Padding(
-                      padding: EdgeInsets.all(5),
-                      child: _ProfileCardContentPlaceholder(),
-                    ),
-                  ),
-                ),
-                Container(
-                  margin: const EdgeInsets.only(top: 120),
-                  width: 350,
-                  height: 170,
-                  child: Card(
-                    color: const Color(0xFFF8ED76),
-                    child: Padding(
-                      padding: const EdgeInsets.all(5),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Row(
+          : SafeArea(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.only(bottom: 25),
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 30),
+
+                Center(
+                  child: Stack(
+                    clipBehavior: Clip.none,
+                    alignment: Alignment.topCenter,
+                    children: [
+                      Container(
+                        margin: const EdgeInsets.only(top: 120),
+                        width: 350,
+                        height: 170,
+                        child: Card(
+                          color: const Color(0xFFF8ED76),
+                          child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               const Icon(
@@ -213,44 +200,43 @@ class _ProfileState extends State<Profile> {
                                 size: 35,
                               ),
                               Text("Level: $level"),
+                              const SizedBox(height: 20),
+                              SizedBox(
+                                width: 250,
+                                child: LinearProgressIndicator(
+                                  backgroundColor: const Color(0xFFDE75BF),
+                                  color: const Color(0xFFC0008B),
+                                  value: (points % 300) / 300,
+                                  minHeight: 10,
+                                ),
+                              ),
+                              const SizedBox(height: 20),
+                              Text("Poäng: $points"),
                             ],
                           ),
-                          const SizedBox(height: 20),
-                          SizedBox(
-                            width: 250,
-                            child: LinearProgressIndicator(
-                              backgroundColor: const Color(0xFFDE75BF),
-                              color: const Color(0xFFC0008B),
-                              value: (points % 300) / 300,
-                              minHeight: 10,
-                            ),
-                          ),
-                          const SizedBox(height: 20),
-                          Text("Poäng: $points"),
-                        ],
+                        ),
                       ),
-                    ),
+
+                      Container(
+                        width: 150,
+                        height: 150,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: const Color(0xFFC0008B),
+                            width: 6,
+                          ),
+                        ),
+                        child: CircleAvatar(
+                          radius: 70,
+                          backgroundImage: getProfileImage(),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                Container(
-                  width: 150,
-                  height: 150,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: const Color(0xFFC0008B),
-                      width: 6,
-                    ),
-                  ),
-                  child: CircleAvatar(
-                    radius: 70,
-                    backgroundImage: getProfileImage(),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 60),
+
+                const SizedBox(height: 60),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Row(
@@ -313,8 +299,11 @@ class _ProfileState extends State<Profile> {
               },
             ),
           ),
-        ],
+         ],
+        ),
+       ),
       ),
+
       bottomNavigationBar: const CustomNavigationBar(
         selectedIndex: 0,
       ),
