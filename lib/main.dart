@@ -193,7 +193,7 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
-      home: startScreen,
+      home: LoginScreen(),
     );
   }
 }
