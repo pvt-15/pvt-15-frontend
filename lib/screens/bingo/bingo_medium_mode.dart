@@ -257,6 +257,14 @@ class _BingoMediumMode extends State<BingoMediumMode> {
                         child: (image2 == null && imageUrl2 == null) ? const Center(child: Icon(Icons.image, size: 50)) : null,
                       ),
                     ),
+                  ],
+                ),
+
+                const SizedBox(height: 30),
+
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
 
                     InkWell(
                       onTap: () async {
@@ -286,7 +294,6 @@ class _BingoMediumMode extends State<BingoMediumMode> {
                         child: (image3 == null && imageUrl3 == null) ? const Center(child: Icon(Icons.image, size: 50)) : null,
                       ),
                     ),
-
                   ],
                 ),
               ],
@@ -297,7 +304,6 @@ class _BingoMediumMode extends State<BingoMediumMode> {
             ElevatedButton(
               onPressed: () async {
                 bool success = await checkBingoCompletionStatus();
-                final user = await SessionStorage().getUser();
 
                 if (success) {
 
@@ -313,21 +319,6 @@ class _BingoMediumMode extends State<BingoMediumMode> {
                   showDialog(
                       context: context,
                       builder: (context) {
-
-                        /*
-                        return CustomAlertDialog(
-                          title: 'Är du säker?',
-                          content: 'Är du säker? Om du avslutar nu registeras inga poäng',
-                          cancelText: 'Avbryt',
-                          confirmText: 'Bekräfta',
-                          onCancel: () => Navigator.pop,
-                          onConfirm: () => Navigator.push(context, MaterialPageRoute(builder: (_) => HomeScreen()),
-                          ),
-                        );
-
-                         */
-
-
 
                         return AlertDialog(
                           actionsAlignment: MainAxisAlignment.spaceBetween,
@@ -391,6 +382,43 @@ class _BingoMediumMode extends State<BingoMediumMode> {
       bottomNavigationBar: const CustomNavigationBar(selectedIndex: -1),
 
     );
+  }
+
+  String? decideTargetTypeMixedBingo() {
+
+    AlertDialog(
+      actionsAlignment: MainAxisAlignment.spaceBetween,
+      content: Text(
+        'Bestäm typen! Vad var det du tog en bild på?',
+        textAlign: TextAlign.center,
+      ),
+
+      actions: [
+        ElevatedButton(
+          onPressed: () {
+            Navigator.pop(context, 'PLANT');
+          },
+          child: Text('Växt', style: Theme.of(context).textTheme.bodyMedium),
+        ),
+
+        ElevatedButton(
+          onPressed: () {
+            Navigator.pop(context, 'TREE');
+          },
+          child: Text('Träd', style: Theme.of(context).textTheme.bodyMedium),
+        ),
+
+        ElevatedButton(
+          onPressed: () {
+            Navigator.pop(context, 'ANIMAL');
+          },
+          child: Text('Djur', style: Theme.of(context).textTheme.bodyMedium),
+        ),
+      ],
+    );
+
+    return null;
+
   }
 
 /*

@@ -36,9 +36,13 @@ class _BingoHardMode extends State<BingoHardMode> {
 
   String? imageUrl1;
   String? imageUrl2;
+  String? imageUrl3;
+  String? imageUrl4;
 
   File? image1;
   File? image2;
+  File? image3;
+  File? image4;
 
   @override
   void initState() {
@@ -184,27 +188,12 @@ class _BingoHardMode extends State<BingoHardMode> {
                     InkWell(
                       onTap: () async {
                         if (imageUrl1 == null){
-                          //final File? file = await CameraService.takePicture();
-                          final file = await getAssetFile('assets/ek.jpg');
+                          final File? file = await CameraService.takePicture();
+                          //final file = await getAssetFile('assets/ek.jpg');
+                          //final compressedXFile = await FlutterImageCompress.compressAndGetFile(file.path, '${file.path}_compressed.jpg', quality: 70,);
+                          //final File compressedFile = File(compressedXFile!.path);
 
-                          final compressedXFile = await FlutterImageCompress.compressAndGetFile(file.path, '${file.path}_compressed.jpg', quality: 70,);
-
-                          final File compressedFile = File(compressedXFile!.path);
-
-                          //bool success = await helpMethodsUploadPicture.sendPictureToBackend(compressedFile, challengeId);
-                          //bool success = await helpMethodsUploadPicture.sendPictureToBackend(compressedFile, helpMethodsHttp.mapCategoryToBackend(widget.typeOfBingo), 'CHALLENGE', challengeId);
-
-                          //TODO vet inte om detta är en så bra lösning för success bool
-                          bool success = false;
-
-                          if(widget.typeOfBingo == 'Blandad') {
-                            if(decideTargetTypeMixedBingo() != null) {
-                              String type = decideTargetTypeMixedBingo() as String;
-                              success = await helpMethodsUploadPicture.sendPictureToBackend(compressedFile, type, 'CHALLENGE', challengeId);
-                            }
-                          } else {
-                            success = await helpMethodsUploadPicture.sendPictureToBackend(compressedFile, 'PLANT', 'CHALLENGE', challengeId);
-                          }
+                          bool success = await helpMethodsUploadPicture.sendPictureToBackend(file, 'PLANT', 'CHALLENGE', challengeId);
 
                           if (file != null && success) {
                             setState(() {
@@ -235,12 +224,9 @@ class _BingoHardMode extends State<BingoHardMode> {
                         if (imageUrl2 == null){
                           final File? file = await CameraService.takePicture();
 
-                          //BingoHelpMethods.sendPictureToGoogleStorage(token as String, file);
-                          //sendPictureToGoogleStorage(file);
+                          bool success = await helpMethodsUploadPicture.sendPictureToBackend(file, 'PLANT', 'CHALLENGE', challengeId);
 
-                          //TODO check om det gick igenom
-
-                          if (file != null) {
+                          if (file != null && success) {
                             setState(() {
                               image2 = file;
                             });
@@ -263,6 +249,75 @@ class _BingoHardMode extends State<BingoHardMode> {
                     ),
                   ],
                 ),
+
+                const SizedBox(height: 30),
+
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+
+                    InkWell(
+                      onTap: () async {
+                        if (imageUrl3 == null){
+                          final File? file = await CameraService.takePicture();
+
+                          bool success = await helpMethodsUploadPicture.sendPictureToBackend(file, 'PLANT', 'CHALLENGE', challengeId);
+
+                          if (file != null && success) {
+                            setState(() {
+                              image3 = file;
+                            });
+                          }
+                        }
+                      },
+                      borderRadius: BorderRadius.circular(15),
+                      child: Container(
+                        width: 130,
+                        height: 130,
+                        decoration: BoxDecoration(
+                            color: const Color(0xfff8ed76),
+                            borderRadius: BorderRadius.circular(15),
+                            image: image3 != null ? DecorationImage(image: FileImage(image3!), fit: BoxFit.cover)
+                                : (imageUrl3 != null ? DecorationImage(image: NetworkImage(imageUrl3!), fit: BoxFit.cover)
+                                : null)
+                        ),
+                        child: (image3 == null && imageUrl3 == null) ? const Center(child: Icon(Icons.image, size: 50)) : null,
+                      ),
+                    ),
+
+                    const SizedBox(width: 50),
+
+                    InkWell(
+                      onTap: () async {
+                        if (imageUrl3 == null){
+                          final File? file = await CameraService.takePicture();
+
+                          bool success = await helpMethodsUploadPicture.sendPictureToBackend(file, 'PLANT', 'CHALLENGE', challengeId);
+
+                          if (file != null && success) {
+                            setState(() {
+                              image3 = file;
+                            });
+                          }
+                        }
+                      },
+                      borderRadius: BorderRadius.circular(15),
+                      child: Container(
+                        width: 130,
+                        height: 130,
+                        decoration: BoxDecoration(
+                            color: const Color(0xfff8ed76),
+                            borderRadius: BorderRadius.circular(15),
+                            image: image3 != null ? DecorationImage(image: FileImage(image3!), fit: BoxFit.cover)
+                                : (imageUrl3 != null ? DecorationImage(image: NetworkImage(imageUrl3!), fit: BoxFit.cover)
+                                : null)
+                        ),
+                        child: (image3 == null && imageUrl3 == null) ? const Center(child: Icon(Icons.image, size: 50)) : null,
+                      ),
+                    ),
+
+                  ],
+                ),
               ],
             ),
 
@@ -271,7 +326,6 @@ class _BingoHardMode extends State<BingoHardMode> {
             ElevatedButton(
               onPressed: () async {
                 bool success = await checkBingoCompletionStatus();
-                final user = await SessionStorage().getUser();
 
                 if (success) {
 
@@ -287,22 +341,6 @@ class _BingoHardMode extends State<BingoHardMode> {
                   showDialog(
                       context: context,
                       builder: (context) {
-
-                        /*
-                        return CustomAlertDialog(
-                          title: 'Är du säker?',
-                          content: 'Är du säker? Om du avslutar nu registeras inga poäng',
-                          cancelText: 'Avbryt',
-                          confirmText: 'Bekräfta',
-                          onCancel: () => Navigator.pop,
-                          onConfirm: () => Navigator.push(context, MaterialPageRoute(builder: (_) => HomeScreen()),
-                          ),
-                        );
-
-                         */
-
-
-
                         return AlertDialog(
                           actionsAlignment: MainAxisAlignment.spaceBetween,
                           content: Text(

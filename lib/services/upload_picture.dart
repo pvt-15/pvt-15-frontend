@@ -25,22 +25,23 @@ class UploadPicture {
           Uri.parse('https://group-6-15.pvt.dsv.su.se/uploads/picture'),
         );
 
-      request.headers['Authorization'] = 'Bearer $jwtToken';
+        request.headers['Authorization'] = 'Bearer $jwtToken';
 
-      request.files.add(
-        await http.MultipartFile.fromPath('file', imageFile.path),
-      );
+        request.files.add(
+          await http.MultipartFile.fromPath('file', imageFile.path),
+        );
 
-      final response = await request.send();
-      final responseBody = await response.stream.bytesToString();
+        final response = await request.send();
+        final responseBody = await response.stream.bytesToString();
 
 
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        final data = jsonDecode(responseBody);
-        return data['objectKey'];  // Returnera objectKey, inte imageUrl
-      } else {
-        debugPrint('Upload misslyckades: ${response.statusCode}');
-        return null;
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          final data = jsonDecode(responseBody);
+          return data['objectKey']; // Returnera objectKey, inte imageUrl
+        } else {
+          debugPrint('Upload misslyckades: ${response.statusCode}');
+          return null;
+        }
       }
     } catch (e) {
       debugPrint('GoogleStorage Error $e');

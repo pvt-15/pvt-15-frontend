@@ -86,27 +86,7 @@ class _BingoEasyMode extends State<BingoEasyMode> {
     }
   }
 
-  void getPictures() async {
-    try {
-      Map<String, dynamic> response = await helpMethodsHttp.getPicturesForChallenge(challengeId);
-      debugPrint('Hämtade bilder: $response');
-      if (response.isNotEmpty) {
-        setState(() {
-          if (response is List && response.isNotEmpty) {
-            imageUrl1 = response[0]['imageUrl'];
-            if (response.length > 1) {
-              imageUrl2 = response[1]['imageUrl'];
-            }
-          }
-        });
-      }
-    } catch (e) {
-      debugPrint('DEBUG getpictures $e');
-    }
-  }
-
-  /*
-  //Metod för att hämta ut bilder från en utmaning med flera mindre utmaningar it sig
+  //Metod för att hämta ut bilder från en utmaning från databasen
   void getPictures() async {
     try {
       Map<String, dynamic> response = await helpMethodsHttp.getPicturesForChallenge(challengeId);
@@ -118,7 +98,6 @@ class _BingoEasyMode extends State<BingoEasyMode> {
 
         for (var task in tasks) {
           if (task['pictures'] != null && (task['pictures'] as List).isNotEmpty) {
-            // Hämta imageUrl från den första bilden i varje task
             String? url = task['pictures'][0]['imageUrl'];
             if (url != null) {
               urls.add(url);
@@ -135,8 +114,6 @@ class _BingoEasyMode extends State<BingoEasyMode> {
       debugPrint('DEBUG getpictures $e');
     }
   }
-
-   */
 
   Future<File> getAssetFile(String assetPath) async {
     final byteData = await rootBundle.load(assetPath);
@@ -202,7 +179,18 @@ class _BingoEasyMode extends State<BingoEasyMode> {
 
                           //bool success = await helpMethodsUploadPicture.sendPictureToBackend(compressedFile, challengeId);
                           //bool success = await helpMethodsUploadPicture.sendPictureToBackend(compressedFile, helpMethodsHttp.mapCategoryToBackend(widget.typeOfBingo), 'CHALLENGE', challengeId);
-                          bool success = await helpMethodsUploadPicture.sendPictureToBackend(compressedFile, 'PLANT', 'CHALLENGE', challengeId);
+                          //bool success = await helpMethodsUploadPicture.sendPictureToBackend(compressedFile, 'PLANT', 'CHALLENGE', challengeId);
+
+                          bool success = false;
+
+                          if(widget.typeOfBingo == 'Blandad') {
+                            if(decideTargetTypeMixedBingo() != null) {
+                              String type = decideTargetTypeMixedBingo() as String;
+                              success = await helpMethodsUploadPicture.sendPictureToBackend(compressedFile, type, 'CHALLENGE', challengeId);
+                            }
+                          } else {
+                            success = await helpMethodsUploadPicture.sendPictureToBackend(compressedFile, 'PLANT', 'CHALLENGE', challengeId);
+                          }
 
                           if (file != null && success) {
                             setState(() {
@@ -268,10 +256,10 @@ class _BingoEasyMode extends State<BingoEasyMode> {
 
             ElevatedButton(
               onPressed: () async {
-                bool success = await checkBingoCompletionStatus();
-                final user = await SessionStorage().getUser();
+                Map<String, dynamic> challenge = await helpMethodsHttp.getStartedQuestion(challengeId);
+                String status = challenge['status'];
 
-                if (success) {
+                if (status == 'COMPLETED') {
 
                   resetBingo();
 
@@ -285,21 +273,6 @@ class _BingoEasyMode extends State<BingoEasyMode> {
                   showDialog(
                       context: context,
                       builder: (context) {
-
-                        /*
-                        return CustomAlertDialog(
-                          title: 'Är du säker?',
-                          content: 'Är du säker? Om du avslutar nu registeras inga poäng',
-                          cancelText: 'Avbryt',
-                          confirmText: 'Bekräfta',
-                          onCancel: () => Navigator.pop,
-                          onConfirm: () => Navigator.push(context, MaterialPageRoute(builder: (_) => HomeScreen()),
-                          ),
-                        );
-
-                         */
-
-
 
                         return AlertDialog(
                           actionsAlignment: MainAxisAlignment.spaceBetween,
@@ -364,6 +337,43 @@ class _BingoEasyMode extends State<BingoEasyMode> {
 
     );
   }
+  String? decideTargetTypeMixedBingo() {
+
+    AlertDialog(
+      actionsAlignment: MainAxisAlignment.spaceBetween,
+      content: Text(
+        'Bestäm typen! Vad var det du tog en bild på?',
+        textAlign: TextAlign.center,
+      ),
+
+      actions: [
+        ElevatedButton(
+          onPressed: () {
+            Navigator.pop(context, 'PLANT');
+          },
+          child: Text('Växt', style: Theme.of(context).textTheme.bodyMedium),
+        ),
+
+        ElevatedButton(
+          onPressed: () {
+            Navigator.pop(context, 'TREE');
+          },
+          child: Text('Träd', style: Theme.of(context).textTheme.bodyMedium),
+        ),
+
+        ElevatedButton(
+          onPressed: () {
+            Navigator.pop(context, 'ANIMAL');
+          },
+          child: Text('Djur', style: Theme.of(context).textTheme.bodyMedium),
+        ),
+      ],
+    );
+
+    return null;
+
+  }
+
 
 /*
   //Behövs allt detta? Kan man göra det på annat sätt?
