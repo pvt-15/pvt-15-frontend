@@ -141,12 +141,12 @@ class _ProfileState extends State<Profile> {
     return (points % 300) / 300;
   }
 
-  AssetImage getProfileImage() {
+  NetworkImage getProfileImage() {
     if (profileImgUrl.isNotEmpty) {
       return NetworkImage(profileImgUrl);
     }
 
-    return const AssetImage('assets/rav.png');
+    return const NetworkImage('assets/rav.png');
   }
 
   void _navigateAndRefresh(Widget page) async {
