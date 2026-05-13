@@ -4,6 +4,8 @@ import 'package:http/http.dart' as http;
 
 import 'package:Skogsjakten/services/session_storage.dart';
 import 'package:Skogsjakten/screens/login/login.dart';
+import 'package:Skogsjakten/screens/profile/settings.dart';
+import 'package:Skogsjakten/screens/library/medals_library.dart';
 import '../../widgets/custom_navigation_bar.dart';
 
 class Profile extends StatefulWidget {
@@ -133,6 +135,12 @@ class _ProfileState extends State<Profile> {
     }
   }
 
+  // Calculate progress percentage for level (same as home.dart)
+  double _getProgressValue() {
+    if (points == 0) return 0.0;
+    return (points % 300) / 300;
+  }
+
   AssetImage getProfileImage() {
     if (profileImgUrl.isNotEmpty) {
       return AssetImage(profileImgUrl);
@@ -140,10 +148,13 @@ class _ProfileState extends State<Profile> {
     return const AssetImage('assets/rav.png');
   }
 
-  NetworkImage getBadgeImage(String? tier) {
-    return const NetworkImage(
-      "https://cdn.pixabay.com/photo/2015/04/17/19/02/ko-727828_1280.jpg",
+  void _navigateAndRefresh(Widget page) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => page),
     );
+    // Refresh data after returning
+    await loadAll();
   }
 
   @override
@@ -165,9 +176,7 @@ class _ProfileState extends State<Profile> {
               size: 50,
               color: Color(0xFF000000),
             ),
-            onPressed: () {
-              print('clicked');
-            },
+            onPressed: () => _navigateAndRefresh(const SettingsScreen()),
           ),
         ],
       ),
@@ -181,18 +190,17 @@ class _ProfileState extends State<Profile> {
               clipBehavior: Clip.none,
               alignment: Alignment.topCenter,
               children: [
+                // Yellow card container (background)
                 Container(
                   margin: const EdgeInsets.only(top: 120),
                   width: 350,
                   height: 170,
                   child: const Card(
                     color: Color(0xFFF8ED76),
-                    child: Padding(
-                      padding: EdgeInsets.all(5),
-                      child: _ProfileCardContentPlaceholder(),
-                    ),
+                    child: SizedBox.shrink(),
                   ),
                 ),
+                // Points card (identical to home.dart)
                 Container(
                   margin: const EdgeInsets.only(top: 120),
                   width: 350,
@@ -200,38 +208,45 @@ class _ProfileState extends State<Profile> {
                   child: Card(
                     color: const Color(0xFFF8ED76),
                     child: Padding(
-                      padding: const EdgeInsets.all(5),
+                      padding: const EdgeInsets.symmetric(vertical: 22, horizontal: 20),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Icon(
-                                Icons.eco,
-                                color: Color(0xFF84C06C),
-                                size: 35,
-                              ),
-                              Text("Level: $level"),
-                            ],
-                          ),
-                          const SizedBox(height: 20),
-                          SizedBox(
-                            width: 250,
-                            child: LinearProgressIndicator(
-                              backgroundColor: const Color(0xFFDE75BF),
-                              color: const Color(0xFFC0008B),
-                              value: (points % 300) / 300,
-                              minHeight: 10,
+                          // Points above progress bar
+                          Text(
+                            '$points poäng',
+                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
-                          const SizedBox(height: 20),
-                          Text("Poäng: $points"),
+                          const SizedBox(height: 8),
+                          Container(
+                            height: 8,
+                            width: 200,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFDE75BF),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(20),
+                              child: LinearProgressIndicator(
+                                value: _getProgressValue(),
+                                backgroundColor: Colors.transparent,
+                                color: const Color(0xFFC0008B),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Level: $level',
+                            style: Theme.of(context).textTheme.bodyMedium,
+                          ),
                         ],
                       ),
                     ),
                   ),
                 ),
+                // Profile image (kept from original)
                 Container(
                   width: 150,
                   height: 150,
@@ -258,9 +273,7 @@ class _ProfileState extends State<Profile> {
               children: [
                 const Text("Medaljer", style: TextStyle(fontSize: 25)),
                 IconButton(
-                  onPressed: () {
-                    print("Gå till medaljsida");
-                  },
+                  onPressed: () => _navigateAndRefresh(const MedalsLibrary()),
                   icon: const Icon(
                     Icons.arrow_forward,
                     color: Color(0xFF000000),
@@ -283,31 +296,33 @@ class _ProfileState extends State<Profile> {
             )
                 : ListView.separated(
               scrollDirection: Axis.horizontal,
-              itemCount: badges.length,
+              itemCount: badges.length > 3 ? 3 : badges.length,
               separatorBuilder: (context, index) =>
               const SizedBox(width: 20),
               itemBuilder: (context, index) {
                 final badge = badges[index];
-                return Padding(
-                  padding:
-                  const EdgeInsets.symmetric(horizontal: 20),
-                  child: Column(
-                    children: [
-                      CircleAvatar(
-                        radius: 42.5,
-                        backgroundImage: const NetworkImage(
-                          "https://cdn.pixabay.com/photo/2015/04/17/19/02/ko-727828_1280.jpg",
+                return GestureDetector(
+                  onTap: () => _navigateAndRefresh(const MedalsLibrary()),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Column(
+                      children: [
+                        CircleAvatar(
+                          radius: 42.5,
+                          backgroundImage: const NetworkImage(
+                            "https://cdn.pixabay.com/photo/2015/04/17/19/02/ko-727828_1280.jpg",
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 10),
-                      SizedBox(
-                        width: 80,
-                        child: Text(
-                          badge['name'],
-                          textAlign: TextAlign.center,
+                        const SizedBox(height: 10),
+                        SizedBox(
+                          width: 80,
+                          child: Text(
+                            badge['name'],
+                            textAlign: TextAlign.center,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 );
               },
@@ -319,14 +334,5 @@ class _ProfileState extends State<Profile> {
         selectedIndex: 2,
       ),
     );
-  }
-}
-
-class _ProfileCardContentPlaceholder extends StatelessWidget {
-  const _ProfileCardContentPlaceholder();
-
-  @override
-  Widget build(BuildContext context) {
-    return const SizedBox.shrink();
   }
 }

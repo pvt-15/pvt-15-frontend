@@ -17,36 +17,37 @@ class UploadPicture {
 
   //se till att man innan anropet, skickar token med await
 
-  Future<http.StreamedResponse?> sendPictureToGoogleStorage(File? imageFile) async {
+  // I upload_picture.dart - uppdatera sendPictureToGoogleStorage
+
+  Future<String?> sendPictureToGoogleStorage(File? imageFile) async {
     try {
-      if (imageFile != null) {
-        final request = http.MultipartRequest(
-          'POST',
-          Uri.parse('https://group-6-15.pvt.dsv.su.se/uploads/picture'),
-        );
-
-        request.headers['Authorization'] = 'Bearer $jwtToken';
-
-        request.files.add(
-          await http.MultipartFile.fromPath(
-              'file',
-              imageFile.path
-          ),
-        );
-
-        final response = await request.send();
-
-        final responseBody = await response.stream.bytesToString();
-
-
-        final data = jsonDecode(responseBody);
-
-        return data['objectKey'];
-
-        //return response;
-
-      } else {
+      if (imageFile == null) {
         debugPrint('Mottagen fil var null');
+        return null;
+      }
+
+      final request = http.MultipartRequest(
+        'POST',
+        Uri.parse('https://group-6-15.pvt.dsv.su.se/uploads/picture'),
+      );
+
+      request.headers['Authorization'] = 'Bearer $jwtToken';
+
+      request.files.add(
+        await http.MultipartFile.fromPath('file', imageFile.path),
+      );
+
+      final response = await request.send();
+      final responseBody = await response.stream.bytesToString();
+
+      debugPrint('Upload status: ${response.statusCode}');
+      debugPrint('Upload response: $responseBody');
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final data = jsonDecode(responseBody);
+        return data['objectKey'];  // Returnera objectKey, inte imageUrl
+      } else {
+        debugPrint('Upload misslyckades: ${response.statusCode}');
         return null;
       }
     } catch (e) {
