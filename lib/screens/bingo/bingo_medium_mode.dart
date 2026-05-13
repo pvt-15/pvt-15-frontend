@@ -2,7 +2,6 @@ import 'dart:core';
 import 'dart:io';
 
 import 'package:Skogsjakten/services/upload_picture.dart';
-import 'package:Skogsjakten/widgets/custom_alert_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
@@ -11,7 +10,6 @@ import '../../services/camera_service.dart';
 import '../../services/session_storage.dart';
 import '../../widgets/custom_navigation_bar.dart';
 import '../home.dart';
-import '../override_dialog.dart';
 import 'http_help_methods.dart';
 
 class BingoMediumMode extends StatefulWidget{
