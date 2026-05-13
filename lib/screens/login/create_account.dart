@@ -67,6 +67,14 @@ class _CreateAccountState extends State<CreateAccount> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Color(0xFFBEDBB2),
+      appBar: AppBar(
+        leading: IconButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+          icon: const Icon(Icons.arrow_back),
+      ),
+     ),
       body: Align(
         alignment: Alignment.topCenter,
         child: Form(

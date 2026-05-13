@@ -5,6 +5,7 @@ import 'package:Skogsjakten/screens/login/login.dart';
 import 'package:Skogsjakten/services/session_storage.dart';
 
 
+
 void main() async {
   //gör main asynkron och ladda in Flutter-motorn
   WidgetsFlutterBinding.ensureInitialized();
