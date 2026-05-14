@@ -36,8 +36,11 @@ class _ResetPasswordState extends State<ResetPassword> {
                   horizontal: 20.0,
                   vertical: 70.0,
                 ),
-                child: Text("Återställ lösenord (temp)", style: TextStyle(fontSize: 30))
+                child: Text(
+                    "Återställ lösenord (temp)",
+                    style: Theme.of(context).textTheme.headlineMedium,
             ),
+           ),
 
             const SizedBox(height: 70),
 

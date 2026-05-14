@@ -85,12 +85,11 @@ class _CreateAccountState extends State<CreateAccount> {
                 children: [
                   const SizedBox(height: 35),
 
-                  const Text(
+                  Text(
                     "Skapa ett konto",
                     textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 30,
-                      color: Color(0xFF4C290C),
+                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                      color: const Color(0xFF4C290C),
                     ),
                   ),
 

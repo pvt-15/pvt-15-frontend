@@ -280,7 +280,9 @@ class _ProfileState extends State<Profile> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                const Text("Medaljer", style: TextStyle(fontSize: 25)),
+                Text("Medaljer",
+                    style: Theme.of(context).textTheme.titleLarge,
+                ),
                 IconButton(
                   onPressed: () => _navigateAndRefresh(const MedalsLibrary()),
                   icon: const Icon(

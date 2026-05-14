@@ -190,7 +190,9 @@ class _SkattjaktState extends State<Skattjakt> {
           children: [
             Text(
               'Du har hittat en $treeName!',
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 12),
@@ -233,7 +235,9 @@ class _SkattjaktState extends State<Skattjakt> {
             if (confidence > 0)
               Text(
                 'AI-tillförlitlighet: ${(confidence * 100).toStringAsFixed(0)}% (kräver 75%)',
-                style: const TextStyle(fontSize: 12, color: Colors.grey),
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Colors.grey,
+                ),
               ),
             const SizedBox(height: 8),
             const Text('Försök med en tydligare bild!'),
@@ -289,7 +293,7 @@ class _SkattjaktState extends State<Skattjakt> {
             Text(
               'Du har hittat alla ${treeTargets.length} träd!',
               textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 18),
+              style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: 16),
             const Text('Bra jobbat!'),
@@ -386,7 +390,7 @@ class _SkattjaktState extends State<Skattjakt> {
               padding: const EdgeInsets.only(top: 8),
               child: Text(
                 '${treeTargets.where((t) => t.isFound).length}/${treeTargets.length} hittade',
-                style: const TextStyle(fontSize: 14),
+                style: Theme.of(context).textTheme.bodyMedium,
               ),
             ),
 
