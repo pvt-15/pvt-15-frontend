@@ -41,9 +41,10 @@ class UploadPicture {
       debugPrint('GoogleStorage Error $e');
       return null;
     }
+    return null;
   }
 
-  Future<bool> sendPictureToBackend(File? imageFile, String targetType, String pictureMode, int challengeId) async {
+  Future<Map<String, dynamic>?> sendPictureToBackend(File? imageFile, String targetType, String pictureMode, int challengeId) async {
     try {
       //Vänta på att bilden laddas upp och få tillbaka URL:en
       final imageObjectKey = await sendPictureToGoogleStorage(imageFile);
@@ -71,16 +72,16 @@ class UploadPicture {
       print(response.body);
 
       if (response.statusCode == 200) {
-        return true;
+        return jsonDecode(response.body);
       } else {
         debugPrint('Backend Error: ${response.statusCode}');
-        return false;
+        return null;
       }
       }
-      return false;
+      return null;
     } catch (e) {
       debugPrint('Skicka bild till backend Error $e');
-      return false;
+      return null;
     }
   }
 

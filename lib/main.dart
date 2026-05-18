@@ -173,7 +173,7 @@ class MyApp extends StatelessWidget {
 
           contentTextStyle: TextStyle(
             fontFamily: 'YoungSerif',
-            fontSize: 16,
+            fontSize: 18,
             color: Color(0xFF000000),
           ),
         ),
