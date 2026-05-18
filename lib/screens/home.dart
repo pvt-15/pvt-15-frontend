@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'home/daily_challenge.dart';
 import 'home/home_library.dart';
 import 'home/species_profile.dart';
 import 'home/quiz.dart';
@@ -89,7 +90,7 @@ class HomeScreen extends StatelessWidget {
               _wideMenuCard(
                 context: context,
                 title: 'Dagens utmaning',
-                page: const HomeLibrary(),
+                page: const DailyChallenge(gameTitle: 'Dagens utmaning',),
               ),
 
               const SizedBox(height: 34),
