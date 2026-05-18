@@ -97,7 +97,7 @@ class _BingoEasyMode extends State<BingoEasyMode> {
 
         setState(() {
           if (urls.isNotEmpty) images[0] = urls[0];
-          //if (urls.length > 1) imageUrl2 = urls[1];
+          if (urls.length > 1) images[1] = urls[1];
         });
       }
     } catch (e) {
