@@ -369,7 +369,7 @@ class _QuizState extends State<Quiz> {
                 child: Text(
                   question.text,
                   textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(fontSize: 20),
+                  style: Theme.of(context).textTheme.titleLarge,
                 ),
               ),
               const SizedBox(height: 30),
@@ -441,10 +441,13 @@ class _QuizState extends State<Quiz> {
                           height: 22,
                           child: CircularProgressIndicator(
                               strokeWidth: 2, color: Colors.white))
-                          : const Text('Lämna in',
-                          style: TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.bold)),
+                          : Text('Lämna in',
+                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                          ),
                     ),
+                  ),
                   IconButton(
                     onPressed: isLast ? null : () => _goTo(_currentIndex + 1),
                     icon: Icon(
@@ -530,10 +533,7 @@ class _QuizState extends State<Quiz> {
                     const SizedBox(height: 8),
                     Text(
                       '${result.correct}/${result.total} rätt!',
-                      style: Theme.of(context)
-                          .textTheme
-                          .headlineLarge
-                          ?.copyWith(fontSize: 36),
+                      style: Theme.of(context).textTheme.headlineLarge,
                     ),
                     const SizedBox(height: 6),
                     Text(
@@ -595,8 +595,9 @@ class _QuizState extends State<Quiz> {
                           Expanded(
                             child: Text(
                               'Fråga ${i + 1}: ${a.questionText}',
-                              style: const TextStyle(
-                                  fontWeight: FontWeight.w700, fontSize: 15),
+                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                  fontWeight: FontWeight.w700,
+                              ),
                             ),
                           ),
                         ],
@@ -631,7 +632,7 @@ class _QuizState extends State<Quiz> {
                             Expanded(
                               child: Text(
                                 'Ditt svar: ${a.selectedOptionText}',
-                                style: const TextStyle(fontSize: 14),
+                                style: Theme.of(context).textTheme.bodyMedium,
                               ),
                             ),
                           ],
@@ -657,7 +658,7 @@ class _QuizState extends State<Quiz> {
                               Expanded(
                                 child: Text(
                                   'Rätt svar: ${a.correctOptionText}',
-                                  style: const TextStyle(fontSize: 14),
+                                  style: Theme.of(context).textTheme.bodyMedium,
                                 ),
                               ),
                             ],
@@ -670,8 +671,7 @@ class _QuizState extends State<Quiz> {
                         const SizedBox(height: 8),
                         Text(
                           a.explanation,
-                          style: TextStyle(
-                            fontSize: 13,
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             color: Colors.black.withValues(alpha: 0.6),
                             fontStyle: FontStyle.italic,
                           ),

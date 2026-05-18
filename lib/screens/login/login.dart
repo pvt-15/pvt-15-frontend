@@ -28,188 +28,151 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset: false, //testa om detta löser hoppandet med "nytt konto" osv
-      backgroundColor: Color(0xFFBEDBB2),
-      body: Stack(
-        children: [
-
-          Positioned(
-            top: 190,
-            left: 0,
-            right: 0,
+      backgroundColor: const Color(0xFFBEDBB2),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Form(
+            key: _formKey,
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                const SizedBox(height: 90),
+
                 Text(
-                    "Skogsjakten",
-                    style: Theme.of(context).textTheme.headlineLarge
+                  'Skogsjakten',
+                  style: Theme.of(context).textTheme.headlineLarge,
                 ),
+
+                const SizedBox(height: 10),
+
                 Image.asset(
                   'assets/maskot_skogstroll.png',
                   width: 90,
                   height: 90,
                 ),
-              ],
-            ),
-          ),
 
-          Positioned(
-            top: 360,
-            left: 0,
-            right: 0,
-            child: Form(
-              key: _formKey,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 20.0,
-                      vertical: 10.0,
-                    ),
-                    child: TextFormField(
-                      controller: nameController,
-                      decoration: const InputDecoration(
-                        labelText: "Email",
-                      ),
+                const SizedBox(height: 60),
 
-                      validator: (value) { // olika validations
-                        if (value == null || value.isEmpty)
-                          return "Ogiltig mejl";
-                        return null;
-                      },
-                    ),
+                TextFormField(
+                  controller: nameController,
+                  decoration: const InputDecoration(
+                    labelText: 'Email',
                   ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Ogiltig mejl';
+                    }
+                    return null;
+                  },
+                ),
 
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 20.0,
-                      vertical: 15.0,
-                    ),
-                    child: TextFormField(
-                        controller: passwordController,
-                        obscureText: true,
-                        decoration: const InputDecoration(
-                          labelText: "Lösenord",
-                        ),
+                const SizedBox(height: 25),
 
-                        validator: (value) {
-                          if (value == null || value.isEmpty)
-                            return "Ogiltigt lösenord";
-                          return null;
-                        }
-                    ),
+                TextFormField(
+                  controller: passwordController,
+                  obscureText: true,
+                  decoration: const InputDecoration(
+                    labelText: "Lösenord",
                   ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return "Ogiltigt lösenord";
+                    }
+                    return null;
+                  },
+                ),
 
-                  ElevatedButton(
-                    onPressed: _handleLogin,
-                    child: const Text("Logga in"),
-                  ),
-                ],
-              ),
-            ),
-          ),
+                const SizedBox(height: 25),
 
-          Positioned(
-              bottom: 190,
-              left: 0,
-              right: 0,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  ElevatedButton(
-                    onPressed: () async {
-                      try {
-                        final result = await signIn();
+                ElevatedButton(
+                  onPressed: _handleLogin,
+                  child: const Text("Logga in"),
+                ),
 
-                        if (result == null)
-                          return; // Användaren avbröt inloggningen
+                const SizedBox(height: 45),
 
-                        bool success = await loginWithGoogle(result['idToken']!);
+                ElevatedButton(
+                  onPressed: () async {
+                    try {
+                      final result = await signIn();
 
-                        if (success) {
-                          if (!mounted) return;
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) =>
-                                  HomeScreen(),
-                            ),
-                          );
-                        } else {
-                          if (!mounted) return;
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text(
-                                "Inloggning misslyckad",
-                                textAlign: TextAlign.center)),
-                          );
-                        }
-                      } catch (e) {
-                        debugPrint(e.toString());
+                      if (result == null) return;
+
+                      bool success = await loginWithGoogle(result['idToken']!);
+
+                      if (success) {
                         if (!mounted) return;
+
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => HomeScreen(),
+                          ),
+                        );
+                      } else {
+                        if (!mounted) return;
+
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text(
-                              "Något gick fel", textAlign: TextAlign.center)),
+                          const SnackBar(
+                            content: Text(
+                              "Inloggning misslyckad",
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
                         );
                       }
-                    },
-                    child: const Text("Logga in med Google"),
+                    } catch (e) {
+                      debugPrint(e.toString());
 
-                  )
-                ],
-              )
+                      if (!mounted) return;
 
-          ),
-
-          Positioned(
-            bottom: 70,
-            left: 0,
-            right: 0,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-
-                Padding(
-                  padding: const EdgeInsets.only(
-                      top: 10
-                  ),
-                  child: TextButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => CreateAccount(),
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                            "Något gick fel",
+                            textAlign: TextAlign.center,
+                          ),
                         ),
                       );
-                    },
-                    child: const Text("Skapa konto"),
-                  ),
+                    }
+                  },
+                  child: const Text("Logga in med Google"),
                 ),
 
-                Padding(
-                  padding: const EdgeInsets.only(
-                      top: 10
-                  ),
-                  child: TextButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => ResetPassword(),
-                        ),
-                      );
-                    },
-                    child: const Text("Glömt lösenord?"),
-                  ),
+                const SizedBox(height: 35),
+
+                TextButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const CreateAccount(),
+                      ),
+                    );
+                  },
+                  child: const Text('Skapa konto'),
                 ),
+
+                TextButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const ResetPassword(),
+                      ),
+                    );
+                  },
+                  child: const Text("Glömt lösenord?"),
+                ),
+
+                const SizedBox(height: 30),
               ],
             ),
           ),
-        ],
+        ),
       ),
     );
   }
-
   Future<void> _handleLogin() async {
 
     if (_formKey.currentState!.validate()) {

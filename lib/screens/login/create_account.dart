@@ -67,30 +67,38 @@ class _CreateAccountState extends State<CreateAccount> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Color(0xFFBEDBB2),
-      body: Align(
-        alignment: Alignment.topCenter,
-        child: Form(
-          key: _formKey,
-          child: Column(
+      appBar: AppBar(
+        leading: IconButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+          icon: const Icon(Icons.arrow_back),
+      ),
+     ),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const SizedBox(height: 35),
 
-            children: [
-
-              Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 20.0,
-                    vertical: 80.0,
+                  Text(
+                    "Skapa ett konto",
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                      color: const Color(0xFF4C290C),
+                    ),
                   ),
-                  //TODO ändra text
-                  child: Text("Skapa ett konto", style: TextStyle(fontSize: 30, color : Color(0xFF4C290C))
-                  )
-              ),
 
-              const SizedBox(height: 70),
+                  const SizedBox(height: 45),
 
               Padding(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 20.0,
-                  vertical: 15.0,
+                  vertical: 10.0,
                 ),
                 child: TextFormField(
                   controller: emailController,
@@ -226,6 +234,7 @@ class _CreateAccountState extends State<CreateAccount> {
           ),
         ),
       ),
+      )
     );
   }
 }
