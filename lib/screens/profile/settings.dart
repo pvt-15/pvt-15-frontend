@@ -4,6 +4,7 @@ import 'package:Skogsjakten/screens/login/login.dart';
 import 'package:Skogsjakten/services/session_storage.dart';
 import 'package:http/http.dart' as http;
 import '../../widgets/custom_navigation_bar.dart';
+import 'package:Skogsjakten/screens/login/profile_pic.dart';
 
 
 class SettingsScreen extends StatelessWidget {
@@ -95,9 +96,14 @@ class SettingsScreen extends StatelessWidget {
               context,
               text: 'Byt profilbild',
               onPressed: () {
-                // TODO: Lägg till funktion för att byta profilbild
-            },
-          ),
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const ProfilePic(),
+                  ),
+                );
+              },
+            ),
           const SizedBox(height: 20),
             _settingsButton(
               context,
