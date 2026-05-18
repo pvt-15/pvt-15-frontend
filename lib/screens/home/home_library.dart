@@ -25,14 +25,9 @@ class _HomeLibraryState extends State<HomeLibrary> {
     return Scaffold(
       backgroundColor: Color(0xFFBEDBB2),
       appBar: AppBar(
-        leading: IconButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-          icon: const Icon(Icons.arrow_back),
+        title: const Text('Bibliotek'),
       ),
         // Lägga in någon text antingen 'Skattjakt' eller 'Bibliotek' istället för att ha det i body?
-      ),
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -42,10 +37,6 @@ class _HomeLibraryState extends State<HomeLibrary> {
                   left: 30,
                   top: 40,
                   bottom: 30
-              ),
-              child: Text(
-                'Bibliotek',
-                style: Theme.of(context).textTheme.headlineLarge,
               ),
             ),
             Expanded(
@@ -73,20 +64,32 @@ class _HomeLibraryState extends State<HomeLibrary> {
                                   (context) => games[index]['page'])
                           );
                         },
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(games[index]['icon'], size: 50, color: Colors.black87),
+                        child: SizedBox(
+                            width: 240,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                SizedBox(
+                                  width: 50,
+                                  child: Icon(
+                                    games[index]['icon'],
+                                        size: 50,
+                                      color: Colors.black87,
+                                  ),
+                                ),
                             const SizedBox(width: 20),
-                            Text(
+                            Expanded(
+                            child: Text(
                               games[index]['name'],
                               style: Theme.of(context).textTheme.headlineLarge,
                             ),
+                            ),
                           ],
-                        )
+                        ),
                     ),
+                    )
                   );
-                },
+                      },
               ),
             ),
           ],

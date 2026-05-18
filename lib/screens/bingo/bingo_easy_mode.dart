@@ -1,21 +1,19 @@
 import 'dart:core';
 import 'dart:io';
 
-import 'package:Skogsjakten/screens/home/choose_bingo_game.dart';
 import 'package:Skogsjakten/services/upload_picture.dart';
 import 'package:flutter/material.dart';
-import 'package:http/src/response.dart';
 import '../../services/camera_service.dart';
 import '../../services/session_storage.dart';
 import '../../widgets/custom_navigation_bar.dart';
 import '../home.dart';
 import 'http_help_methods.dart';
-import 'json_decode.dart';
 
 class BingoEasyMode extends StatefulWidget{
   final String typeOfBingo;
+  final int? challengeId;
 
-  const BingoEasyMode({super.key, required this.typeOfBingo});
+  const BingoEasyMode({super.key, required this.typeOfBingo, this.challengeId});
 
   @override
   State<BingoEasyMode> createState() => _BingoEasyMode();
@@ -23,76 +21,116 @@ class BingoEasyMode extends StatefulWidget{
 
 class _BingoEasyMode extends State<BingoEasyMode> {
 
-  static final List<Map<String, dynamic>> games = [
-    //alla startade lätta spel
-    {'name': 'Träd', 'images': <File?>[null, null], "isCompleted": false, 'challengeId': null},
-    {'name': 'Växter', 'images': <File?>[null, null], "isCompleted": false, 'challengeId': null},
-    {'name': 'Djur', 'images': <File?>[null, null], "isCompleted": false, 'challengeId': null},
-    {'name': 'Blandad', 'images': <File?>[null, null], "isCompleted": false, 'challengeId': null},
-  ];
+  List<dynamic> images = [null, null];
 
   Future<String?> token = SessionStorage().getToken();
 
-  late final HttpHelpMethods helpMethodsChallenge;
-
-  late final UploadPicture helpMethodsUploadPicture;
-
-  late Map<String, dynamic>? currentGame = findCurrentBingoGame();
-
-  late bool isCompleted;
+  late HttpHelpMethods helpMethodsHttp;
+  late UploadPicture helpMethodsUploadPicture;
 
   late String question;
-
-  //TODO kanske inte behöver göra "lokala" lagring av detta
-  File? image1;
-  File? image2;
+  late int challengeId;
 
   @override
   void initState() {
     super.initState();
     question = 'Laddar utmaning...';
-    startChallenge();
-    //loadPictures();
+    initStart();
   }
 
-  void startChallenge() async {
+  Future<void> initStart() async {
     try {
-      helpMethodsChallenge = HttpHelpMethods(jwtToken: await token);
-      String tempQuestion;
+      final jwtToken = await token;
+      helpMethodsHttp = HttpHelpMethods(jwtToken: jwtToken);
+      helpMethodsUploadPicture = UploadPicture(jwtToken: jwtToken);
 
-      Map<String, dynamic>? currentGame = findCurrentBingoGame();
-      String response = await helpMethodsChallenge.getAllChallenges();
+      await setupChallenge();
+      getPictures();
 
-      //if (currentGame != null) {
-        debugPrint('DEBUG: $response');
-        //if (currentGame['challengeId'] == null) {
-          //Map<String, dynamic> data = await helpMethodsChallenge.getNewQuestion('MEDIUM', 'BINGO', null);
-          //currentGame['challengeId'] = JsonDecode.jsonDecodeChallengeId(data);
-          //tempQuestion = JsonDecode.jsonDecodeDescription(data);
-        //} else {
-          //Map<String, dynamic> data = await helpMethodsChallenge.getStartedQuestion(currentGame['challengeId']);
-          //tempQuestion = JsonDecode.jsonDecodeDescription(data);
-        //}
-        //putQuestion(tempQuestion);
-      //}
+      List<dynamic> pictures = await helpMethodsHttp.getPictures();
+      debugPrint('DEBUG: $pictures');
+
+    } catch (e) {
+      debugPrint('Initieringsfel: $e');
+    }
+  }
+
+  Future<void> setupChallenge() async {
+    try {
+      Map<String, dynamic> data;
+      if (widget.challengeId != null) {
+        data = await helpMethodsHttp.getStartedQuestion(widget.challengeId!);
+      } else {
+        data = await helpMethodsHttp.getOrCreateBingoChallenge(widget.typeOfBingo, 'EASY');
+      }
+
+      setState(() {
+        question = data['description'];
+        challengeId = data['id'];
+      });
+
     } catch (e) {
       setState(() {
-        question = '$e';
+        question = 'Kunde inte ladda utmaning: $e';
       });
     }
   }
 
-  void putQuestion (String tempQuestion) {
-    setState(() {
-      question = tempQuestion;
-    });
+  //Metod för att hämta ut bilder från en utmaning från databasen
+  void getPictures() async {
+    try {
+      Map<String, dynamic> response = await helpMethodsHttp.getPicturesForChallenge(challengeId);
+      debugPrint('Hämtade bilder: $response');
+
+      if (response.containsKey('tasks')) {
+        List<dynamic> tasks = response['tasks'];
+        List<String> urls = [];
+
+        for (var task in tasks) {
+          if (task['pictures'] != null && (task['pictures'] as List).isNotEmpty) {
+            String? url = task['pictures'][0]['imageUrl'];
+            if (url != null) {
+              urls.add(url);
+            }
+          }
+        }
+
+        setState(() {
+          if (urls.isNotEmpty) images[0] = urls[0];
+          if (urls.length > 1) images[1] = urls[1];
+        });
+      }
+    } catch (e) {
+      debugPrint('DEBUG getpictures $e');
+    }
   }
 
+  Object? getImageFromList(int index) {
+    var image = images[index];
+
+    if (image != null) {
+      if (image is File) {
+        return FileImage(image);
+      } else if (image is String) {
+        return NetworkImage(image);
+      }
+    }
+    return null;
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFBEDBB2),
+      appBar: AppBar(
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          icon: const Icon(Icons.arrow_back),
+        ),
+        title: const Text('Bingo'),
+      ),
       body: SafeArea(
         child: Column(
           children: [
@@ -115,7 +153,6 @@ class _BingoEasyMode extends State<BingoEasyMode> {
               ),
               child: Text(
                 question,
-                //'test lätt',
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.headlineMedium,
               ),
@@ -128,32 +165,43 @@ class _BingoEasyMode extends State<BingoEasyMode> {
                   children: [
                     InkWell(
                       onTap: () async {
-                        if (image1 == null){
+
+                        if (images[0] == null){
                           final File? file = await CameraService.takePicture();
+                          bool success = false;
 
-                          //UploadPicture.sendPictureToGoogleStorage(file);
-                          //sendPictureToGoogleStorage(file);
+                          String? type;
 
-                          //TODO check om det gick igenom
+                          if(widget.typeOfBingo == 'Blandad') {
+                            type = await showDialog<String>(
+                                context: context,
+                                builder: (context) => decideTargetTypeMixedBingo());
+                          } else {
+                            type = helpMethodsHttp.mapCategoryToBackend(widget.typeOfBingo);
+                          }
 
-                          if (file != null) {
+                          if(type != null) {
+                            success = await uploadPicture(file, type);
+                          }
+
+                          if (file != null && success) {
                             setState(() {
-                              image1 = file;
-                              updateImageInList(file, 0);
+                              images[0] = file;
                             });
                           }
                         }
+
                       },
                       borderRadius: BorderRadius.circular(15),
                       child: Container(
                         width: 130,
                         height: 130,
                         decoration: BoxDecoration(
-                          color: const Color(0xfff8ed76),
-                          borderRadius: BorderRadius.circular(15),
-                          image: image1 != null ? DecorationImage(image: FileImage(image1!), fit: BoxFit.cover) : null,
+                            color: const Color(0xfff8ed76),
+                            borderRadius: BorderRadius.circular(15),
+                            image: images[0] != null ? DecorationImage(image: FileImage(images[0]!), fit: BoxFit.cover) : null,
                         ),
-                        child: image1 == null ? const Center(child: Icon(Icons.image, size: 50)) : null,
+                        child: (images[0] == null) ? const Center(child: Icon(Icons.image, size: 50)) : null,
                       ),
                     ),
 
@@ -161,32 +209,43 @@ class _BingoEasyMode extends State<BingoEasyMode> {
 
                     InkWell(
                       onTap: () async {
-                        if (image2 == null){
+
+                        if (images[1] == null){
                           final File? file = await CameraService.takePicture();
+                          bool success = false;
 
-                          //BingoHelpMethods.sendPictureToGoogleStorage(token as String, file);
-                          //sendPictureToGoogleStorage(file);
+                          String? type;
 
-                          //TODO check om det gick igenom
+                          if(widget.typeOfBingo == 'Blandad') {
+                            type = await showDialog<String>(
+                                context: context,
+                                builder: (context) => decideTargetTypeMixedBingo());
+                          } else {
+                            type = helpMethodsHttp.mapCategoryToBackend(widget.typeOfBingo);
+                          }
 
-                          if (file != null) {
+                          if(type != null) {
+                            success = await uploadPicture(file, type);
+                          }
+
+                          if (file != null && success) {
                             setState(() {
-                              image2 = file;
-                              updateImageInList(file, 1);
+                              images[1] = file;
                             });
                           }
                         }
+
                       },
                       borderRadius: BorderRadius.circular(15),
                       child: Container(
                         width: 130,
                         height: 130,
                         decoration: BoxDecoration(
-                          color: const Color(0xfff8ed76),
-                          borderRadius: BorderRadius.circular(15),
-                          image: image2 != null ? DecorationImage(image: FileImage(image2!), fit: BoxFit.cover) : null,
+                            color: const Color(0xfff8ed76),
+                            borderRadius: BorderRadius.circular(15),
+                            image: images[1] != null ? DecorationImage(image: FileImage(images[1]!), fit: BoxFit.cover) : null,
                         ),
-                        child: image2 == null ? const Center(child: Icon(Icons.image, size: 50)) : null,
+                        child: (images[1] == null) ? const Center(child: Icon(Icons.image, size: 50)) : null,
                       ),
                     ),
                   ],
@@ -198,49 +257,55 @@ class _BingoEasyMode extends State<BingoEasyMode> {
 
             ElevatedButton(
               onPressed: () async {
-                bool success = await checkBingoCompletionStatus();
+                Map<String, dynamic> challenge = await helpMethodsHttp.getStartedQuestion(challengeId);
+                String status = challenge['status'];
 
-                if (success) {
+                if (status == 'COMPLETED') {
 
                   resetBingo();
 
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => const HomeScreen(name: 'test'),
+                      builder: (_) => HomeScreen(),
                     ),
                   );
                 } else {
                   showDialog(
                       context: context,
                       builder: (context) {
+
                         return AlertDialog(
-                          title: Text('Bekräfta', style: Theme.of(context).textTheme.titleMedium),
-                          content: Text('Är du säker, alla bilder är inte insamlade', style: Theme.of(context).textTheme.headlineLarge),
+                          actionsAlignment: MainAxisAlignment.spaceBetween,
+                          content: Text(
+                            'Är du säker? Om du avslutar nu registeras inga poäng',
+                            textAlign: TextAlign.center,
+                          ),
 
                           actions: [
                             TextButton(
                               onPressed: () {
 
-                                isCompleted = true;
+                                //TODO kan behöva någon check för om det gick igenom eller inte
+                                helpMethodsHttp.endStartedChallenge(challengeId);
 
                                 resetBingo();
 
                                 Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (_) => const HomeScreen(name: 'test'),
-                                    ),
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => HomeScreen(),
+                                  ),
                                 );
 
                               },
-                              child: Text('Klar', style: Theme.of(context).textTheme.headlineLarge),
+                              child: Text('Klar', style: Theme.of(context).textTheme.headlineMedium),
                             ),
-                            TextButton(
+                            ElevatedButton(
                               onPressed: () {
                                 Navigator.pop(context);
                               },
-                              child: Text('Avbryt', style: Theme.of(context).textTheme.headlineLarge),
+                              child: Text('Avbryt', style: Theme.of(context).textTheme.headlineMedium),
                             ),
                           ],
                         );
@@ -270,112 +335,120 @@ class _BingoEasyMode extends State<BingoEasyMode> {
 
     );
   }
+  AlertDialog decideTargetTypeMixedBingo() {
+    return AlertDialog(
+      actionsAlignment: MainAxisAlignment.spaceBetween,
+      content: Text(
+        'Bestäm typen! Vad var det du tog en bild på?',
+        textAlign: TextAlign.center,
+      ),
 
+      actions: [
+        ElevatedButton(
+          onPressed: () {
+            Navigator.pop(context, 'PLANT');
+          },
+          child: Text('Växt', style: Theme.of(context).textTheme.bodyMedium),
+        ),
 
-  //Behövs allt detta? Kan man göra det på annat sätt?
-  Future<bool> uploadPicture(File? file) async {
+        ElevatedButton(
+          onPressed: () {
+            Navigator.pop(context, 'TREE');
+          },
+          child: Text('Träd', style: Theme.of(context).textTheme.bodyMedium),
+        ),
+
+        ElevatedButton(
+          onPressed: () {
+            Navigator.pop(context, 'ANIMAL');
+          },
+          child: Text('Djur', style: Theme.of(context).textTheme.bodyMedium),
+        ),
+      ],
+    );
+  }
+
+  Future<bool> uploadPicture(File? file, String type) async {
     try {
       helpMethodsUploadPicture = UploadPicture(jwtToken: await token);
       if (file != null) {
-        bool response = await helpMethodsUploadPicture.sendPictureToBackend(file);
+        Map<String, dynamic>? response = await helpMethodsUploadPicture.sendPictureToBackend(file, type, 'CHALLENGE', challengeId);
 
-        if (response == true) {
-          debugPrint('DEBUG uppladdning lyckades');
-          return true;
-        } else {
-          debugPrint('DEBUG uppladdning misslyckades');
-          return false;
+        if (response != null) {
+          if (response['accepted'] == true) {
+            showDialog(
+              context: context,
+              builder: (context) => successMessageUploadPicture(),
+            );
+            return true;
+          } else {
+            showDialog(
+              context: context,
+              builder: (context) => errorMessageUploadPicture(),
+            );
+            return false;
+          }
         }
 
       } else {
-        debugPrint('DEBUG mottagen fil var null');
+        showDialog(
+          context: context,
+          builder: (context) => errorMessageUploadPicture(),
+        );
         return false;
       }
 
     } catch (e) {
-      debugPrint('DEBUG: $e');
+      showDialog(
+        context: context,
+        builder: (context) => errorMessageUploadPicture(),
+      );
       return false;
     }
+    return false;
   }
 
-  //TODO egentligen bättre med andra hållet för true false return
-  Future<bool> checkBingoCompletionStatus () async {
-    if (image1 == null || image2 == null) {
-      return false;
-    } else {
-      isCompleted = true;
-      updateIsCompletedInList(isCompleted);
-      return true;
-    }
+  AlertDialog errorMessageUploadPicture() {
+    return AlertDialog(
+      actionsAlignment: MainAxisAlignment.center,
+      content: Text(
+        'Ojdå, bilden kunde inte sparas. Testa att ta en ny bild!',
+        textAlign: TextAlign.center,
+      ),
+
+      actions: [
+        ElevatedButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          child: Text('Okej', style: Theme.of(context).textTheme.bodyMedium),
+        ),
+      ],
+    );
+  }
+
+  AlertDialog successMessageUploadPicture() {
+    return AlertDialog(
+      actionsAlignment: MainAxisAlignment.center,
+      content: const Text(
+        'Bra jobbat! Bilden har sparats.',
+        textAlign: TextAlign.center,
+      ),
+      actions: [
+        ElevatedButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          child: Text('Okej', style: Theme.of(context).textTheme.bodyMedium),
+        ),
+      ],
+    );
   }
 
 // metod för att rensa bingo efter avklarad utmaning
-  void resetBingo () {
-    if (isCompleted == true) {
-      image1 = null;
-      image2 = null;
-      isCompleted = false;
-
-      updateIsCompletedInList(isCompleted);
-      updateImageInList(image1, 0);
-      updateImageInList(image2, 1);
-
-      for(var game in ChooseBingoGame.startedGames) {
-        Map<String, dynamic>? currentGame = findCurrentBingoGame();
-
-        if (currentGame != null) {
-          if (game['name'] == currentGame['name']) {
-            game['status'] = false;
-            game['route'] = null;
-          }
-        }
-      }
-
-    }
-  }
-
-  void updateImageInList(File? image, int index) {
-    if(currentGame != null) {
-      currentGame!['images'][index] = image;
-    }
-  }
-
-  void updateIsCompletedInList(bool isCompleted) {
-    if(currentGame != null) {
-      currentGame!['isCompleted'] = isCompleted;
-    }
-  }
-
-  //TODO borde egentligen göra en null check här istället
-  Map<String, dynamic>? findCurrentBingoGame() {
-    Map<String, dynamic>? currentGame;
-
-    for(var game in games) {
-      if (game['name'] == widget.typeOfBingo) {
-        currentGame = game;
-        break;
-      }
-    }
-    return currentGame;
-  }
-
-  void loadPictures() {
-    if(currentGame != null) {
-      setState(() {
-        image1 = currentGame!['images'][0];
-        image2 = currentGame!['images'][1];
-      });
-
-      isCompleted = currentGame!['isCompleted'];
-    }
-
-  }
-
-  void setCurrentChallengeId(Map<String, dynamic> data) {
-    Map<String, dynamic>? currentGame = findCurrentBingoGame();
-    if(currentGame != null) {
-      currentGame['challengeId'] = JsonDecode.jsonDecodeChallengeId(data);
-    }
+  void resetBingo() {
+    images[0] = null;
+    images[1] = null;
   }
 
 }

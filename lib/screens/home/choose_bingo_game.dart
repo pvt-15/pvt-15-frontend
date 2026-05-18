@@ -1,24 +1,16 @@
 import 'package:flutter/material.dart';
+import '../../services/session_storage.dart';
 import '../../widgets/custom_navigation_bar.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import '../bingo/bingo_easy_mode.dart';
 import '../bingo/bingo_hard_mode.dart';
 import '../bingo/bingo_medium_mode.dart';
+import '../bingo/http_help_methods.dart';
 import '../choose_difficulty.dart';
 
 class ChooseBingoGame extends StatefulWidget {
 
-  const ChooseBingoGame({
-    super.key,
-  });
-
-  //vill inte spara, static final = går ej att ändra svårighetsgrad senare.
-  static final List<Map<String, dynamic>> startedGames = [
-    {'name': 'Träd', 'status': false, 'route': null},
-    {'name': 'Växter', 'status': false, 'route': null},
-    {'name': 'Djur', 'status': false, 'route': null},
-    {'name': 'Blandad', 'status': false, 'route': null},
-  ];
+  const ChooseBingoGame({super.key});
 
   @override
   State<ChooseBingoGame> createState() => _ChooseBingoGame();
@@ -86,95 +78,34 @@ class _ChooseBingoGame extends State<ChooseBingoGame> {
                           ),
                         ),
                         onPressed: () async {
-                          //check om det redan finns ett startat spel för typ (ex 'träd')
 
-                          for(var game in ChooseBingoGame.startedGames) {
-                            if (game['name'] == games[index]['name']) {
-                              if (game['status'] == false){
-
-                                final Difficulty? result = await Navigator.push(context, MaterialPageRoute(builder: (context) => const ChooseDifficulty(
-                                  gameTitle: 'Bingo',
-                                )),);
-
-                                if (result != null) {
-                                  if (result == Difficulty.easy) {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(builder: (context) =>
-                                          BingoEasyMode(
-                                              typeOfBingo: games[index]['name'])),);
-                                    game['route'] = BingoEasyMode(
-                                        typeOfBingo: games[index]['name']);
-                                  }
-
-                                  if (result == Difficulty.medium) {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(builder: (context) =>
-                                          BingoMediumMode(
-                                              typeOfBingo: games[index]['name'])),);
-                                    game['route'] = BingoMediumMode(
-                                        typeOfBingo: games[index]['name']);
-                                  }
-
-                                  if (result == Difficulty.hard) {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(builder: (context) =>
-                                          BingoHardMode(
-                                              typeOfBingo: games[index]['name'])),);
-                                    game['route'] = BingoHardMode(
-                                        typeOfBingo: games[index]['name']);
-                                  }
-
-                                  game['status'] = true;
-                                }
-
-                              } else {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(builder: (context) =>  game['route']),);
-                              }
-                            }
-                          }
-
-                          /*
-                          final Difficulty? result = await Navigator.push(context, MaterialPageRoute(builder: (context) => ChooseDifficulty()),);
-
-                          if (result == Difficulty.easy){
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (context) => BingoEasyMode(typeOfBingo: games[index]['name'])),);
-                          }
-
-                          if (result == Difficulty.medium){
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => BingoMediumMode(typeOfBingo: games[index]['name'])),);
-                          }
-
-                          if (result == Difficulty.hard){
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => BingoHardMode(typeOfBingo: games[index]['name'])),);
-                          }
-
-                           */
+                          findCorrectBingoPage(index);
 
                         },
 
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
+                        child: SizedBox(
+                          width: 200,
+                          child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
                           children: [
-                            Icon(games[index]['icon'], size: 50, color: Colors.black87),
-                            const SizedBox(width: 20),
-                            Text(
-                              games[index]['name'],
+                            SizedBox(
+                              width: 50,
+                              child: Icon(
+                                games[index]['icon'],
+                              size: 50,
+                              color: Colors.black87),
+                          ),
+                              const SizedBox(width: 20),
+                              Expanded(
+                                child: Text(
+                                  games[index]['name'],
                               style: Theme.of(context).textTheme.headlineLarge,
                             ),
+                           ),
                           ],
-                        )
+                        ),
                       ),
+                    ),
                     );
                   },
                 ),
@@ -185,4 +116,74 @@ class _ChooseBingoGame extends State<ChooseBingoGame> {
       bottomNavigationBar: const CustomNavigationBar(selectedIndex: -1),
     );
   }
+
+  Future<void> findCorrectBingoPage(int index) async {
+    String selectedCategory = games[index]['name'];
+
+    // Kolla om det redan finns en aktiv utmaning för denna kategori
+    Map<String, dynamic>? activeChallenge = await findActiveBingoChallenge(selectedCategory);
+
+    if (activeChallenge != null) {
+      if (!mounted) return;
+      openBingoMode(
+        activeChallenge['difficulty'], 
+        selectedCategory, 
+        activeChallenge['id']
+      );
+    } else {
+      final Difficulty? result = await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const ChooseDifficulty(gameTitle: 'Bingo'),
+        ),
+      );
+
+      if (!mounted || result == null) return;
+      openBingoMode(result.name.toUpperCase(), selectedCategory, null);
+    }
+  }
+
+  void openBingoMode(String difficulty, String category, int? challengeId) {
+    if (difficulty == 'EASY') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => BingoEasyMode(
+            typeOfBingo: category,
+            challengeId: challengeId,
+          ),
+        ),
+      );
+    } else if (difficulty == 'MEDIUM') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => BingoMediumMode(typeOfBingo: category)),
+      );
+    } else if (difficulty == 'HARD') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => BingoHardMode(typeOfBingo: category)),
+      );
+    }
+  }
+
+  Future<Map<String, dynamic>?> findActiveBingoChallenge(String category) async {
+    Future<String?> jwtToken = SessionStorage().getToken();
+    HttpHelpMethods helpMethodsHttp = HttpHelpMethods(jwtToken: await jwtToken);
+    
+    String? backendCategory = helpMethodsHttp.mapCategoryToBackend(category);
+    
+    try {
+      List<dynamic> allChallenges = await helpMethodsHttp.getAllChallenges();
+      for (var challenge in allChallenges) {
+        if (challenge['type'] == 'BINGO' && challenge['category'] == backendCategory && challenge['status'] == 'IN_PROGRESS') {
+          return challenge;
+        }
+      }
+    } catch (e) {
+      debugPrint('Fel vid check: $e');
+    }
+    return null;
+  }
+
 }

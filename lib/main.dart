@@ -1,10 +1,9 @@
 import 'package:Skogsjakten/screens/home.dart';
-import 'package:Skogsjakten/screens/profile/profile.dart';
 import 'package:Skogsjakten/services/check_current_user.dart';
 import 'package:flutter/material.dart';
 import 'package:Skogsjakten/screens/login/login.dart';
 import 'package:Skogsjakten/services/session_storage.dart';
-import 'package:Skogsjakten/screens/profile/settings.dart';
+
 
 
 void main() async {
@@ -21,8 +20,9 @@ void main() async {
     userName = user?.username;
 
     if (userName != null) {
-      initialScreen = HomeScreen(name: userName);
+      initialScreen = HomeScreen();
     } else {
+      await SessionStorage().clear();
       initialScreen = const LoginScreen();
     }
   } else {
@@ -30,11 +30,15 @@ void main() async {
   }
 
   //Starta appen och skicka med resultatet
+
   runApp(
       MyApp(
         startScreen: initialScreen,
+        //startScreen: LoginScreen(),
+        //startScreen: HomeScreen(),
       )
   );
+
 }
 
 class MyApp extends StatelessWidget {
@@ -88,20 +92,14 @@ class MyApp extends StatelessWidget {
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(15),
             ),
-            textStyle: const TextStyle(
-              fontFamily: 'WinkySans',
-              fontSize: 16,
-            ),
+            textStyle: const TextStyle(fontFamily: 'WinkySans', fontSize: 16),
           ),
         ),
 
         textButtonTheme: TextButtonThemeData(
           style: TextButton.styleFrom(
             foregroundColor: Color(0xFFB1067E),
-            textStyle: const TextStyle(
-              fontFamily: 'WinkySans',
-              fontSize: 14,
-            ),
+            textStyle: const TextStyle(fontFamily: 'WinkySans', fontSize: 14),
           ),
         ),
 
@@ -113,7 +111,7 @@ class MyApp extends StatelessWidget {
           contentTextStyle: const TextStyle(
             fontFamily: 'WinkySans',
             fontSize: 16,
-            color: Color(0xFF4C290C),
+            color: Color(0xFF000000),
           ),
         ),
 
@@ -130,25 +128,54 @@ class MyApp extends StatelessWidget {
           ),
 
           //stilen för errormeddelanden
-          errorStyle: const TextStyle(
-            fontFamily: 'WinkySans',
-            fontSize: 12,
-          ),
+          errorStyle: const TextStyle(fontFamily: 'WinkySans', fontSize: 12),
 
           //bordern runt
           border: OutlineInputBorder(
               borderRadius: BorderRadius.all(Radius.circular(20))),
         ),
 
-
         navigationBarTheme: NavigationBarThemeData(
           height: 70,
           backgroundColor: const Color(0xff84c06c),
           indicatorColor: Colors.transparent,
           labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
-          iconTheme: WidgetStateProperty.all(
-            const IconThemeData(color: Color(0xFF000000), size: 45),),
+
+          iconTheme: WidgetStateProperty.resolveWith<IconThemeData>((states) {
+            if (states.contains(WidgetState.selected)) {
+              return const IconThemeData(
+                color: Colors.black,
+                size: 45,
+              );
+            }
+
+            return const IconThemeData(
+              color: Colors.blueGrey,
+              size: 45,
+            );
+          }),
+
           shadowColor: Colors.black12,
+        ),
+
+        dialogTheme: DialogThemeData(
+          backgroundColor: Colors.white,
+          elevation: 10,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+          ),
+
+          titleTextStyle: TextStyle(
+            fontFamily: 'YoungSerif',
+            fontSize: 22,
+            color: Color(0xFF000000),
+          ),
+
+          contentTextStyle: TextStyle(
+            fontFamily: 'YoungSerif',
+            fontSize: 18,
+            color: Color(0xFF000000),
+          ),
         ),
 
         appBarTheme: const AppBarTheme(
@@ -166,9 +193,7 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
-      //home: const SettingsScreen(),
-      home: const LoginScreen(),
-      //home: const HomeScreen(name: 'test'),
+      home: LoginScreen(),
     );
   }
 }
