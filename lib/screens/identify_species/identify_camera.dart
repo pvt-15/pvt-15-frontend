@@ -67,6 +67,9 @@ class _IdentifyCameraState extends State<IdentifyCamera> {
             actionsAlignment: MainAxisAlignment.center,
             actions: [
               ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size(100, 50),
+                ),
                 onPressed: () {
                   Navigator.pop(context, "PLANT");
 
@@ -74,6 +77,9 @@ class _IdentifyCameraState extends State<IdentifyCamera> {
                 child: const Text("Planta"),
               ),
               ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size(100, 50),
+                ),
                 onPressed: () {
                   Navigator.pop(context, "ANIMAL");
                 },
@@ -176,13 +182,6 @@ class _IdentifyCameraState extends State<IdentifyCamera> {
       isIdentifying = false;
     });
 
-    /*final picture = result['picture'];
-
-    if (picture == null) {
-      print('Picture saknas i response');
-      return;
-    }*/
-
     final gamification = result['gamification'];
 
     await GamificationPopupService.showIfNeeded(
@@ -192,29 +191,6 @@ class _IdentifyCameraState extends State<IdentifyCamera> {
       currentLevel: gamification?['currentLevel'],
       newlyUnlockedBadges: gamification?['newlyUnlockedBadges'] ?? [],
     );
-
-
-    /*final Map<String, dynamic> gamification = {
-      'leveledUp': true,
-      'previousLevel': 'LEVEL_1',
-      'currentLevel': 'LEVEL_2',
-
-      'newlyUnlockedBadges': [
-        {
-          'name': 'Blomexpert',
-          'imageUrl': 'https://via.placeholder.com/120'
-        }
-      ],
-    };
-
-    await GamificationPopupService.showIfNeeded(
-      context: context,
-      leveledUp: gamification['leveledUp'] as bool? ?? false,
-      previousLevel: gamification['previousLevel'] as String?,
-      currentLevel: gamification['currentLevel'] as String?,
-      newlyUnlockedBadges:
-      gamification['newlyUnlockedBadges'] as List<dynamic>? ?? [],
-    );*/
 
 
     if (!mounted) return;

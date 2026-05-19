@@ -106,6 +106,7 @@ class _PlantsLibraryState extends State<PlantsLibrary> {
         backgroundColor: const Color(0xFFBEDBB2),
         elevation: 0,
         iconTheme: const IconThemeData(color: Color(0xFF4C290C)),
+        title: Text("Bibliotek"),
       ),
       body: SafeArea(
         child: Column(

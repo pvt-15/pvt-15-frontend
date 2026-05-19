@@ -168,7 +168,7 @@ class _ProfileState extends State<Profile> {
         centerTitle: true,
         title: Padding(
           padding: const EdgeInsets.only(top: 25),
-          child: Text("Profil: $username"),
+          child: Text(username),
         ),
         actions: [
           IconButton(
@@ -245,7 +245,7 @@ class _ProfileState extends State<Profile> {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            'Level: $level',
+                            'Nivå: $level',
                             style:
                             Theme.of(context).textTheme.bodyMedium,
                           ),
@@ -301,7 +301,7 @@ class _ProfileState extends State<Profile> {
                 ? const Align(
               alignment: Alignment.topCenter,
               child: Text(
-                "Inga medaljer ännu.\nSamla fler av en kategori så kanske du får en medalj!",
+                "Inga medaljer ännu.\nSamla fler av en kategori så kanske du får en medalj!\nKategorierna är blomma, träd, växt, djur, fågel och insekt!",
                 textAlign: TextAlign.center,
               ),
             )

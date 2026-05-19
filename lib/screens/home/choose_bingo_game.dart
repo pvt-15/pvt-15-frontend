@@ -19,10 +19,22 @@ class ChooseBingoGame extends StatefulWidget {
 class _ChooseBingoGame extends State<ChooseBingoGame> {
 
   final List<Map<String, dynamic>> games = [
-    {'name': 'Träd', 'icon': MdiIcons.tree},
-    {'name': 'Växter', 'icon': MdiIcons.flower},
-    {'name': 'Djur', 'icon': MdiIcons.ladybug},
-    {'name': 'Blandad', 'icon': Icons.sunny},
+    {
+      'name': 'Träd',
+      'image': 'assets/Icons/trad.png',
+    },
+    {
+      'name': 'Växter',
+      'image': 'assets/Icons/vaxt.png',
+    },
+    {
+      'name': 'Djur',
+      'image': 'assets/Icons/djur_bibliotek.png',
+    },
+    {
+      'name': 'Blandad',
+      'image': 'assets/Icons/blandad.png',
+    },
   ];
 
   @override
@@ -84,18 +96,20 @@ class _ChooseBingoGame extends State<ChooseBingoGame> {
                         },
 
                         child: SizedBox(
-                          width: 200,
+                          width: 210,
                           child: Row(
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
                             SizedBox(
                               width: 50,
-                              child: Icon(
-                                games[index]['icon'],
-                              size: 50,
-                              color: Colors.black87),
-                          ),
-                              const SizedBox(width: 20),
+                              child: Image.asset(
+                                games[index]['image'] as String,
+                                width: 55,
+                                height: 55,
+                                fit: BoxFit.contain,
+                            ),
+                            ),
+                              const SizedBox(width: 35),
                               Expanded(
                                 child: Text(
                                   games[index]['name'],

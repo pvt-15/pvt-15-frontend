@@ -74,6 +74,7 @@ class _CreateAccountState extends State<CreateAccount> {
             },
           icon: const Icon(Icons.arrow_back),
       ),
+        title: Text("Skapa konto"),
      ),
       body: SafeArea(
         child: SingleChildScrollView(

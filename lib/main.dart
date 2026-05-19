@@ -89,19 +89,19 @@ class MyApp extends StatelessWidget {
             backgroundColor: Color(0xFFF8ED76),
             foregroundColor: Color(0xFF000000), //Bruna: 0xFF4C290C
 
-            //minimumSize: const Size(180, 55),
+            minimumSize: const Size(180, 60),
 
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(15),
             ),
-            textStyle: const TextStyle(fontFamily: 'WinkySans', fontSize: 16),
+            textStyle: const TextStyle(fontFamily: 'WinkySans', fontSize: 20),
           ),
         ),
 
         textButtonTheme: TextButtonThemeData(
           style: TextButton.styleFrom(
             foregroundColor: Color(0xFFB1067E),
-            textStyle: const TextStyle(fontFamily: 'WinkySans', fontSize: 14),
+            textStyle: const TextStyle(fontFamily: 'WinkySans', fontSize: 20),
           ),
         ),
 

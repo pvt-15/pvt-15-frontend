@@ -220,7 +220,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Level: $_level',
+                      'Nivå: $_level',
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                   ],
