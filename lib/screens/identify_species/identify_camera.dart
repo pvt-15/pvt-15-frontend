@@ -31,7 +31,7 @@ class _IdentifyCameraState extends State<IdentifyCamera> {
       takePicture();
     });
   }
-  
+
   Future<void> takePicture() async {
     setState(() {
       isOpeningCamera = true;
@@ -133,6 +133,18 @@ class _IdentifyCameraState extends State<IdentifyCamera> {
 
     if (uploadResponse.statusCode != 200) {
       print("Upload misslyckades: $uploadBody");
+
+      if (!mounted) return;
+
+      setState(() {
+        isIdentifying = false;
+      });
+
+      showDialog(
+        context: context,
+        builder: (context) => errorMessageUploadPicture(),
+      );
+
       return;
     }
 
@@ -141,6 +153,18 @@ class _IdentifyCameraState extends State<IdentifyCamera> {
 
     if (objectKey == null) {
       print("objectKey saknas i upload-response: $uploadBody");
+
+      if (!mounted) return;
+
+      setState(() {
+        isIdentifying = false;
+      });
+
+      showDialog(
+        context: context,
+        builder: (context) => errorMessageUploadPicture(),
+      );
+
       return;
     }
 
@@ -161,6 +185,18 @@ class _IdentifyCameraState extends State<IdentifyCamera> {
     if (pictureResponse.statusCode != 200 &&
         pictureResponse.statusCode != 201) {
       print("Identifiering misslyckades: ${pictureResponse.body}");
+
+      if (!mounted) return;
+
+      setState(() {
+        isIdentifying = false;
+      });
+
+      showDialog(
+        context: context,
+        builder: (context) => errorMessageUploadPicture(),
+      );
+
       return;
     }
 
@@ -260,4 +296,24 @@ class _IdentifyCameraState extends State<IdentifyCamera> {
     );
   }
 
+  AlertDialog errorMessageUploadPicture() {
+    return AlertDialog(
+      actionsAlignment: MainAxisAlignment.center,
+      content: Text(
+        'Ojdå, bilden kunde inte sparas. Testa att ta en ny bild!',
+        textAlign: TextAlign.center,
+      ),
+      actions: [
+        ElevatedButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          child: Text(
+            'Okej',
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+        ),
+      ],
+    );
+  }
 }
