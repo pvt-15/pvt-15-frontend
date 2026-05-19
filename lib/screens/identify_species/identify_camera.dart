@@ -6,6 +6,7 @@ import 'dart:convert';
 import 'package:Skogsjakten/services/session_storage.dart';
 import 'package:Skogsjakten/services/camera_service.dart';
 import 'package:http/http.dart' as http;
+import 'package:Skogsjakten/services/gamification_popup_helper.dart';
 
 class IdentifyCamera extends StatefulWidget{
   const IdentifyCamera({super.key});
@@ -61,8 +62,9 @@ class _IdentifyCameraState extends State<IdentifyCamera> {
         context: context,
         builder: (context) {
           return AlertDialog(
-            title: const Text("Vad tog du bild på?"),
-            content: const Text("Välj kategori för identifieringen."),
+            title: const Text("Vad tog du bild på?", textAlign: TextAlign.center,),
+            content: const Text("Välj kategori för identifieringen.", textAlign: TextAlign.center,),
+            actionsAlignment: MainAxisAlignment.center,
             actions: [
               ElevatedButton(
                 onPressed: () {
@@ -174,13 +176,63 @@ class _IdentifyCameraState extends State<IdentifyCamera> {
       isIdentifying = false;
     });
 
+    /*final picture = result['picture'];
+
+    if (picture == null) {
+      print('Picture saknas i response');
+      return;
+    }*/
+
+    final gamification = result['gamification'];
+
+    await GamificationPopupService.showIfNeeded(
+      context: context,
+      leveledUp: gamification?['leveledUp'] ?? false,
+      previousLevel: gamification?['previousLevel'],
+      currentLevel: gamification?['currentLevel'],
+      newlyUnlockedBadges: gamification?['newlyUnlockedBadges'] ?? [],
+    );
+
+
+    /*final Map<String, dynamic> gamification = {
+      'leveledUp': true,
+      'previousLevel': 'LEVEL_1',
+      'currentLevel': 'LEVEL_2',
+
+      'newlyUnlockedBadges': [
+        {
+          'name': 'Blomexpert',
+          'imageUrl': 'https://via.placeholder.com/120'
+        }
+      ],
+    };
+
+    await GamificationPopupService.showIfNeeded(
+      context: context,
+      leveledUp: gamification['leveledUp'] as bool? ?? false,
+      previousLevel: gamification['previousLevel'] as String?,
+      currentLevel: gamification['currentLevel'] as String?,
+      newlyUnlockedBadges:
+      gamification['newlyUnlockedBadges'] as List<dynamic>? ?? [],
+    );*/
+
+
+    if (!mounted) return;
+
+    final picture = result['picture'];
+
+    if (picture == null) {
+      print("Picture saknas trots accepted true");
+      return;
+    }
+
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => SpeciesResults(
           image: selectedImage!,
           category: category,
-          result: result,
+          result: picture,
         ),
       ),
     );

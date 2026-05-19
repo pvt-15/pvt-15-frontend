@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:Skogsjakten/widgets/custom_navigation_bar.dart';
+import 'package:Skogsjakten/screens/identify_species/identify_camera.dart';
 
 class SpeciesResults extends StatelessWidget {
   final File image;
@@ -18,7 +19,7 @@ class SpeciesResults extends StatelessWidget {
   Widget build(BuildContext context) {
     final String label = result['label'] ?? 'Okänd art';
     final String categoryName = result['category'] ?? category;
-    final int points = result['pointsAwarded'] ?? 0;
+    final num points = result['pointsAwarded'] ?? 0;
     final double confidence = (result['aiConfidence'] ?? 0).toDouble();
     final String imageUrl = result['imageUrl'] ?? '';
 
@@ -117,9 +118,14 @@ class SpeciesResults extends StatelessWidget {
                 const SizedBox(height: 30),
                 ElevatedButton(
                   onPressed: () {
-                    Navigator.pop(context);
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const IdentifyCamera(),
+                      ),
+                    );
                   },
-                  child: Text("Identifiera ny art!"),
+                  child: const Text("Identifiera ny art!"),
 
                 ),
                 const SizedBox(height: 30)
