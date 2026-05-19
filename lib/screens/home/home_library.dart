@@ -25,6 +25,7 @@ class _HomeLibraryState extends State<HomeLibrary> {
     return Scaffold(
       backgroundColor: Color(0xFFBEDBB2),
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: const Text('Bibliotek'),
       ),
         // Lägga in någon text antingen 'Skattjakt' eller 'Bibliotek' istället för att ha det i body?

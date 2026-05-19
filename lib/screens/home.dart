@@ -149,6 +149,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFBEDBB2),
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: const Text('Skogsjakten'),
       ),
       body: SafeArea(
