@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:Skogsjakten/services/upload_picture.dart';
 import 'package:flutter/material.dart';
 import '../../services/camera_service.dart';
+import '../../services/gamification_popup_helper.dart';
 import '../../services/session_storage.dart';
 import '../../widgets/custom_navigation_bar.dart';
 import '../home.dart';
@@ -338,12 +339,18 @@ class _BingoMediumMode extends State<BingoMediumMode> {
                                 );
 
                               },
+                              style: ElevatedButton.styleFrom(
+                                minimumSize: const Size(110, 50),
+                              ),
                               child: Text('Klar', style: Theme.of(context).textTheme.headlineMedium),
                             ),
                             ElevatedButton(
                               onPressed: () {
                                 Navigator.pop(context);
                               },
+                              style: ElevatedButton.styleFrom(
+                                minimumSize: const Size(110, 50),
+                              ),
                               child: Text('Avbryt', style: Theme.of(context).textTheme.headlineMedium),
                             ),
                           ],
@@ -389,6 +396,9 @@ class _BingoMediumMode extends State<BingoMediumMode> {
           onPressed: () {
             Navigator.pop(context, 'PLANT');
           },
+          style: ElevatedButton.styleFrom(
+            minimumSize: const Size(110, 50),
+          ),
           child: Text('Växt', style: Theme.of(context).textTheme.bodyMedium),
         ),
 
@@ -396,6 +406,9 @@ class _BingoMediumMode extends State<BingoMediumMode> {
           onPressed: () {
             Navigator.pop(context, 'TREE');
           },
+          style: ElevatedButton.styleFrom(
+            minimumSize: const Size(110, 50),
+          ),
           child: Text('Träd', style: Theme.of(context).textTheme.bodyMedium),
         ),
 
@@ -403,6 +416,9 @@ class _BingoMediumMode extends State<BingoMediumMode> {
           onPressed: () {
             Navigator.pop(context, 'ANIMAL');
           },
+          style: ElevatedButton.styleFrom(
+            minimumSize: const Size(110, 50),
+          ),
           child: Text('Djur', style: Theme.of(context).textTheme.bodyMedium),
         ),
       ],
@@ -417,10 +433,30 @@ class _BingoMediumMode extends State<BingoMediumMode> {
 
         if (response != null) {
           if (response['accepted'] == true) {
-            showDialog(
+            /*showDialog(
               context: context,
               builder: (context) => successMessageUploadPicture(),
             );
+            return true;*/
+            final gamification = response['gamification'];
+
+            if (mounted) {
+              await GamificationPopupService.showIfNeeded(
+                context: context,
+                leveledUp: gamification?['leveledUp'] ?? false,
+                previousLevel: gamification?['previousLevel'],
+                currentLevel: gamification?['currentLevel'],
+                newlyUnlockedBadges: gamification?['newlyUnlockedBadges'] ?? [],
+              );
+            }
+
+            if (mounted) {
+              showDialog(
+                context: context,
+                builder: (context) => successMessageUploadPicture(),
+              );
+            }
+
             return true;
           } else {
             showDialog(
@@ -453,7 +489,7 @@ class _BingoMediumMode extends State<BingoMediumMode> {
     return AlertDialog(
       actionsAlignment: MainAxisAlignment.center,
       content: Text(
-        'Ojdå, bilden kunde inte sparas. Testa att ta en ny bild!',
+        'Ojdå, bilden kunde inte sparas. Vill du testa igen?',
         textAlign: TextAlign.center,
       ),
 
@@ -462,7 +498,24 @@ class _BingoMediumMode extends State<BingoMediumMode> {
           onPressed: () {
             Navigator.pop(context);
           },
-          child: Text('Okej', style: Theme.of(context).textTheme.bodyMedium),
+          style: ElevatedButton.styleFrom(
+            minimumSize: const Size(110, 50),
+          ),
+          child: Text('Ok', style: Theme.of(context).textTheme.bodyMedium),
+        ),
+        const SizedBox(width: 20),
+        ElevatedButton(
+          onPressed: () {
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (_) => const HomeScreen()),
+                  (route) => false,
+            );
+          },
+          style: ElevatedButton.styleFrom(
+            minimumSize: const Size(110, 50),
+          ),
+          child: Text('Till hem', style: Theme.of(context).textTheme.bodyMedium),
         ),
       ],
     );
@@ -480,6 +533,9 @@ class _BingoMediumMode extends State<BingoMediumMode> {
           onPressed: () {
             Navigator.pop(context);
           },
+          style: ElevatedButton.styleFrom(
+            minimumSize: const Size(110, 50),
+          ),
           child: Text('Okej', style: Theme.of(context).textTheme.bodyMedium),
         ),
       ],

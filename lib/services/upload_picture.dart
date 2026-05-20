@@ -44,7 +44,7 @@ class UploadPicture {
     return null;
   }
 
-  Future<Map<String, dynamic>?> sendPictureToBackend(File? imageFile, String targetType, String pictureMode, int challengeId) async {
+  Future<Map<String, dynamic>?> sendPictureToBackend(File? imageFile, String targetType, String pictureMode, int? challengeId) async {
     try {
       //Vänta på att bilden laddas upp och få tillbaka URL:en
       final imageObjectKey = await sendPictureToGoogleStorage(imageFile);
@@ -55,6 +55,15 @@ class UploadPicture {
       pictureMode = pictureMode.toUpperCase();
 
       if (imageObjectKey != null) {
+        final Map<String, dynamic> body  = {
+          'imageObjectKey': imageObjectKey,
+          'targetType': targetType,
+          'pictureMode': pictureMode,
+        };
+
+        if (challengeId != null) {
+          body['challengeId'] = challengeId;
+        }
 
       //Skicka URL till backend
       final response = await http.post(
@@ -63,20 +72,21 @@ class UploadPicture {
           'Authorization': 'Bearer $jwtToken',
           'Content-Type': 'application/json',
         },
+        body: jsonEncode(body),
 
-        body: jsonEncode({
+        /*body: jsonEncode({
           'imageObjectKey': imageObjectKey,
           'pictureMode': pictureMode,
           'targetType': targetType,
           'challengeId': challengeId,
 
-        }),
+        }),*/
       );
 
       print(response.statusCode);
       print(response.body);
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 || response.statusCode == 201) {
         return jsonDecode(response.body);
       } else {
         debugPrint('Backend Error: ${response.statusCode}');

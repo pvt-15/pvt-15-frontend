@@ -9,6 +9,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import '../../services/camera_service.dart';
+import '../../services/gamification_popup_helper.dart';
 import '../../services/session_storage.dart';
 import '../../widgets/custom_navigation_bar.dart';
 import '../home.dart';
@@ -483,6 +484,9 @@ class _BingoHardMode extends State<BingoHardMode> {
                               onPressed: () {
                                 Navigator.pop(context);
                               },
+                              style: ElevatedButton.styleFrom(
+                                minimumSize: const Size(110, 50),
+                              ),
                               child: Text('Avbryt', style: Theme.of(context).textTheme.headlineMedium),
                             ),
                           ],
@@ -528,6 +532,9 @@ class _BingoHardMode extends State<BingoHardMode> {
           onPressed: () {
             Navigator.pop(context, 'PLANT');
           },
+          style: ElevatedButton.styleFrom(
+            minimumSize: const Size(110, 50),
+          ),
           child: Text('Växt', style: Theme.of(context).textTheme.bodyMedium),
         ),
 
@@ -535,6 +542,9 @@ class _BingoHardMode extends State<BingoHardMode> {
           onPressed: () {
             Navigator.pop(context, 'TREE');
           },
+          style: ElevatedButton.styleFrom(
+            minimumSize: const Size(110, 50),
+          ),
           child: Text('Träd', style: Theme.of(context).textTheme.bodyMedium),
         ),
 
@@ -542,6 +552,9 @@ class _BingoHardMode extends State<BingoHardMode> {
           onPressed: () {
             Navigator.pop(context, 'ANIMAL');
           },
+          style: ElevatedButton.styleFrom(
+            minimumSize: const Size(110, 50),
+          ),
           child: Text('Djur', style: Theme.of(context).textTheme.bodyMedium),
         ),
       ],
@@ -554,8 +567,8 @@ class _BingoHardMode extends State<BingoHardMode> {
       if (file != null) {
         Map<String, dynamic>? response = await helpMethodsUploadPicture.sendPictureToBackend(file, type, 'CHALLENGE', challengeId);
 
-        if (response != null) {
-          if (response['accepted'] == true) {
+        /*if (response != null && response['accepted'] == true) {
+          /*if (response['accepted'] == true) {
             showDialog(
               context: context,
               builder: (context) => successMessageUploadPicture(),
@@ -566,8 +579,59 @@ class _BingoHardMode extends State<BingoHardMode> {
               context: context,
               builder: (context) => errorMessageUploadPicture(),
             );
-            return false;
+            return false;*/
+          final gamification = response['gamification'];
+
+          if (mounted) {
+            await GamificationPopupService.showIfNeeded(
+              context: context,
+              leveledUp: gamification?['leveledUp'] ?? false,
+              previousLevel: gamification?['previousLevel'],
+              currentLevel: gamification?['currentLevel'],
+              newlyUnlockedBadges: gamification?['newlyUnlockedBadges'] ?? [],
+            );
           }
+
+          if (mounted) {
+            showDialog(
+              context: context,
+              builder: (context) => successMessageUploadPicture(),
+            );
+          }
+
+          return true;
+        }*/
+        if (response != null && response['accepted'] == true) {
+
+          final gamification = response['gamification'];
+
+          if (mounted) {
+            await GamificationPopupService.showIfNeeded(
+              context: context,
+              leveledUp: gamification?['leveledUp'] ?? false,
+              previousLevel: gamification?['previousLevel'],
+              currentLevel: gamification?['currentLevel'],
+              newlyUnlockedBadges: gamification?['newlyUnlockedBadges'] ?? [],
+            );
+          }
+
+          if (mounted) {
+            showDialog(
+              context: context,
+              builder: (context) => successMessageUploadPicture(),
+            );
+          }
+
+          return true;
+
+        } else {
+
+          showDialog(
+            context: context,
+            builder: (context) => errorMessageUploadPicture(),
+          );
+
+          return false;
         }
 
       } else {
@@ -585,14 +649,14 @@ class _BingoHardMode extends State<BingoHardMode> {
       );
       return false;
     }
-    return false;
+    //return false;
   }
 
   AlertDialog errorMessageUploadPicture() {
     return AlertDialog(
       actionsAlignment: MainAxisAlignment.center,
       content: Text(
-        'Ojdå, bilden kunde inte sparas. Testa att ta en ny bild!',
+        'Ojdå, bilden kunde inte sparas. Vill du testa igen?',
         textAlign: TextAlign.center,
       ),
 
@@ -601,7 +665,24 @@ class _BingoHardMode extends State<BingoHardMode> {
           onPressed: () {
             Navigator.pop(context);
           },
-          child: Text('Okej', style: Theme.of(context).textTheme.bodyMedium),
+          style: ElevatedButton.styleFrom(
+            minimumSize: const Size(110, 50),
+          ),
+          child: Text('Ok', style: Theme.of(context).textTheme.bodyMedium),
+        ),
+        const SizedBox(width: 20),
+        ElevatedButton(
+          onPressed: () {
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (_) => const HomeScreen()),
+                  (route) => false,
+            );
+          },
+          style: ElevatedButton.styleFrom(
+            minimumSize: const Size(110, 50),
+          ),
+          child: Text('Till hem', style: Theme.of(context).textTheme.bodyMedium),
         ),
       ],
     );
@@ -619,6 +700,9 @@ class _BingoHardMode extends State<BingoHardMode> {
           onPressed: () {
             Navigator.pop(context);
           },
+          style: ElevatedButton.styleFrom(
+            minimumSize: const Size(110, 50),
+          ),
           child: Text('Okej', style: Theme.of(context).textTheme.bodyMedium),
         ),
       ],
