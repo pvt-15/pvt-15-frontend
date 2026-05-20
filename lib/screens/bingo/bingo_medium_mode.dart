@@ -190,7 +190,7 @@ class _BingoMediumMode extends State<BingoMediumMode> {
                             borderRadius: BorderRadius.circular(15),
                             image: images[0] != null ? DecorationImage(image: FileImage(images[0]!), fit: BoxFit.cover) : null,
                         ),
-                        child: (images[0] == null && images[0] == null) ? const Center(child: Icon(Icons.image, size: 50)) : null,
+                        child: (images[0] == null) ? const Center(child: Icon(Icons.image, size: 50)) : null,
                       ),
                     ),
 
@@ -234,7 +234,7 @@ class _BingoMediumMode extends State<BingoMediumMode> {
                             borderRadius: BorderRadius.circular(15),
                             image: images[1] != null ? DecorationImage(image: FileImage(images[1]!), fit: BoxFit.cover) : null,
                         ),
-                        child: (images[1] == null && images[1] == null) ? const Center(child: Icon(Icons.image, size: 50)) : null,
+                        child: (images[1] == null) ? const Center(child: Icon(Icons.image, size: 50)) : null,
                       ),
                     ),
                   ],

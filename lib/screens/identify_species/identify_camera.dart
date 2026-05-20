@@ -114,7 +114,7 @@ class _IdentifyCameraState extends State<IdentifyCamera> {
     // 1. Ladda upp bilden
     final uploadRequest = http.MultipartRequest(
       'POST',
-      Uri.parse('https://group-6-15.pvt.dsv.su.se/uploads/picture'),
+      Uri.parse('https://group-6-15.pvt.dsv.su.se/storage-service/uploads/picture'),
     );
 
     uploadRequest.headers['Authorization'] = 'Bearer $token';

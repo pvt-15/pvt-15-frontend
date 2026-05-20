@@ -25,7 +25,7 @@ class _CreateAccountState extends State<CreateAccount> {
   Future<bool> registerUser(String name, String email, String password) async {
     try {
       final response = await http.post(
-        Uri.parse('https://group-6-15.pvt.dsv.su.se/auth/register'),
+        Uri.parse('https://group-6-15.pvt.dsv.su.se/auth-service/auth/register'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'name': name,

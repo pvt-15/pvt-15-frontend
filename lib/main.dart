@@ -164,6 +164,7 @@ class MyApp extends StatelessWidget {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(15),
           ),
+          actionsPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
 
           titleTextStyle: TextStyle(
             fontFamily: 'YoungSerif',
@@ -193,7 +194,7 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
-      home: LoginScreen(),
+      home: startScreen,
     );
   }
 }

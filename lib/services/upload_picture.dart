@@ -16,7 +16,7 @@ class UploadPicture {
       if (imageFile != null) {
         final request = http.MultipartRequest(
           'POST',
-          Uri.parse('https://group-6-15.pvt.dsv.su.se/uploads/picture'),
+          Uri.parse('https://group-6-15.pvt.dsv.su.se/storage-service/uploads/picture'),
         );
 
         request.headers['Authorization'] = 'Bearer $jwtToken';
@@ -88,7 +88,7 @@ class UploadPicture {
   Future<List<ProfileImageOption>> getProfileImageOptions() async {
     final response = await http.get(
       Uri.parse(
-        'https://group-6-15.pvt.dsv.su.se/users/profile-images/options',
+        'https://group-6-15.pvt.dsv.su.se/auth-service/users/profile-images/options',
       ),
       headers: {
         'Authorization': 'Bearer $jwtToken',
@@ -116,7 +116,7 @@ class UploadPicture {
     }
 
     final response = await http.patch(
-      Uri.parse('https://group-6-15.pvt.dsv.su.se/users/me/profile-image'),
+      Uri.parse('https://group-6-15.pvt.dsv.su.se/auth-service/users/me/profile-image'),
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $jwtToken',

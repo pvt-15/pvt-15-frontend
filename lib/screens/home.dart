@@ -63,7 +63,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
       // Fetch user data from backend (same as profile.dart)
       final response = await http.get(
-        Uri.parse('https://group-6-15.pvt.dsv.su.se/auth/me'),
+        Uri.parse('https://group-6-15.pvt.dsv.su.se/auth-service/auth/me'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer ${session.token}',
