@@ -43,6 +43,9 @@ class GamificationPopupService {
           actions: [
             ElevatedButton(
               onPressed: () => Navigator.of(context).pop(),
+              style: ElevatedButton.styleFrom(
+                minimumSize: const Size(110, 50),
+              ),
               child: const Text('OK'),
             )
           ],
@@ -75,14 +78,6 @@ class GamificationPopupService {
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              /*Image.network(
-                badges.first['imageUrl'],
-                height: 120,
-              ),
-              Image.network(
-                'https://storage.googleapis.com/skogsjakten-images/badge-icons/ANIMAL_GOLD.png',
-                height: 120,
-              ),*/
               if (badges.first['imageUrl'] != null &&
                   badges.first['imageUrl'].toString().isNotEmpty)
                 Image.network(
@@ -102,6 +97,9 @@ class GamificationPopupService {
           actions: [
             ElevatedButton(
               onPressed: () => Navigator.of(context).pop(),
+              style: ElevatedButton.styleFrom(
+                minimumSize: const Size(110, 50),
+              ),
               child: const Text('OK'),
             ),
           ],
