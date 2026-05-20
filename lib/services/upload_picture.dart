@@ -16,7 +16,7 @@ class UploadPicture {
       if (imageFile != null) {
         final request = http.MultipartRequest(
           'POST',
-          Uri.parse('https://group-6-15.pvt.dsv.su.se/uploads/picture'),
+          Uri.parse('https://group-6-15.pvt.dsv.su.se/storage-service/uploads/picture'),
         );
 
         request.headers['Authorization'] = 'Bearer $jwtToken';
@@ -44,6 +44,7 @@ class UploadPicture {
     return null;
   }
 
+  Future<Map<String, dynamic>?> sendPictureToBackend(File? imageFile, String targetType, String pictureMode, int? challengeId) async {
   // Upload picture, utan AI! Används i daglig utmaning
   Future<Map<String, dynamic>?> uploadPicture(File imageFile) async {
     try {
@@ -83,6 +84,15 @@ class UploadPicture {
       final imageObjectKey = await sendPictureToGoogleStorage(imageFile);
 
       if (imageObjectKey != null) {
+        final Map<String, dynamic> body  = {
+          'imageObjectKey': imageObjectKey,
+          'targetType': targetType,
+          'pictureMode': pictureMode,
+        };
+
+        if (challengeId != null) {
+          body['challengeId'] = challengeId;
+        }
 
       //Skicka URL till backend
       final response = await http.post(
@@ -91,20 +101,21 @@ class UploadPicture {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $jwtToken',
         },
+        body: jsonEncode(body),
 
-        body: jsonEncode({
+        /*body: jsonEncode({
           'imageObjectKey': imageObjectKey,
           'targetType': targetType,
           'pictureMode': pictureMode,
           "challengeId": challengeId,
 
-        }),
+        }),*/
       );
 
       print(response.statusCode);
       print(response.body);
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 || response.statusCode == 201) {
         return jsonDecode(response.body);
       } else {
         debugPrint('Backend Error: ${response.statusCode}');
@@ -121,7 +132,7 @@ class UploadPicture {
   Future<List<ProfileImageOption>> getProfileImageOptions() async {
     final response = await http.get(
       Uri.parse(
-        'https://group-6-15.pvt.dsv.su.se/users/profile-images/options',
+        'https://group-6-15.pvt.dsv.su.se/auth-service/users/profile-images/options',
       ),
       headers: {
         'Authorization': 'Bearer $jwtToken',
@@ -149,7 +160,7 @@ class UploadPicture {
     }
 
     final response = await http.patch(
-      Uri.parse('https://group-6-15.pvt.dsv.su.se/users/me/profile-image'),
+      Uri.parse('https://group-6-15.pvt.dsv.su.se/auth-service/users/me/profile-image'),
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $jwtToken',

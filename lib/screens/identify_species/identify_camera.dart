@@ -6,6 +6,10 @@ import 'dart:convert';
 import 'package:Skogsjakten/services/session_storage.dart';
 import 'package:Skogsjakten/services/camera_service.dart';
 import 'package:http/http.dart' as http;
+import 'package:Skogsjakten/services/gamification_popup_helper.dart';
+import 'package:Skogsjakten/services/upload_picture.dart';
+
+import '../home.dart';
 
 class IdentifyCamera extends StatefulWidget{
   const IdentifyCamera({super.key});
@@ -30,7 +34,7 @@ class _IdentifyCameraState extends State<IdentifyCamera> {
       takePicture();
     });
   }
-  
+
   Future<void> takePicture() async {
     setState(() {
       isOpeningCamera = true;
@@ -61,17 +65,25 @@ class _IdentifyCameraState extends State<IdentifyCamera> {
         context: context,
         builder: (context) {
           return AlertDialog(
-            title: const Text("Vad tog du bild på?"),
-            content: const Text("Välj kategori för identifieringen."),
+            title: const Text("Vad tog du bild på?", textAlign: TextAlign.center,),
+            content: const Text("Välj kategori för identifieringen.", textAlign: TextAlign.center,),
+            actionsAlignment: MainAxisAlignment.center,
             actions: [
               ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size(110, 50),
+                ),
                 onPressed: () {
                   Navigator.pop(context, "PLANT");
 
                 },
                 child: const Text("Planta"),
               ),
+              const SizedBox(width: 20,),
               ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size(110, 50),
+                ),
                 onPressed: () {
                   Navigator.pop(context, "ANIMAL");
                 },
@@ -94,7 +106,6 @@ class _IdentifyCameraState extends State<IdentifyCamera> {
       print("Vald kategori: $selectedCategory");
     }
 
-
   Future<void> identifySpecies(String category) async {
     if (selectedImage == null) return;
 
@@ -106,84 +117,83 @@ class _IdentifyCameraState extends State<IdentifyCamera> {
 
     if (session == null) {
       print("Ingen session/token hittades");
+
+      if (mounted) {
+        setState(() {
+          isIdentifying = false;
+        });
+
+        showDialog(
+          context: context,
+          builder: (context) => errorMessageUploadPicture(),
+        );
+      }
+
       return;
     }
 
-    final token = session.token;
+    try {
+      final uploader = UploadPicture(jwtToken: session.token);
 
-    // 1. Ladda upp bilden
-    final uploadRequest = http.MultipartRequest(
-      'POST',
-      Uri.parse('https://group-6-15.pvt.dsv.su.se/uploads/picture'),
-    );
+      final result = await uploader.sendPictureToBackend(
+        selectedImage!,
+        category,
+        'COLLECTION',
+        null,
+      );
 
-    uploadRequest.headers['Authorization'] = 'Bearer $token';
+      if (!mounted) return;
 
-    uploadRequest.files.add(
-      await http.MultipartFile.fromPath(
-        'file',
-        selectedImage!.path,
-      ),
-    );
+      setState(() {
+        isIdentifying = false;
+      });
 
-    final uploadResponse = await uploadRequest.send();
-    final uploadBody = await uploadResponse.stream.bytesToString();
+      if (result == null || result['accepted'] != true || result['picture'] == null) {
+        showDialog(
+          context: context,
+          builder: (context) => errorMessageUploadPicture(),
+        );
+        return;
+      }
 
-    if (uploadResponse.statusCode != 200) {
-      print("Upload misslyckades: $uploadBody");
-      return;
-    }
+      final gamification = result['gamification'];
 
-    final uploadData = jsonDecode(uploadBody);
-    final objectKey = uploadData['objectKey'];
+      await GamificationPopupService.showIfNeeded(
+        context: context,
+        leveledUp: gamification?['leveledUp'] ?? false,
+        previousLevel: gamification?['previousLevel'],
+        currentLevel: gamification?['currentLevel'],
+        newlyUnlockedBadges: gamification?['newlyUnlockedBadges'] ?? [],
+      );
 
-    if (objectKey == null) {
-      print("objectKey saknas i upload-response: $uploadBody");
-      return;
-    }
+      if (!mounted) return;
 
-    // 2. Skapa picture + kör AI-identifiering
-    final pictureResponse = await http.post(
-      Uri.parse('https://group-6-15.pvt.dsv.su.se/pictures'),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token',
-      },
-      body: jsonEncode({
-        'imageObjectKey': objectKey,
-        'targetType': category, // "PLANT" eller "ANIMAL"
-        'pictureMode': 'COLLECTION',
-      }),
-    );
+      final picture = result['picture'];
 
-    if (pictureResponse.statusCode != 200 &&
-        pictureResponse.statusCode != 201) {
-      print("Identifiering misslyckades: ${pictureResponse.body}");
-      return;
-    }
-
-    final result = jsonDecode(pictureResponse.body);
-
-    if (!mounted) return;
-
-    print("PICTURE STATUS: ${pictureResponse.statusCode}");
-    print("PICTURE BODY: ${pictureResponse.body}");
-    print("RESULT: $result");
-
-    setState(() {
-      isIdentifying = false;
-    });
-
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => SpeciesResults(
-          image: selectedImage!,
-          category: category,
-          result: result,
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => SpeciesResults(
+            image: selectedImage!,
+            category: category,
+            result: picture,
+          ),
         ),
-      ),
-    );
+      );
+    } catch (e) {
+      print("Identifiering fel: $e");
+
+      if (!mounted) return;
+
+      setState(() {
+        isIdentifying = false;
+      });
+
+      showDialog(
+        context: context,
+        builder: (context) => errorMessageUploadPicture(),
+      );
+    }
   }
 
   @override
@@ -208,4 +218,45 @@ class _IdentifyCameraState extends State<IdentifyCamera> {
     );
   }
 
+  AlertDialog errorMessageUploadPicture() {
+    return AlertDialog(
+      actionsAlignment: MainAxisAlignment.center,
+      content: Text(
+        'Ojdå, bilden kunde inte sparas. Vill du testa igen?',
+        textAlign: TextAlign.center,
+      ),
+      actions: [
+        ElevatedButton(
+          onPressed: () {
+            Navigator.pop(context);
+            takePicture();
+          },
+          style: ElevatedButton.styleFrom(
+            minimumSize: const Size(110, 50),
+          ),
+          child: Text(
+            'Ok',
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+        ),
+        const SizedBox(width: 20),
+        ElevatedButton(
+          onPressed: () {
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (_) => const HomeScreen()),
+                  (route) => false,
+            );
+          },
+          style: ElevatedButton.styleFrom(
+            minimumSize: const Size(110, 50),
+          ),
+          child: Text(
+            'Till hem',
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+        ),
+      ],
+    );
+  }
 }

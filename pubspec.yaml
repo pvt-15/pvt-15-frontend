@@ -84,6 +84,7 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
+    - assets/Icons/
     - assets/trees/
     - assets/maskot_skogstroll.png
     - assets/mascot_happy.png
@@ -99,6 +100,7 @@ flutter:
     - assets/orm.png
     - assets/rav.png
     - assets/ek.jpg
+    - assets/gran.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
