@@ -105,7 +105,7 @@ class _IdentifyCameraState extends State<IdentifyCamera> {
 
       print("Vald kategori: $selectedCategory");
     }
-    
+
   Future<void> identifySpecies(String category) async {
     if (selectedImage == null) return;
 
