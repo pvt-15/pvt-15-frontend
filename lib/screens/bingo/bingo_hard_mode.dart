@@ -37,6 +37,7 @@ class _BingoHardMode extends State<BingoHardMode> {
 
   late String question;
   late int challengeId;
+  late int points;
 
   @override
   void initState() {
@@ -64,6 +65,7 @@ class _BingoHardMode extends State<BingoHardMode> {
       Map<String, dynamic> data;
       if (widget.challengeId != null) {
         data = await helpMethodsHttp.getStartedQuestion(widget.challengeId!);
+        print(data);
       } else {
         data = await helpMethodsHttp.getOrCreateBingoChallenge(widget.typeOfBingo, 'HARD');
         //data = await helpMethodsHttp.getNewQuestionOnId();
@@ -72,6 +74,7 @@ class _BingoHardMode extends State<BingoHardMode> {
       setState(() {
         question = data['description'];
         challengeId = data['id'];
+        //points = data['points'];
       });
 
       await setSpecificQuestions();
@@ -225,7 +228,7 @@ class _BingoHardMode extends State<BingoHardMode> {
                               //final File? file = await getAssetFile('assets/gran.png');
 
                               final File assetFile = await getAssetFile('assets/gran.png');
-                              final compressedXFile = await FlutterImageCompress.compressAndGetFile(assetFile.path, '${assetFile.path}_comp.jpg', quality: 70);
+                              final compressedXFile = await FlutterImageCompress.compressAndGetFile(assetFile.path, '${assetFile.path}_comp.jpg', quality: 85);
                               final File file = File(compressedXFile!.path);
 
                               bool success = false;
@@ -249,10 +252,6 @@ class _BingoHardMode extends State<BingoHardMode> {
                               }
                             }
                             },
-
-
-
-                          //onTap: () => handleImageAction(0, fromGallery: true),
 
                           borderRadius: BorderRadius.circular(15),
                           child: Container(
@@ -279,11 +278,11 @@ class _BingoHardMode extends State<BingoHardMode> {
                           onTap: () async {
 
                             if (images[1] == null){
-                              //final File? file = await CameraService.takePicture();
+                              final File? file = await CameraService.takePicture();
 
-                              final File assetFile = await getAssetFile('assets/gran.png');
-                              final compressedXFile = await FlutterImageCompress.compressAndGetFile(assetFile.path, '${assetFile.path}_comp.jpg', quality: 50);
-                              final File file = File(compressedXFile!.path);
+                              //final File assetFile = await getAssetFile('assets/gran.png');
+                              //final compressedXFile = await FlutterImageCompress.compressAndGetFile(assetFile.path, '${assetFile.path}_comp.jpg', quality: 85, minWidth: 1000);
+                              //final File file = File(compressedXFile!.path);
 
                               bool success = false;
                               String? type;
@@ -479,6 +478,7 @@ class _BingoHardMode extends State<BingoHardMode> {
                               },
                               child: Text('Klar', style: Theme.of(context).textTheme.headlineMedium),
                             ),
+
                             ElevatedButton(
                               onPressed: () {
                                 Navigator.pop(context);
@@ -612,6 +612,24 @@ class _BingoHardMode extends State<BingoHardMode> {
       actionsAlignment: MainAxisAlignment.center,
       content: const Text(
         'Bra jobbat! Bilden har sparats.',
+        textAlign: TextAlign.center,
+      ),
+      actions: [
+        ElevatedButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          child: Text('Okej', style: Theme.of(context).textTheme.bodyMedium),
+        ),
+      ],
+    );
+  }
+
+  AlertDialog finishedChallengeDialog() {
+    return AlertDialog(
+      actionsAlignment: MainAxisAlignment.center,
+      content: const Text(
+        'Bra jobbat! ',
         textAlign: TextAlign.center,
       ),
       actions: [

@@ -48,7 +48,6 @@ class _BingoEasyMode extends State<BingoEasyMode> {
       getPictures();
 
       List<dynamic> pictures = await helpMethodsHttp.getPictures();
-      debugPrint('DEBUG: $pictures');
 
     } catch (e) {
       debugPrint('Initieringsfel: $e');
@@ -60,6 +59,7 @@ class _BingoEasyMode extends State<BingoEasyMode> {
       Map<String, dynamic> data;
       if (widget.challengeId != null) {
         data = await helpMethodsHttp.getStartedQuestion(widget.challengeId!);
+        print(data);
       } else {
         data = await helpMethodsHttp.getOrCreateBingoChallenge(widget.typeOfBingo, 'EASY');
       }
@@ -80,7 +80,6 @@ class _BingoEasyMode extends State<BingoEasyMode> {
   void getPictures() async {
     try {
       Map<String, dynamic> response = await helpMethodsHttp.getPicturesForChallenge(challengeId);
-      debugPrint('Hämtade bilder: $response');
 
       if (response.containsKey('tasks')) {
         List<dynamic> tasks = response['tasks'];

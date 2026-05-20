@@ -48,6 +48,11 @@ class UploadPicture {
     try {
       //Vänta på att bilden laddas upp och få tillbaka URL:en
       final imageObjectKey = await sendPictureToGoogleStorage(imageFile);
+      print(imageObjectKey);
+      print(jwtToken);
+
+      targetType = targetType.toUpperCase();
+      pictureMode = pictureMode.toUpperCase();
 
       if (imageObjectKey != null) {
 
@@ -55,15 +60,15 @@ class UploadPicture {
       final response = await http.post(
         Uri.parse('https://group-6-15.pvt.dsv.su.se/pictures'),
         headers: {
-          'Content-Type': 'application/json',
           'Authorization': 'Bearer $jwtToken',
+          'Content-Type': 'application/json',
         },
 
         body: jsonEncode({
           'imageObjectKey': imageObjectKey,
-          'targetType': targetType,
           'pictureMode': pictureMode,
-          "challengeId": challengeId,
+          'targetType': targetType,
+          'challengeId': challengeId,
 
         }),
       );
