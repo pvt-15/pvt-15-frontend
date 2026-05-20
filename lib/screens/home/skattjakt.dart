@@ -162,10 +162,9 @@ class _SkattjaktState extends State<Skattjakt> {
 
     } else {
       // Fel träd eller för låg confidence
-      _showRetryDialog(
-        treeName: targetTree.name,
-        confidence: result.confidence ?? 0,
-        errorMessage: result.errorMessage ?? 'Bilden kändes inte igen',
+      showDialog(
+        context: context,
+        builder: (context) => errorMessageUploadPicture(),
       );
 
       // Rensa bilden så att användaren kan försöka igen
@@ -588,6 +587,27 @@ class _SkattjaktState extends State<Skattjakt> {
         ),
       ),
       bottomNavigationBar: const CustomNavigationBar(selectedIndex: -1),
+    );
+  }
+
+  AlertDialog errorMessageUploadPicture() {
+    return AlertDialog(
+      actionsAlignment: MainAxisAlignment.center,
+      content: Text(
+        'Ojdå, bilden kunde inte sparas. Testa att ta en ny bild!',
+        textAlign: TextAlign.center,
+      ),
+      actions: [
+        ElevatedButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          child: Text(
+            'Okej',
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+        ),
+      ],
     );
   }
 }

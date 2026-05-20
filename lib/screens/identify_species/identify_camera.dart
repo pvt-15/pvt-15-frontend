@@ -6,6 +6,7 @@ import 'dart:convert';
 import 'package:Skogsjakten/services/session_storage.dart';
 import 'package:Skogsjakten/services/camera_service.dart';
 import 'package:http/http.dart' as http;
+import 'package:Skogsjakten/services/gamification_popup_helper.dart';
 
 class IdentifyCamera extends StatefulWidget{
   const IdentifyCamera({super.key});
@@ -30,7 +31,7 @@ class _IdentifyCameraState extends State<IdentifyCamera> {
       takePicture();
     });
   }
-  
+
   Future<void> takePicture() async {
     setState(() {
       isOpeningCamera = true;
@@ -61,10 +62,14 @@ class _IdentifyCameraState extends State<IdentifyCamera> {
         context: context,
         builder: (context) {
           return AlertDialog(
-            title: const Text("Vad tog du bild på?"),
-            content: const Text("Välj kategori för identifieringen."),
+            title: const Text("Vad tog du bild på?", textAlign: TextAlign.center,),
+            content: const Text("Välj kategori för identifieringen.", textAlign: TextAlign.center,),
+            actionsAlignment: MainAxisAlignment.center,
             actions: [
               ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size(100, 50),
+                ),
                 onPressed: () {
                   Navigator.pop(context, "PLANT");
 
@@ -72,6 +77,9 @@ class _IdentifyCameraState extends State<IdentifyCamera> {
                 child: const Text("Planta"),
               ),
               ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size(100, 50),
+                ),
                 onPressed: () {
                   Navigator.pop(context, "ANIMAL");
                 },
@@ -131,6 +139,18 @@ class _IdentifyCameraState extends State<IdentifyCamera> {
 
     if (uploadResponse.statusCode != 200) {
       print("Upload misslyckades: $uploadBody");
+
+      if (!mounted) return;
+
+      setState(() {
+        isIdentifying = false;
+      });
+
+      showDialog(
+        context: context,
+        builder: (context) => errorMessageUploadPicture(),
+      );
+
       return;
     }
 
@@ -139,6 +159,18 @@ class _IdentifyCameraState extends State<IdentifyCamera> {
 
     if (objectKey == null) {
       print("objectKey saknas i upload-response: $uploadBody");
+
+      if (!mounted) return;
+
+      setState(() {
+        isIdentifying = false;
+      });
+
+      showDialog(
+        context: context,
+        builder: (context) => errorMessageUploadPicture(),
+      );
+
       return;
     }
 
@@ -159,6 +191,18 @@ class _IdentifyCameraState extends State<IdentifyCamera> {
     if (pictureResponse.statusCode != 200 &&
         pictureResponse.statusCode != 201) {
       print("Identifiering misslyckades: ${pictureResponse.body}");
+
+      if (!mounted) return;
+
+      setState(() {
+        isIdentifying = false;
+      });
+
+      showDialog(
+        context: context,
+        builder: (context) => errorMessageUploadPicture(),
+      );
+
       return;
     }
 
@@ -174,13 +218,33 @@ class _IdentifyCameraState extends State<IdentifyCamera> {
       isIdentifying = false;
     });
 
+    final gamification = result['gamification'];
+
+    await GamificationPopupService.showIfNeeded(
+      context: context,
+      leveledUp: gamification?['leveledUp'] ?? false,
+      previousLevel: gamification?['previousLevel'],
+      currentLevel: gamification?['currentLevel'],
+      newlyUnlockedBadges: gamification?['newlyUnlockedBadges'] ?? [],
+    );
+
+
+    if (!mounted) return;
+
+    final picture = result['picture'];
+
+    if (picture == null) {
+      print("Picture saknas trots accepted true");
+      return;
+    }
+
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => SpeciesResults(
           image: selectedImage!,
           category: category,
-          result: result,
+          result: picture,
         ),
       ),
     );
@@ -208,4 +272,24 @@ class _IdentifyCameraState extends State<IdentifyCamera> {
     );
   }
 
+  AlertDialog errorMessageUploadPicture() {
+    return AlertDialog(
+      actionsAlignment: MainAxisAlignment.center,
+      content: Text(
+        'Ojdå, bilden kunde inte sparas. Testa att ta en ny bild!',
+        textAlign: TextAlign.center,
+      ),
+      actions: [
+        ElevatedButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          child: Text(
+            'Okej',
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+        ),
+      ],
+    );
+  }
 }

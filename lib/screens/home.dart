@@ -149,6 +149,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFBEDBB2),
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: const Text('Skogsjakten'),
       ),
       body: SafeArea(
@@ -220,7 +221,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Level: $_level',
+                      'Nivå: $_level',
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                   ],
