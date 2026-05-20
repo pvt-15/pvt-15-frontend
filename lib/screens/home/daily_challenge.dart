@@ -60,6 +60,10 @@ class DailyChallengeModel {
   }
 }
 
+// TODO ändra bild och fixa pratbubbla.
+// TODO dubbelkolla att man inte kan få en massa poäng samma dag- att poäng registreras
+// TODO kolla om man kan få nästa fråga
+
 // --- Widget ---
 
 class DailyChallenge extends StatefulWidget {
@@ -352,14 +356,27 @@ class _ChallengeCompleteDialogState extends State<_ChallengeCompleteDialog> {
       final token = await widget.sessionStorage.getToken();
       final uploader = UploadPicture(jwtToken: token);
 
-      // Ladda upp till GCS och skicka till backend med UNKNOWN-label
-      // pictureMode=CHALLENGE och challengeId kopplar bilden till utmaningen
+      // Steg 1: ladda upp bilden, få tillbaka imageUrl + objectKey
+      final uploadResult = await uploader.uploadPicture(_takenImage!);
+
+      if (!mounted) return;
+
+      if (uploadResult == null) {
+        setState(() {
+          _uploadError = 'Uppladdningen misslyckades. Försök igen.';
+          _isUploading = false;
+        });
+        return;
+      }
+
+      // Steg 2: koppla bilden till utmaningen i backend
       final result = await uploader.sendPictureToBackend(
-        _takenImage,
-        'UNKNOWN',         // targetType – sparas med label UNKNOWN
-        'CHALLENGE',       // pictureMode
+        null,                      // imageFile behövs inte – vi har redan objectKey
+        'UNKNOWN',
+        'CHALLENGE',
         widget.challenge.id,
       );
+      // OBS: se not nedan om du vill skicka objectKey direkt istället
 
       if (!mounted) return;
 
@@ -461,7 +478,7 @@ class _ChallengeCompleteDialogState extends State<_ChallengeCompleteDialog> {
             child: Image.file(
               _takenImage!,
               height: 180,
-              width: double.infinity,
+              width: 240,        // fast bredd istället för double.infinity
               fit: BoxFit.cover,
             ),
           )
@@ -506,7 +523,7 @@ class _ChallengeCompleteDialogState extends State<_ChallengeCompleteDialog> {
             child: Image.file(
               _takenImage!,
               height: 160,
-              width: double.infinity,
+              width: 240,        // fast bredd istället för double.infinity
               fit: BoxFit.cover,
             ),
           ),

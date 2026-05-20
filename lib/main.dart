@@ -1,4 +1,5 @@
 import 'package:Skogsjakten/screens/home.dart';
+import 'package:Skogsjakten/screens/home/home_library.dart';
 import 'package:Skogsjakten/services/check_current_user.dart';
 import 'package:flutter/material.dart';
 import 'package:Skogsjakten/screens/login/login.dart';
@@ -194,6 +195,7 @@ class MyApp extends StatelessWidget {
         ),
       ),
       home: LoginScreen(),
+      //home: HomeLibrary(),
     );
   }
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import '../../widgets/custom_navigation_bar.dart';
 import '../library/animals_library.dart';
+import '../library/daily_library.dart';
 import '../library/plants_library.dart';
 import '../library/medals_library.dart';
 
@@ -18,6 +19,7 @@ class _HomeLibraryState extends State<HomeLibrary> {
     {'name': 'Mina växter', 'icon': MdiIcons.flower, 'page': const PlantsLibrary()},
     {'name': 'Mina djur', 'icon': Icons.emoji_nature, 'page': const AnimalsLibrary()},
     {'name': 'Mina medaljer', 'icon': Icons.emoji_events, 'page': const MedalsLibrary()},
+    {'name': 'Daglig utmaning', 'icon': Icons.sunny, 'page': const DailyLibrary()},
   ];
 
   @override
