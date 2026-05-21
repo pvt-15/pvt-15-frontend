@@ -96,6 +96,7 @@ class _DailyLibraryState extends State<DailyLibrary> {
       backgroundColor: const Color(0xFFBEDBB2),
       appBar: AppBar(
         backgroundColor: const Color(0xFFBEDBB2),
+        title: Text("Bibliotek"),
         elevation: 0,
         iconTheme: const IconThemeData(color: Color(0xFF000000)),
       ),

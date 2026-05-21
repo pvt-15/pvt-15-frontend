@@ -64,7 +64,7 @@ class _ChooseDifficultyState extends State<ChooseDifficulty> {
                         ],
                       ),
                       child: Text(
-                        "Roligt att du vill lära dig mer om skogen! \nVälj svårighetsgrad så sätter vi igång!",
+                        "Roligt att du vill lära dig mer om skogen! \n\nVälj svårighetsgrad så sätter vi igång!",
                         style: Theme.of(context).textTheme.bodyMedium,
                       ),
                     ),

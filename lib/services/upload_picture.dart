@@ -45,40 +45,6 @@ class UploadPicture {
   }
 
   Future<Map<String, dynamic>?> sendPictureToBackend(File? imageFile, String targetType, String pictureMode, int? challengeId) async {
-  // Upload picture, utan AI! Används i daglig utmaning
-  Future<Map<String, dynamic>?> uploadPicture(File imageFile) async {
-    try {
-      final request = http.MultipartRequest(
-        'POST',
-        Uri.parse('https://group-6-15.pvt.dsv.su.se/uploads/picture'),
-      );
-
-      request.headers['Authorization'] = 'Bearer $jwtToken';
-      request.files.add(
-        await http.MultipartFile.fromPath('file', imageFile.path),
-      );
-
-      final response = await request.send();
-      final responseBody = await response.stream.bytesToString();
-
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        final data = jsonDecode(responseBody) as Map<String, dynamic>;
-        // Returnerar både imageUrl och objectKey
-        return {
-          'imageUrl': data['imageUrl'],
-          'objectKey': data['objectKey'],
-        };
-      } else {
-        debugPrint('uploadPicture misslyckades: ${response.statusCode}');
-        return null;
-      }
-    } catch (e) {
-      debugPrint('uploadPicture Error: $e');
-      return null;
-    }
-  }
-
-  Future<Map<String, dynamic>?> sendPictureToBackend(File? imageFile, String targetType, String pictureMode, int challengeId) async {
     try {
       //Vänta på att bilden laddas upp och få tillbaka URL:en
       final imageObjectKey = await sendPictureToGoogleStorage(imageFile);
@@ -178,7 +144,39 @@ class UploadPicture {
     }
   }
 
-  // TODO Matilda lägg ny metod för upload/picture
+  // TODO Matilda lägg ny metod för upload/picture som faktiskt FUNGERERAR
+  // Upload picture, utan AI! Används i daglig utmaning
+  Future<Map<String, dynamic>?> uploadPicture(File imageFile) async {
+    try {
+      final request = http.MultipartRequest(
+        'POST',
+        Uri.parse('https://group-6-15.pvt.dsv.su.se/storage-service/uploads/picture'),
+      );
+
+      request.headers['Authorization'] = 'Bearer $jwtToken';
+      request.files.add(
+        await http.MultipartFile.fromPath('file', imageFile.path),
+      );
+
+      final response = await request.send();
+      final responseBody = await response.stream.bytesToString();
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final data = jsonDecode(responseBody) as Map<String, dynamic>;
+        // Returnerar både imageUrl och objectKey
+        return {
+          'imageUrl': data['imageUrl'],
+          'objectKey': data['objectKey'],
+        };
+      } else {
+        debugPrint('uploadPicture misslyckades: ${response.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      debugPrint('uploadPicture Error: $e');
+      return null;
+    }
+  }
 
 }
 

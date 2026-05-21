@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'dart:io';
 import '../../widgets/custom_navigation_bar.dart';
 import '../../services/session_storage.dart';
@@ -36,6 +37,7 @@ class DailyChallengeModel {
   final String difficulty;
   final int rewardPoints;
   final List<ChallengeTask> tasks;
+  final String? category;
 
   DailyChallengeModel({
     required this.id,
@@ -44,6 +46,7 @@ class DailyChallengeModel {
     required this.difficulty,
     required this.rewardPoints,
     required this.tasks,
+    this.category,
   });
 
   factory DailyChallengeModel.fromJson(Map<String, dynamic> json) {
@@ -56,6 +59,7 @@ class DailyChallengeModel {
       tasks: (json['tasks'] as List<dynamic>? ?? [])
           .map((t) => ChallengeTask.fromJson(t as Map<String, dynamic>))
           .toList(),
+      category: json['category'] as String?,
     );
   }
 }
@@ -89,6 +93,7 @@ class _DailyChallengeState extends State<DailyChallenge> {
   }
 
   Future<void> _fetchDailyChallenge() async {
+    print(">>> _fetchDailyChallenge anropad");
     setState(() {
       _isLoading = true;
       _errorMessage = null;
@@ -98,7 +103,7 @@ class _DailyChallengeState extends State<DailyChallenge> {
       final token = await _sessionStorage.getToken();
       final httpHelper = HttpHelpMethods(jwtToken: token);
 
-      // Bugfix: getAllChallenges returnerar List<dynamic>, inte String
+      // Bugfix: getAllChallenges returnerar List<dynamic>
       final List<dynamic> challenges = await httpHelper.getAllChallenges();
 
       final dailyChallenge = challenges.firstWhere(
@@ -137,7 +142,7 @@ class _DailyChallengeState extends State<DailyChallenge> {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => _ChallengeCompleteDialog(
+      builder: (context) => _ChallengeCompletePopUp(
         challenge: _challenge!,
         sessionStorage: _sessionStorage,
       ),
@@ -312,23 +317,23 @@ class _DailyChallengeState extends State<DailyChallenge> {
   }
 }
 
-// --- Pop-up med bildsteg ---
+// Pop-up när det är klart
 
-class _ChallengeCompleteDialog extends StatefulWidget {
+class _ChallengeCompletePopUp extends StatefulWidget {
   final DailyChallengeModel challenge;
   final SessionStorage sessionStorage;
 
-  const _ChallengeCompleteDialog({
+  const _ChallengeCompletePopUp({
     required this.challenge,
     required this.sessionStorage,
   });
 
   @override
-  State<_ChallengeCompleteDialog> createState() =>
-      _ChallengeCompleteDialogState();
+  State<_ChallengeCompletePopUp> createState() =>
+      _ChallengeCompletePopUpState();
 }
 
-class _ChallengeCompleteDialogState extends State<_ChallengeCompleteDialog> {
+class _ChallengeCompletePopUpState extends State<_ChallengeCompletePopUp> {
   File? _takenImage;
   bool _isUploading = false;
   bool _isDone = false;
@@ -356,12 +361,12 @@ class _ChallengeCompleteDialogState extends State<_ChallengeCompleteDialog> {
       final token = await widget.sessionStorage.getToken();
       final uploader = UploadPicture(jwtToken: token);
 
-      // Steg 1: ladda upp bilden, få tillbaka imageUrl + objectKey
+      // BILD: ladda upp till Storage, metod i upload_picture
       final uploadResult = await uploader.uploadPicture(_takenImage!);
 
       if (!mounted) return;
 
-      if (uploadResult == null) {
+      if (uploadResult == null || uploadResult['objectKey'] == null) {
         setState(() {
           _uploadError = 'Uppladdningen misslyckades. Försök igen.';
           _isUploading = false;
@@ -369,25 +374,44 @@ class _ChallengeCompleteDialogState extends State<_ChallengeCompleteDialog> {
         return;
       }
 
-      // Steg 2: koppla bilden till utmaningen i backend
-      final result = await uploader.sendPictureToBackend(
-        null,                      // imageFile behövs inte – vi har redan objectKey
-        'UNKNOWN',
-        'CHALLENGE',
-        widget.challenge.id,
+      final String objectKey = uploadResult['objectKey'];
+
+      // BILD: skicka till /challenges/{challengeId}/daily-picture
+      final response = await http.post(
+        Uri.parse(
+          'https://group-6-15.pvt.dsv.su.se/challenges/${widget.challenge.id}/daily-picture',
+        ),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode({
+          //'imageObjectKey': objectKey, testar byta ut till imageUri
+          'imageObjectKey': objectKey,
+          'imageUrl': uploadResult['imageUrl'],
+        }),
       );
-      // OBS: se not nedan om du vill skicka objectKey direkt istället
+
+      // hitta vad som är fel, print backend svar
+      debugPrint('>>> Status: ${response.statusCode}');
+      debugPrint('>>> Body: ${response.body}');
+      debugPrint('>>> Status: ${response.statusCode}');
+      debugPrint('>>> Body: ${response.body}');
+      debugPrint('>>> challengeId: ${widget.challenge.id}');
+      debugPrint('>>> objectKey: $objectKey');
 
       if (!mounted) return;
 
-      if (result != null) {
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        await _endChallenge();
         setState(() {
           _isDone = true;
           _isUploading = false;
         });
       } else {
+        await _endChallenge();
         setState(() {
-          _uploadError = 'Uppladdningen misslyckades. Försök igen.';
+          _uploadError = 'Fel från server: ${response.statusCode}';
           _isUploading = false;
         });
       }
@@ -426,22 +450,32 @@ class _ChallengeCompleteDialogState extends State<_ChallengeCompleteDialog> {
             ),
           )
         else if (_takenImage != null && !_isUploading)
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              TextButton(
-                onPressed: _takePicture,
-                child: const Text('Ta om'),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  TextButton(
+                    onPressed: _takePicture,
+                    child: const Text('Ta om'),
+                  ),
+                  ElevatedButton(
+                    onPressed: _confirmAndUpload,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xffb1067e),
+                    ),
+                    child: Text(
+                      'Skicka in',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                  ),
+                ],
               ),
-              ElevatedButton(
-                onPressed: _confirmAndUpload,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xffb1067e),
-                ),
-                child: Text(
-                  'Skicka in',
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
+              // TEMPORÄR TESTKNAPP – ta bort sen
+              TextButton(
+                onPressed: _endChallenge,
+                child: const Text('Testa avsluta'),
               ),
             ],
           )
@@ -523,7 +557,7 @@ class _ChallengeCompleteDialogState extends State<_ChallengeCompleteDialog> {
             child: Image.file(
               _takenImage!,
               height: 160,
-              width: 240,        // fast bredd istället för double.infinity
+              width: 240,
               fit: BoxFit.cover,
             ),
           ),
@@ -536,703 +570,25 @@ class _ChallengeCompleteDialogState extends State<_ChallengeCompleteDialog> {
       ],
     );
   }
-}
 
-/*
-import 'package:flutter/material.dart';
-import '../../widgets/custom_navigation_bar.dart';
-import '../../services/session_storage.dart';
-import 'dart:convert';
-import '../bingo/http_help_methods.dart';
-import 'package:http/http.dart' as http;
-
-// --- Modeller ---
-
-class ChallengeTask {
-  final String taskText;
-  final String taskType;
-  final int requiredCount;
-
-  ChallengeTask({
-    required this.taskText,
-    required this.taskType,
-    required this.requiredCount,
-  });
-
-  factory ChallengeTask.fromJson(Map<String, dynamic> json) {
-    return ChallengeTask(
-      taskText: json['taskText'] ?? '',
-      taskType: json['taskType'] ?? '',
-      requiredCount: json['requiredCount'] ?? 1,
-    );
-  }
-}
-
-class DailyChallengeModel {
-  final String title;
-  final String description;
-  final String difficulty;
-  final int rewardPoints;
-  final List<ChallengeTask> tasks;
-
-  DailyChallengeModel({
-    required this.title,
-    required this.description,
-    required this.difficulty,
-    required this.rewardPoints,
-    required this.tasks,
-  });
-
-  factory DailyChallengeModel.fromJson(Map<String, dynamic> json) {
-    return DailyChallengeModel(
-      title: json['title'] ?? 'Daglig utmaning',
-      description: json['description'] ?? '',
-      difficulty: json['difficulty'] ?? 'EASY',
-      rewardPoints: json['rewardPoints'] ?? 0,
-      tasks: (json['tasks'] as List<dynamic>? ?? [])
-          .map((t) => ChallengeTask.fromJson(t as Map<String, dynamic>))
-          .toList(),
-    );
-  }
-}
-
-// --- Widget ---
-
-class DailyChallenge extends StatefulWidget {
-  final String gameTitle;
-
-  const DailyChallenge({super.key, required this.gameTitle});
-
-  @override
-  State<DailyChallenge> createState() => _DailyChallengeState();
-}
-
-class _DailyChallengeState extends State<DailyChallenge> {
-  final SessionStorage _sessionStorage = SessionStorage();
-
-  DailyChallengeModel? _challenge;
-  bool _isLoading = true;
-  String? _errorMessage;
-
-  @override
-  void initState() {
-    super.initState();
-    _fetchDailyChallenge();
-  }
-
-  Future<void> _fetchDailyChallenge() async {
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
-    });
-
+  // Från Maja bingo att avluta challange
+  Future<void> _endChallenge() async {
     try {
-      final token = await _sessionStorage.getToken();
-      final httpHelper = HttpHelpMethods(jwtToken: token);
+      final token = await widget.sessionStorage.getToken();
+      debugPrint('>>> Försöker avsluta challenge id: ${widget.challenge.id}');
 
-      // Steg 1: Hämta lista och hitta DAILY
-      final String allChallengesBody = await httpHelper.getAllChallenges();
-      final List<dynamic> challenges = jsonDecode(allChallengesBody);
-
-      final dailyChallenge = challenges.firstWhere(
-            (c) => c['type'] == 'DAILY',
-        orElse: () => null,
-      );
-
-      if (dailyChallenge == null) {
-        setState(() {
-          _errorMessage = 'Ingen daglig utmaning hittades';
-          _isLoading = false;
-        });
-        return;
-      }
-
-      final int challengeId = dailyChallenge['id'];
-
-      // Steg 2: Hämta detaljer med tasks
-      final Map<String, dynamic> details = await httpHelper.getStartedQuestion(challengeId);
-
-      setState(() {
-        _challenge = DailyChallengeModel.fromJson(details);
-        _isLoading = false;
-      });
-
-    } catch (e) {
-      print('Error: $e');
-      setState(() {
-        _errorMessage = 'Något gick fel. Kolla din internetanslutning.';
-        _isLoading = false;
-      });
-    }
-  }
-
-  Widget _buildBody() {
-    if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
-    if (_errorMessage != null) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(_errorMessage!),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _fetchDailyChallenge,
-              child: const Text('Försök igen'),
-            ),
-          ],
+      final response = await http.delete(
+        Uri.parse(
+          'https://group-6-15.pvt.dsv.su.se/challenges/${widget.challenge.id}/progress',
         ),
-      );
-    }
-
-    if (_challenge == null) {
-      return const Center(child: Text('Du har redan gjort dagens utmaning!'));
-    }
-
-    // Hämta första uppgiftens text, eller faller tillbaka på description
-    final taskText = _challenge!.tasks.isNotEmpty
-        ? _challenge!.tasks.first.taskText
-        : _challenge!.description;
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Column(
-        children: [
-          const SizedBox(height: 20),
-
-          // Troll och pratbubbla
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Stack(
-                  clipBehavior: Clip.none,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(18),
-                      decoration: BoxDecoration(
-                        color: const Color(0xff84c06c),
-                        borderRadius: BorderRadius.circular(22),
-                      ),
-                      child: Text(
-                        "Välkommen till dagens utmaning!\n\n"
-                        "Här får du varje dag en ny utmaning att göra. När du är klar klicka på knappen!",
-                        style: Theme.of(context).textTheme.bodyMedium,
-                      ),
-                    ),
-                    const Positioned(
-                      right: -35,
-                      top: 26,
-                      child: Icon(
-                        Icons.arrow_right,
-                        size: 60,
-                        color: Color(0xff84c06c),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 10),
-              Image.asset(
-                'assets/maskot_skogstroll.png',
-                width: 120,
-                height: 120,
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 40),
-
-          // Gul utmaningsruta
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(22),
-            decoration: BoxDecoration(
-              color: const Color(0xfff8ed76),
-              borderRadius: BorderRadius.circular(20),
-              boxShadow: const [
-                BoxShadow(
-                  color: Colors.black12,
-                  blurRadius: 6,
-                  offset: Offset(0, 3),
-                ),
-              ],
-            ),
-            child: Column(
-              children: [
-                const Icon(Icons.emoji_events, size: 60),
-                const SizedBox(height: 12),
-
-                // Titel från backend
-                Text(
-                  _challenge!.title,
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-
-                const SizedBox(height: 6),
-
-                // Belöning
-                Text(
-                  'För denna uppgift får du ${_challenge!.rewardPoints} poäng!',
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-
-                const SizedBox(height: 20),
-
-                // Uppgiftens text från backend
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(18),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.6),
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Text(
-                    taskText,
-                    style: Theme.of(context).textTheme.titleMedium,
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-
-                const SizedBox(height: 28),
-
-                // Klar-knapp
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      showDialog(
-                        context: context,
-                        builder: (context) {
-                          return AlertDialog(
-                            backgroundColor: const Color(0xfff8ed76),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(24),
-                            ),
-                            title: Text(
-                              "Bra jobbat!",
-                              style: Theme.of(context).textTheme.titleLarge,
-                              textAlign: TextAlign.center,
-                            ),
-                            content: Text(
-                              "Du klarade dagens utmaning och fick ${_challenge!.rewardPoints} poäng!",
-                              style: Theme.of(context).textTheme.titleMedium,
-                              textAlign: TextAlign.center,
-                            ),
-                            actions: [
-                              Center(
-                                child: ElevatedButton(
-                                  onPressed: () => Navigator.pop(context),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xffb1067e),
-                                  ),
-                                  child: Text(
-                                    "Tack!",
-                                    style: Theme.of(
-                                      context,
-                                    ).textTheme.titleMedium,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          );
-                        },
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xffb1067e),
-                      padding: const EdgeInsets.symmetric(vertical: 18),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                    ),
-                    child: const Text(
-                      "KLAR!",
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFBEDBB2),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFFBEDBB2),
-        elevation: 0,
-        title: Text(widget.gameTitle),
-      ),
-      body: SafeArea(child: _buildBody()),
-      bottomNavigationBar: const CustomNavigationBar(selectedIndex: -1),
-    );
-  }
-}
-
-/*import 'package:flutter/material.dart';
-import '../../widgets/custom_navigation_bar.dart';
-import '../../services/session_storage.dart';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
-
-class DailyChallengeModel {
-  final int id;
-  final String title;
-  final String description;
-
-  DailyChallengeModel({
-    required this.id,
-    required this.title,
-    required this.description,
-  });
-
-  factory DailyChallengeModel.fromJson(Map<String, dynamic> json) {
-    return DailyChallengeModel(
-      id: json['id'],
-      title: json['title'],
-      description: json['description'],
-    );
-  }
-}
-
-class DailyChallenge extends StatefulWidget {
-  final String gameTitle;
-
-  const DailyChallenge({super.key, required this.gameTitle});
-
-  @override
-  State<DailyChallenge> createState() => _DailyChallengeState();
-}
-
-class _DailyChallengeState extends State<DailyChallenge> {
-  final SessionStorage _sessionStorage = SessionStorage();
-
-  DailyChallengeModel? _challenge;
-  bool _isLoading = true;
-  String? _errorMessage;
-
-  @override
-  void initState() {
-    super.initState();
-    _fetchDailyChallenge();
-  }
-
-  Future<void> _fetchDailyChallenge() async {
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
-    });
-
-    try {
-
-      // FEJKAD DATA JUST NU
-
-
-      await Future.delayed(const Duration(seconds: 1));
-
-      /*final fakeChallenge = DailyChallengeModel(
-        id: 1,
-        title: 'Dagens utmaning',
-        description: 'Måla en sten så det blir en nyckelpiga!',
-      );
-
-      setState(() {
-        _challenge = fakeChallenge;
-        _isLoading = false;
-      });*/
-
-      // SENARE BACKEND
-
-      /*
-      final token = await _sessionStorage.getToken();
-
-      final response = await http.post(
-        Uri.parse('https://group-6-15.pvt.dsv.su.se/challenges/start '),
         headers: {
           'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
         },
       );
-
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-
-        setState(() {
-          _challenge = DailyChallengeModel.fromJson(data);
-          _isLoading = false;
-        });
-      }
-      */
+      debugPrint('>>> endChallenge status: ${response.statusCode}');
+      debugPrint('>>> endChallenge body: ${response.body}');
     } catch (e) {
-      setState(() {
-        _errorMessage = 'Kunde inte hämta utmaningen';
-        _isLoading = false;
-      });
+      debugPrint('Något gick fel vid avslutande av utmaning: $e');
     }
-  }
-
-  void _showCompletedDialog() {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          backgroundColor: const Color(0xfff8ed76),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(24),
-          ),
-          title: const Text('Bra jobbat!', textAlign: TextAlign.center),
-          content: const Text(
-            'Du klarade dagens utmaning!',
-            textAlign: TextAlign.center,
-          ),
-          actions: [
-            Center(
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xff84c06c),
-                ),
-                child: const Text('Tack!'),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Widget _buildBody() {
-    if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
-    if (_errorMessage != null) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(_errorMessage!),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _fetchDailyChallenge,
-              child: const Text('Försök igen'),
-            ),
-          ],
-        ),
-      );
-    }
-
-    if (_challenge == null) {
-      return const Center(child: Text('Du har redan gjort dagens utmaning!'));
-    }
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Column(
-        children: [
-          const SizedBox(height: 20),
-
-          /// troll och pratbubbla
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Stack(
-                  clipBehavior: Clip.none,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(18),
-                      decoration: BoxDecoration(
-                        color: const Color(0xff84c06c),
-                        borderRadius: BorderRadius.circular(22),
-                      ),
-                      child: Text(
-                        "Välkommen till dagens utmaning!\n"
-                        "Här får du varje dag en ny utmaning att göra. När du är klar klicka på knappen!",
-                        style: Theme.of(context).textTheme.bodyMedium,
-                      ),
-                    ),
-
-                    const Positioned(
-                      right: -35,
-                      top: 26,
-                      child: Icon(
-                        Icons.arrow_right,
-                        size: 60,
-                        color: Color(0xff84c06c),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              const SizedBox(width: 10),
-
-              Image.asset(
-                'assets/maskot_skogstroll.png',
-                width: 120,
-                height: 120,
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 40),
-
-          // GUL UTMANINGSRUTA
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(22),
-            decoration: BoxDecoration(
-              color: const Color(0xfff8ed76),
-              borderRadius: BorderRadius.circular(20),
-              boxShadow: const [
-                BoxShadow(
-                  color: Colors.black12,
-                  blurRadius: 6,
-                  offset: Offset(0, 3),
-                ),
-              ],
-            ),
-
-            child: Column(
-              children: [
-                const Icon(Icons.emoji_events, size: 60),
-                const SizedBox(height: 18),
-
-                /*
-                /// TITEL
-                const Text(
-                  "Dagens utmaning",
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                  textAlign: TextAlign.center,
-                ),*/
-
-                const SizedBox(height: 20),
-
-                // SJÄLVA UTMANINGEN
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(18),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.6),
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Text(
-                    "Måla en sten så det blir en nyckelpiga!",
-                    style: Theme.of(context).textTheme.titleMedium,
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-
-                const SizedBox(height: 28),
-
-                // klar knapp
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      showDialog(
-                        context: context,
-                        builder: (context) {
-                          return AlertDialog(
-                            backgroundColor: const Color(0xfff8ed76),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(24),
-                            ),
-
-                            title: Text(
-                              "Bra jobbat!",
-                              style: Theme.of(context).textTheme.titleLarge,
-                              textAlign: TextAlign.center,
-                            ),
-
-                            content: Text(
-                              "Du klarade dagens utmaning!",
-                              style: Theme.of(context).textTheme.titleMedium,
-                              textAlign: TextAlign.center,
-                            ),
-
-                            actions: [
-                              Center(
-                                child: ElevatedButton(
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xffb1067e),
-                                  ),
-                                  child: Text(
-                                      "Tack!",
-                                    style: Theme.of(context).textTheme.titleMedium,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          );
-                        },
-                      );
-                    },
-
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xffb1067e),
-                      padding: const EdgeInsets.symmetric(vertical: 18),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                    ),
-
-                    child: const Text(
-                      "KLAR!",
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFBEDBB2),
-
-      appBar: AppBar(
-        backgroundColor: const Color(0xFFBEDBB2),
-        elevation: 0,
-        title: Text(widget.gameTitle),
-      ),
-
-      body: SafeArea(child: _buildBody()),
-
-      bottomNavigationBar: const CustomNavigationBar(selectedIndex: -1),
-    );
   }
 }
-
- */
- 
- */
