@@ -177,7 +177,7 @@ class _BingoEasyMode extends State<BingoEasyMode> {
                                 context: context,
                                 builder: (context) => decideTargetTypeMixedBingo());
                           } else {
-                            type = helpMethodsHttp.mapCategoryToBackend(widget.typeOfBingo);
+                            type = helpMethodsHttp.mapCategoryToBackendForPictureUpload(widget.typeOfBingo);
                           }
 
                           if(type != null) {
@@ -221,7 +221,7 @@ class _BingoEasyMode extends State<BingoEasyMode> {
                                 context: context,
                                 builder: (context) => decideTargetTypeMixedBingo());
                           } else {
-                            type = helpMethodsHttp.mapCategoryToBackend(widget.typeOfBingo);
+                            type = helpMethodsHttp.mapCategoryToBackendForPictureUpload(widget.typeOfBingo);
                           }
 
                           if(type != null) {
@@ -384,8 +384,8 @@ class _BingoEasyMode extends State<BingoEasyMode> {
     try {
       helpMethodsUploadPicture = UploadPicture(jwtToken: await token);
       if (file != null) {
-        Map<String, dynamic>? response = await helpMethodsUploadPicture
-            .sendPictureToBackend(file, type, 'CHALLENGE', challengeId);
+        Map<String, dynamic>? response = await helpMethodsUploadPicture.sendPictureToBackend(file, type, 'CHALLENGE', challengeId);
+        print('uploadPicture $response');
 
         /*if (response != null) {
           if (response['accepted'] == true) {

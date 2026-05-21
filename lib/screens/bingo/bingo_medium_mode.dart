@@ -167,7 +167,7 @@ class _BingoMediumMode extends State<BingoMediumMode> {
                                 context: context,
                                 builder: (context) => decideTargetTypeMixedBingo());
                           } else {
-                            type = helpMethodsHttp.mapCategoryToBackend(widget.typeOfBingo);
+                            type = helpMethodsHttp.mapCategoryToBackendForPictureUpload(widget.typeOfBingo);
                           }
 
                           if(type != null) {
@@ -211,7 +211,7 @@ class _BingoMediumMode extends State<BingoMediumMode> {
                                 context: context,
                                 builder: (context) => decideTargetTypeMixedBingo());
                           } else {
-                            type = helpMethodsHttp.mapCategoryToBackend(widget.typeOfBingo);
+                            type = helpMethodsHttp.mapCategoryToBackendForPictureUpload(widget.typeOfBingo);
                           }
 
                           if(type != null) {
@@ -261,7 +261,7 @@ class _BingoMediumMode extends State<BingoMediumMode> {
                                 context: context,
                                 builder: (context) => decideTargetTypeMixedBingo());
                           } else {
-                            type = helpMethodsHttp.mapCategoryToBackend(widget.typeOfBingo);
+                            type = helpMethodsHttp.mapCategoryToBackendForPictureUpload(widget.typeOfBingo);
                           }
 
                           if(type != null) {

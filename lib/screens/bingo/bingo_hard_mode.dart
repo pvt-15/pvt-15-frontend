@@ -68,8 +68,8 @@ class _BingoHardMode extends State<BingoHardMode> {
         data = await helpMethodsHttp.getStartedQuestion(widget.challengeId!);
         print(data);
       } else {
-        data = await helpMethodsHttp.getOrCreateBingoChallenge(widget.typeOfBingo, 'HARD');
-        //data = await helpMethodsHttp.getNewQuestionOnId();
+        //data = await helpMethodsHttp.getOrCreateBingoChallenge(widget.typeOfBingo, 'HARD');
+        data = await helpMethodsHttp.getQuestionOnId();
       }
 
       setState(() {
@@ -240,7 +240,7 @@ class _BingoHardMode extends State<BingoHardMode> {
                                     context: context,
                                     builder: (context) => decideTargetTypeMixedBingo());
                               } else {
-                                type = helpMethodsHttp.mapCategoryToBackend(widget.typeOfBingo);
+                                type = helpMethodsHttp.mapCategoryToBackendForPictureUpload(widget.typeOfBingo);
                               }
 
                               if (type != null) {
@@ -279,11 +279,11 @@ class _BingoHardMode extends State<BingoHardMode> {
                           onTap: () async {
 
                             if (images[1] == null){
-                              final File? file = await CameraService.takePicture();
+                              //final File? file = await CameraService.takePicture();
 
-                              //final File assetFile = await getAssetFile('assets/gran.png');
-                              //final compressedXFile = await FlutterImageCompress.compressAndGetFile(assetFile.path, '${assetFile.path}_comp.jpg', quality: 85, minWidth: 1000);
-                              //final File file = File(compressedXFile!.path);
+                              final File assetFile = await getAssetFile('assets/gran.png');
+                              final compressedXFile = await FlutterImageCompress.compressAndGetFile(assetFile.path, '${assetFile.path}_comp.jpg', quality: 85, minWidth: 1000);
+                              final File file = File(compressedXFile!.path);
 
                               bool success = false;
                               String? type;
@@ -293,7 +293,7 @@ class _BingoHardMode extends State<BingoHardMode> {
                                     context: context,
                                     builder: (context) => decideTargetTypeMixedBingo());
                               } else {
-                                type = helpMethodsHttp.mapCategoryToBackend(widget.typeOfBingo);
+                                type = helpMethodsHttp.mapCategoryToBackendForPictureUpload(widget.typeOfBingo);
                               }
 
                               if(type != null) {
@@ -348,7 +348,7 @@ class _BingoHardMode extends State<BingoHardMode> {
                                     context: context,
                                     builder: (context) => decideTargetTypeMixedBingo());
                               } else {
-                                type = helpMethodsHttp.mapCategoryToBackend(widget.typeOfBingo);
+                                type = helpMethodsHttp.mapCategoryToBackendForPictureUpload(widget.typeOfBingo);
                               }
 
                               if(type != null) {
@@ -395,7 +395,7 @@ class _BingoHardMode extends State<BingoHardMode> {
                                     context: context,
                                     builder: (context) => decideTargetTypeMixedBingo());
                               } else {
-                                type = helpMethodsHttp.mapCategoryToBackend(widget.typeOfBingo);
+                                type = helpMethodsHttp.mapCategoryToBackendForPictureUpload(widget.typeOfBingo);
                               }
 
                               if(type != null) {
