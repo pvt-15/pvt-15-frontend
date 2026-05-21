@@ -65,15 +65,16 @@ class ReviewAnswer {
     required this.explanation,
   });
 
+  // Ändrade då vi fick type cast grejen. Om svar är null så ta 0
   factory ReviewAnswer.fromJson(Map<String, dynamic> j) => ReviewAnswer(
-    questionId: j['questionId'] as int,
-    questionText: j['questionText'] as String,
-    selectedOptionId: j['selectedOptionId'] as int,
-    selectedOptionText: j['selectedOptionText'] as String,
-    correctOptionId: j['correctOptionId'] as int,
-    correctOptionText: j['correctOptionText'] as String,
-    correct: j['correct'] as bool,
-    explanation: j['explanation'] as String,
+    questionId: (j['questionId'] as num?)?.toInt() ?? 0,
+    questionText: j['questionText'] as String? ?? '',
+    selectedOptionId: (j['selectedOptionId'] as num?)?.toInt() ?? 0,
+    selectedOptionText: j['selectedOptionText'] as String? ?? '',
+    correctOptionId: (j['correctOptionId'] as num?)?.toInt() ?? 0,
+    correctOptionText: j['correctOptionText'] as String? ?? '',
+    correct: j['correct'] as bool? ?? false,
+    explanation: j['explanation'] as String? ?? '',
   );
 }
 
@@ -195,7 +196,6 @@ class _QuizState extends State<Quiz> {
   Future<void> _submitAnswers() async {
     setState(() => _submitting = true);
     try {
-      // Skicka in svaren
       final submitUri = Uri.parse('$_baseUrl/quiz/submit');
       final submitResponse = await http.post(
         submitUri,
@@ -203,7 +203,6 @@ class _QuizState extends State<Quiz> {
           if (_jwtToken != null) 'Authorization': 'Bearer $_jwtToken',
           'Content-Type': 'application/json',
         },
-        // request body med attemptID och alla svar
         body: jsonEncode({
           'attemptId': _attemptId,
           'answers': _answers.entries
@@ -212,7 +211,6 @@ class _QuizState extends State<Quiz> {
         }),
       );
 
-      // fel vid inlämning
       if (submitResponse.statusCode != 200) {
         setState(() => _submitting = false);
         if (mounted) {
@@ -223,14 +221,13 @@ class _QuizState extends State<Quiz> {
         return;
       }
 
-      // Plocka poäng från submit svaret
       final submitBody = jsonDecode(submitResponse.body) as Map<String, dynamic>;
-      final score = submitBody['score'] as int;
-      final total = submitBody['totalQuestions'] as int;
-      final points = submitBody['pointsAwarded'] as int;
+      final quiz = submitBody['quiz'] as Map<String, dynamic>;
+
+// Hämta poäng från submit
+      final points = (quiz['pointsAwarded'] as num?)?.toInt() ?? 0;
 
       final gamification = submitBody['gamification'];
-
       await GamificationPopupService.showIfNeeded(
         context: context,
         leveledUp: gamification?['leveledUp'] ?? false,
@@ -239,27 +236,31 @@ class _QuizState extends State<Quiz> {
         newlyUnlockedBadges: gamification?['newlyUnlockedBadges'] ?? [],
       );
 
-      // Hämta rättning GET för att få rätt/fel per fråga
       final reviewUri = Uri.parse('$_baseUrl/quiz/attempts/$_attemptId/review');
       final reviewResponse = await http.get(reviewUri, headers: {
         if (_jwtToken != null) 'Authorization': 'Bearer $_jwtToken',
       });
 
-      // Tolka svaret om det lyckas, annars tom lista
       List<ReviewAnswer> reviewAnswers = [];
+      int score = 0;
+      int total = 0;
+
       if (reviewResponse.statusCode == 200) {
         final reviewBody = jsonDecode(reviewResponse.body) as Map<String, dynamic>;
+
         reviewAnswers = (reviewBody['answers'] as List)
             .map((a) => ReviewAnswer.fromJson(a as Map<String, dynamic>))
             .toList();
+
+        score = reviewAnswers.where((a) => a.correct).length;
+        total = reviewAnswers.length;
       }
 
-      // spara resultatet
       setState(() {
         _result = QuizResult(
           correct: score,
           total: total,
-          pointsAwarded: points,
+          pointsAwarded: points, // från submit, inte review. Visar nu poängen som man fick
           answers: reviewAnswers,
         );
         _submitting = false;
@@ -695,40 +696,23 @@ class _QuizState extends State<Quiz> {
 
               const SizedBox(height: 24),
 
-              // knappar längst ner
+              // knapp längst ner. Jag tar bort börja om
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   ElevatedButton.icon(
-                    onPressed: () => Navigator.pop(context), // tillbaka till ChooseDifficulty
-                    icon: const Icon(Icons.replay),
-                    label: const Text('Försök igen'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFB1067E),
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 20, vertical: 14),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14)),
-                    ),
-                  ),
-                  ElevatedButton.icon(
                     onPressed: () => Navigator.pushAndRemoveUntil(
                       context,
-                      MaterialPageRoute(
-                          builder: (_) => const HomeScreen()),
+                      MaterialPageRoute(builder: (_) => const HomeScreen()),
                           (route) => false,
                     ),
-                    // TODO hemikonen
                     icon: const Icon(Icons.home_outlined),
                     label: const Text('Hem'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF84C06C),
                       foregroundColor: const Color(0xFF000000),
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 20, vertical: 14),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14)),
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                     ),
                   ),
                 ],
