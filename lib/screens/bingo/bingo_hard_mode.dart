@@ -66,10 +66,10 @@ class _BingoHardMode extends State<BingoHardMode> {
       Map<String, dynamic> data;
       if (widget.challengeId != null) {
         data = await helpMethodsHttp.getStartedQuestion(widget.challengeId!);
-        print(data);
+        print('DEBUG set up $data');
       } else {
-        //data = await helpMethodsHttp.getOrCreateBingoChallenge(widget.typeOfBingo, 'HARD');
-        data = await helpMethodsHttp.getQuestionOnId();
+        data = await helpMethodsHttp.getOrCreateBingoChallenge(widget.typeOfBingo, 'HARD');
+        //data = await helpMethodsHttp.getQuestionOnId();
       }
 
       setState(() {
@@ -225,12 +225,11 @@ class _BingoHardMode extends State<BingoHardMode> {
                           onTap: () async {
 
                             if (images[0] == null) {
-                              //final File? file = await CameraService.takePicture();
-                              //final File? file = await getAssetFile('assets/gran.png');
+                              final File? file = await CameraService.takePicture();
 
-                              final File assetFile = await getAssetFile('assets/gran.png');
-                              final compressedXFile = await FlutterImageCompress.compressAndGetFile(assetFile.path, '${assetFile.path}_comp.jpg', quality: 85);
-                              final File file = File(compressedXFile!.path);
+                              //final File assetFile = await getAssetFile('assets/gran.png');
+                              //final compressedXFile = await FlutterImageCompress.compressAndGetFile(assetFile.path, '${assetFile.path}_comp.jpg', quality: 85);
+                              //final File file = File(compressedXFile!.path);
 
                               bool success = false;
                               String? type;
@@ -279,11 +278,11 @@ class _BingoHardMode extends State<BingoHardMode> {
                           onTap: () async {
 
                             if (images[1] == null){
-                              //final File? file = await CameraService.takePicture();
+                              final File? file = await CameraService.takePicture();
 
-                              final File assetFile = await getAssetFile('assets/gran.png');
-                              final compressedXFile = await FlutterImageCompress.compressAndGetFile(assetFile.path, '${assetFile.path}_comp.jpg', quality: 85, minWidth: 1000);
-                              final File file = File(compressedXFile!.path);
+                              //final File assetFile = await getAssetFile('assets/gran.png');
+                              //final compressedXFile = await FlutterImageCompress.compressAndGetFile(assetFile.path, '${assetFile.path}_comp.jpg', quality: 85, minWidth: 1000);
+                              //final File file = File(compressedXFile!.path);
 
                               bool success = false;
                               String? type;
@@ -709,11 +708,13 @@ class _BingoHardMode extends State<BingoHardMode> {
     );
   }
 
+  //TODO lägg till i andra klasserna
   AlertDialog finishedChallengeDialog() {
     return AlertDialog(
       actionsAlignment: MainAxisAlignment.center,
       content: const Text(
-        'Bra jobbat! ',
+        //TODO visa antalet poäng
+        'Bra jobbat! Dina poäng har nu sparats',
         textAlign: TextAlign.center,
       ),
       actions: [

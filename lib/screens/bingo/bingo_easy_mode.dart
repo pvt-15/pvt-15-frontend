@@ -3,6 +3,10 @@ import 'dart:io';
 
 import 'package:Skogsjakten/services/upload_picture.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:path_provider/path_provider.dart';
 import '../../services/camera_service.dart';
 import '../../services/gamification_popup_helper.dart';
 import '../../services/session_storage.dart';
@@ -31,6 +35,7 @@ class _BingoEasyMode extends State<BingoEasyMode> {
 
   late String question;
   late int challengeId;
+  late int points;
 
   @override
   void initState() {
@@ -47,8 +52,6 @@ class _BingoEasyMode extends State<BingoEasyMode> {
 
       await setupChallenge();
       getPictures();
-
-      List<dynamic> pictures = await helpMethodsHttp.getPictures();
 
     } catch (e) {
       debugPrint('Initieringsfel: $e');
@@ -68,6 +71,7 @@ class _BingoEasyMode extends State<BingoEasyMode> {
       setState(() {
         question = data['description'];
         challengeId = data['id'];
+        //points = data['points'];
       });
 
     } catch (e) {
@@ -77,6 +81,7 @@ class _BingoEasyMode extends State<BingoEasyMode> {
     }
   }
 
+  /*
   //Metod för att hämta ut bilder från en utmaning från databasen
   void getPictures() async {
     try {
@@ -105,6 +110,58 @@ class _BingoEasyMode extends State<BingoEasyMode> {
     }
   }
 
+   */
+
+  //Metod för att hämta ut bilder från en utmaning från databasen
+  void getPictures() async {
+    try {
+      Map<String, dynamic> response = await helpMethodsHttp.getPicturesForChallenge(challengeId);
+
+      if (response.containsKey('tasks')) {
+        List<dynamic> tasks = response['tasks'];
+        List<String> urls = [];
+
+        for (var task in tasks) {
+          if (task['pictures'] != null && (task['pictures'] as List).isNotEmpty) {
+            if (task['requiredCount'] == 2) {
+              for (var picture in task['pictures']) {
+                String url = picture['imageUrl'];
+                if (url != null) {
+                  urls.add(url);
+                }
+              }
+
+            } else {
+              String? url = task['pictures'][0]['imageUrl'];
+              if (url != null) {
+                urls.add(url);
+              }
+            }
+          }
+        }
+
+        setState(() {
+          if (urls.isNotEmpty) {
+            images[0] = urls[0];
+          }
+          if (urls.length > 1) {
+            images[1] = urls[1];
+          }
+        });
+      }
+    } catch (e) {
+      debugPrint('DEBUG getpictures $e');
+    }
+  }
+
+  Future<File> getAssetFile(String assetPath) async {
+    final byteData = await rootBundle.load(assetPath);
+    final file = File('${(await getTemporaryDirectory()).path}/test_asset.jpg');
+    await file.writeAsBytes(byteData.buffer.asUint8List());
+    return file;
+  }
+
+  /*
   Object? getImageFromList(int index) {
     var image = images[index];
 
@@ -117,6 +174,8 @@ class _BingoEasyMode extends State<BingoEasyMode> {
     }
     return null;
   }
+
+   */
 
   @override
   Widget build(BuildContext context) {
@@ -168,8 +227,12 @@ class _BingoEasyMode extends State<BingoEasyMode> {
 
                         if (images[0] == null){
                           final File? file = await CameraService.takePicture();
-                          bool success = false;
 
+                          //final File assetFile = await getAssetFile('assets/gran.png');
+                          //final compressedXFile = await FlutterImageCompress.compressAndGetFile(assetFile.path, '${assetFile.path}_comp.jpg', quality: 85, minWidth: 1000);
+                          //final File file = File(compressedXFile!.path);
+
+                          bool success = false;
                           String? type;
 
                           if(widget.typeOfBingo == 'Blandad') {
@@ -201,7 +264,7 @@ class _BingoEasyMode extends State<BingoEasyMode> {
                             borderRadius: BorderRadius.circular(15),
                             image: images[0] != null ? DecorationImage(image: FileImage(images[0]!), fit: BoxFit.cover) : null,
                         ),
-                        child: (images[0] == null) ? const Center(child: Icon(Icons.image, size: 50)) : null,
+                        child: (images[0] == null) ? Center(child: Icon(MdiIcons.camera, size: 50)) : null,
                       ),
                     ),
 
@@ -245,7 +308,7 @@ class _BingoEasyMode extends State<BingoEasyMode> {
                             borderRadius: BorderRadius.circular(15),
                             image: images[1] != null ? DecorationImage(image: FileImage(images[1]!), fit: BoxFit.cover) : null,
                         ),
-                        child: (images[1] == null) ? const Center(child: Icon(Icons.image, size: 50)) : null,
+                        child: (images[1] == null) ? Center(child: Icon(MdiIcons.camera, size: 50)) : null,
                       ),
                     ),
                   ],
@@ -385,7 +448,7 @@ class _BingoEasyMode extends State<BingoEasyMode> {
       helpMethodsUploadPicture = UploadPicture(jwtToken: await token);
       if (file != null) {
         Map<String, dynamic>? response = await helpMethodsUploadPicture.sendPictureToBackend(file, type, 'CHALLENGE', challengeId);
-        print('uploadPicture $response');
+        //print('uploadPicture $response');
 
         /*if (response != null) {
           if (response['accepted'] == true) {

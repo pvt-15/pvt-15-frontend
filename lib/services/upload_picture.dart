@@ -48,8 +48,6 @@ class UploadPicture {
     try {
       //Vänta på att bilden laddas upp och få tillbaka URL:en
       final imageObjectKey = await sendPictureToGoogleStorage(imageFile);
-      print(imageObjectKey);
-      print(jwtToken);
 
       targetType = targetType.toUpperCase();
       pictureMode = pictureMode.toUpperCase();
@@ -83,8 +81,8 @@ class UploadPicture {
         }),*/
       );
 
-      print(response.statusCode);
-      print(response.body);
+      //print(response.statusCode);
+      //print(response.body);
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         return jsonDecode(response.body);

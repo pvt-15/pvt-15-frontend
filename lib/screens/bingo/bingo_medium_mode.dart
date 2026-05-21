@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:Skogsjakten/services/upload_picture.dart';
 import 'package:flutter/material.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import '../../services/camera_service.dart';
 import '../../services/gamification_popup_helper.dart';
 import '../../services/session_storage.dart';
@@ -31,6 +32,7 @@ class _BingoMediumMode extends State<BingoMediumMode> {
 
   late String question;
   late int challengeId;
+  late int points;
 
   @override
   void initState() {
@@ -68,6 +70,7 @@ class _BingoMediumMode extends State<BingoMediumMode> {
       setState(() {
         question = data['description'];
         challengeId = data['id'];
+        //points = data['points'];
       });
 
     } catch (e) {
@@ -98,9 +101,15 @@ class _BingoMediumMode extends State<BingoMediumMode> {
         }
 
         setState(() {
-          if (urls.isNotEmpty) images[0] = urls[0];
-          if (urls.length > 1) images[1] = urls[1];
-          if (urls.length > 2) images[2] = urls[2];
+          if (urls.isNotEmpty) {
+            images[0] = urls[0];
+          }
+          if (urls.length > 1) {
+            images[1] = urls[1];
+          }
+          if (urls.length > 2) {
+            images[2] = urls[2];
+          }
         });
       }
     } catch (e) {
@@ -191,7 +200,7 @@ class _BingoMediumMode extends State<BingoMediumMode> {
                             borderRadius: BorderRadius.circular(15),
                             image: images[0] != null ? DecorationImage(image: FileImage(images[0]!), fit: BoxFit.cover) : null,
                         ),
-                        child: (images[0] == null) ? const Center(child: Icon(Icons.image, size: 50)) : null,
+                        child: (images[0] == null) ? Center(child: Icon(MdiIcons.camera, size: 50)) : null,
                       ),
                     ),
 
@@ -235,7 +244,7 @@ class _BingoMediumMode extends State<BingoMediumMode> {
                             borderRadius: BorderRadius.circular(15),
                             image: images[1] != null ? DecorationImage(image: FileImage(images[1]!), fit: BoxFit.cover) : null,
                         ),
-                        child: (images[1] == null) ? const Center(child: Icon(Icons.image, size: 50)) : null,
+                        child: (images[1] == null) ? Center(child: Icon(MdiIcons.camera, size: 50)) : null,
                       ),
                     ),
                   ],
@@ -285,7 +294,7 @@ class _BingoMediumMode extends State<BingoMediumMode> {
                             borderRadius: BorderRadius.circular(15),
                             image: images[2] != null ? DecorationImage(image: FileImage(images[2]!), fit: BoxFit.cover) : null,
                         ),
-                        child: (images[2] == null) ? const Center(child: Icon(Icons.image, size: 50)) : null,
+                        child: (images[2] == null) ? Center(child: Icon(MdiIcons.camera, size: 50)) : null,
                       ),
                     ),
                   ],
