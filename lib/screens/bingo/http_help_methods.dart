@@ -67,6 +67,30 @@ class HttpHelpMethods {
     }
   }
 
+  Future<Map<String, dynamic>> getQuestionOnId() async {
+    try {
+      final response = await http.post(
+        Uri.parse('https://group-6-15.pvt.dsv.su.se/challenges/364/start'),
+        headers: {
+          'Authorization': 'Bearer $jwtToken',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      //debugPrint(response.body);
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return data;
+      } else {
+        throw Exception('Kunde inte hämta fråga (${response.statusCode})');
+      }
+
+    } catch (e) {
+      throw Exception('Något gick fel vid inhämtning av fråga $e');
+    }
+  }
+
   Future<List<dynamic>>  getAllChallenges() async {
     try {
       final response = await http.get(
@@ -82,16 +106,24 @@ class HttpHelpMethods {
     }
   }
 
-  String? mapCategoryToBackend(String category) {
+  String? mapCategoryToBackendForChallenge(String category) {
     if (category == 'Träd') return 'TREE';
     if (category == 'Växter') return 'PLANT';
     if (category == 'Djur') return 'ANIMAL';
     return null; // För 'Blandad'
   }
 
+  String? mapCategoryToBackendForPictureUpload(String category) {
+    if (category == 'Träd') return 'PLANT';
+    if (category == 'Växter') return 'PLANT';
+    if (category == 'Djur') return 'ANIMAL';
+    return null; // För 'Blandad'
+  }
+
+  //TODO ändra, denna check sker i bingo
   Future<Map<String, dynamic>> getOrCreateBingoChallenge(String category, String difficulty) async {
     List<dynamic> all = await getAllChallenges();
-    String? backendCategory = mapCategoryToBackend(category);
+    String? backendCategory = mapCategoryToBackendForChallenge(category);
 
     for (var challenge in all) {
       if (challenge['type'] == 'BINGO' && challenge['category'] == backendCategory && challenge['status'] == 'IN_PROGRESS') {

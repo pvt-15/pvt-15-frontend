@@ -88,7 +88,7 @@ class _ProfileState extends State<Profile> {
       }
 
       final response = await http.get(
-        Uri.parse('https://group-6-15.pvt.dsv.su.se/auth/me'),
+        Uri.parse('https://group-6-15.pvt.dsv.su.se/auth-service/auth/me'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer ${session.token}',
@@ -169,7 +169,7 @@ class _ProfileState extends State<Profile> {
         centerTitle: true,
         title: Padding(
           padding: const EdgeInsets.only(top: 25),
-          child: Text("Profil: $username"),
+          child: Text(username),
         ),
         actions: [
           IconButton(
@@ -246,7 +246,7 @@ class _ProfileState extends State<Profile> {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            'Level: $level',
+                            'Nivå: $level',
                             style:
                             Theme.of(context).textTheme.bodyMedium,
                           ),
@@ -302,7 +302,7 @@ class _ProfileState extends State<Profile> {
                 ? const Align(
               alignment: Alignment.topCenter,
               child: Text(
-                "Inga medaljer ännu.\nSamla fler av en art så kanske du får en medalj!",
+                "Inga medaljer ännu.\nSamla fler av en kategori så kanske du får en medalj!\nKategorierna är blomma, träd, växt, djur, fågel och insekt!",
                 textAlign: TextAlign.center,
               ),
             )
@@ -313,6 +313,7 @@ class _ProfileState extends State<Profile> {
               const SizedBox(width: 20),
               itemBuilder: (context, index) {
                 final badge = badges[index];
+                final badgeImageUrl = badge['imageUrl'] ?? '';
                 return GestureDetector(
                   onTap: () => _navigateAndRefresh(const MedalsLibrary()),
                   child: Padding(
@@ -320,11 +321,15 @@ class _ProfileState extends State<Profile> {
                     child: Column(
                       children: [
                         CircleAvatar(
-                          radius: 42.5,
-                          backgroundImage: const NetworkImage(
-                            "https://cdn.pixabay.com/photo/2015/04/17/19/02/ko-727828_1280.jpg",
+                      radius: 42.5,
+                      backgroundColor: Colors.transparent,
+                      backgroundImage: badgeImageUrl.isNotEmpty
+                          ? NetworkImage(badgeImageUrl)
+                          : null,
+                      child: badgeImageUrl.isEmpty
+                          ? const Icon(Icons.emoji_events, size: 45)
+                          : null,
                           ),
-                        ),
                         const SizedBox(height: 10),
                         SizedBox(
                           width: 80,

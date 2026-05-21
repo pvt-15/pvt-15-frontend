@@ -16,7 +16,7 @@ class UploadPicture {
       if (imageFile != null) {
         final request = http.MultipartRequest(
           'POST',
-          Uri.parse('https://group-6-15.pvt.dsv.su.se/uploads/picture'),
+          Uri.parse('https://group-6-15.pvt.dsv.su.se/storage-service/uploads/picture'),
         );
 
         request.headers['Authorization'] = 'Bearer $jwtToken';
@@ -44,34 +44,47 @@ class UploadPicture {
     return null;
   }
 
-  Future<Map<String, dynamic>?> sendPictureToBackend(File? imageFile, String targetType, String pictureMode, int challengeId) async {
+  Future<Map<String, dynamic>?> sendPictureToBackend(File? imageFile, String targetType, String pictureMode, int? challengeId) async {
     try {
       //Vänta på att bilden laddas upp och få tillbaka URL:en
       final imageObjectKey = await sendPictureToGoogleStorage(imageFile);
 
+      targetType = targetType.toUpperCase();
+      pictureMode = pictureMode.toUpperCase();
+
       if (imageObjectKey != null) {
+        final Map<String, dynamic> body  = {
+          'imageObjectKey': imageObjectKey,
+          'targetType': targetType,
+          'pictureMode': pictureMode,
+        };
+
+        if (challengeId != null) {
+          body['challengeId'] = challengeId;
+        }
 
       //Skicka URL till backend
       final response = await http.post(
         Uri.parse('https://group-6-15.pvt.dsv.su.se/pictures'),
         headers: {
-          'Content-Type': 'application/json',
           'Authorization': 'Bearer $jwtToken',
+          'Content-Type': 'application/json',
         },
+        body: jsonEncode(body),
 
-        body: jsonEncode({
+        /*body: jsonEncode({
           'imageObjectKey': imageObjectKey,
-          'targetType': targetType,
           'pictureMode': pictureMode,
-          "challengeId": challengeId,
+          'targetType': targetType,
+          'challengeId': challengeId,
 
-        }),
+        }),*/
       );
 
-      print(response.statusCode);
-      print(response.body);
+      //print(response.statusCode);
+      //print(response.body);
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 || response.statusCode == 201) {
         return jsonDecode(response.body);
       } else {
         debugPrint('Backend Error: ${response.statusCode}');
@@ -88,7 +101,7 @@ class UploadPicture {
   Future<List<ProfileImageOption>> getProfileImageOptions() async {
     final response = await http.get(
       Uri.parse(
-        'https://group-6-15.pvt.dsv.su.se/users/profile-images/options',
+        'https://group-6-15.pvt.dsv.su.se/auth-service/users/profile-images/options',
       ),
       headers: {
         'Authorization': 'Bearer $jwtToken',
@@ -116,7 +129,7 @@ class UploadPicture {
     }
 
     final response = await http.patch(
-      Uri.parse('https://group-6-15.pvt.dsv.su.se/users/me/profile-image'),
+      Uri.parse('https://group-6-15.pvt.dsv.su.se/auth-service/users/me/profile-image'),
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $jwtToken',

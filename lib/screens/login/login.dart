@@ -177,7 +177,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     if (_formKey.currentState!.validate()) {
       final response = await http.post(
-        Uri.parse('https://group-6-15.pvt.dsv.su.se/auth/login'),
+        Uri.parse('https://group-6-15.pvt.dsv.su.se/auth-service/auth/login'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'email': nameController.text,
@@ -258,7 +258,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<bool> loginWithGoogle(String idToken) async {
     final response = await http.post(
-      Uri.parse('https://group-6-15.pvt.dsv.su.se/auth/google'),
+      Uri.parse('https://group-6-15.pvt.dsv.su.se/auth-service/auth/google'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({'token': idToken}),
     );

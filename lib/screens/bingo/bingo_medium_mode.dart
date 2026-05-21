@@ -3,7 +3,9 @@ import 'dart:io';
 
 import 'package:Skogsjakten/services/upload_picture.dart';
 import 'package:flutter/material.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import '../../services/camera_service.dart';
+import '../../services/gamification_popup_helper.dart';
 import '../../services/session_storage.dart';
 import '../../widgets/custom_navigation_bar.dart';
 import '../home.dart';
@@ -30,6 +32,7 @@ class _BingoMediumMode extends State<BingoMediumMode> {
 
   late String question;
   late int challengeId;
+  late int points;
 
   @override
   void initState() {
@@ -67,6 +70,7 @@ class _BingoMediumMode extends State<BingoMediumMode> {
       setState(() {
         question = data['description'];
         challengeId = data['id'];
+        //points = data['points'];
       });
 
     } catch (e) {
@@ -97,9 +101,15 @@ class _BingoMediumMode extends State<BingoMediumMode> {
         }
 
         setState(() {
-          if (urls.isNotEmpty) images[0] = urls[0];
-          if (urls.length > 1) images[1] = urls[1];
-          if (urls.length > 2) images[2] = urls[2];
+          if (urls.isNotEmpty) {
+            images[0] = urls[0];
+          }
+          if (urls.length > 1) {
+            images[1] = urls[1];
+          }
+          if (urls.length > 2) {
+            images[2] = urls[2];
+          }
         });
       }
     } catch (e) {
@@ -166,7 +176,7 @@ class _BingoMediumMode extends State<BingoMediumMode> {
                                 context: context,
                                 builder: (context) => decideTargetTypeMixedBingo());
                           } else {
-                            type = helpMethodsHttp.mapCategoryToBackend(widget.typeOfBingo);
+                            type = helpMethodsHttp.mapCategoryToBackendForPictureUpload(widget.typeOfBingo);
                           }
 
                           if(type != null) {
@@ -190,7 +200,7 @@ class _BingoMediumMode extends State<BingoMediumMode> {
                             borderRadius: BorderRadius.circular(15),
                             image: images[0] != null ? DecorationImage(image: FileImage(images[0]!), fit: BoxFit.cover) : null,
                         ),
-                        child: (images[0] == null && images[0] == null) ? const Center(child: Icon(Icons.image, size: 50)) : null,
+                        child: (images[0] == null) ? Center(child: Icon(MdiIcons.camera, size: 50)) : null,
                       ),
                     ),
 
@@ -210,7 +220,7 @@ class _BingoMediumMode extends State<BingoMediumMode> {
                                 context: context,
                                 builder: (context) => decideTargetTypeMixedBingo());
                           } else {
-                            type = helpMethodsHttp.mapCategoryToBackend(widget.typeOfBingo);
+                            type = helpMethodsHttp.mapCategoryToBackendForPictureUpload(widget.typeOfBingo);
                           }
 
                           if(type != null) {
@@ -234,7 +244,7 @@ class _BingoMediumMode extends State<BingoMediumMode> {
                             borderRadius: BorderRadius.circular(15),
                             image: images[1] != null ? DecorationImage(image: FileImage(images[1]!), fit: BoxFit.cover) : null,
                         ),
-                        child: (images[1] == null && images[1] == null) ? const Center(child: Icon(Icons.image, size: 50)) : null,
+                        child: (images[1] == null) ? Center(child: Icon(MdiIcons.camera, size: 50)) : null,
                       ),
                     ),
                   ],
@@ -260,7 +270,7 @@ class _BingoMediumMode extends State<BingoMediumMode> {
                                 context: context,
                                 builder: (context) => decideTargetTypeMixedBingo());
                           } else {
-                            type = helpMethodsHttp.mapCategoryToBackend(widget.typeOfBingo);
+                            type = helpMethodsHttp.mapCategoryToBackendForPictureUpload(widget.typeOfBingo);
                           }
 
                           if(type != null) {
@@ -284,7 +294,7 @@ class _BingoMediumMode extends State<BingoMediumMode> {
                             borderRadius: BorderRadius.circular(15),
                             image: images[2] != null ? DecorationImage(image: FileImage(images[2]!), fit: BoxFit.cover) : null,
                         ),
-                        child: (images[2] == null) ? const Center(child: Icon(Icons.image, size: 50)) : null,
+                        child: (images[2] == null) ? Center(child: Icon(MdiIcons.camera, size: 50)) : null,
                       ),
                     ),
                   ],
@@ -330,6 +340,8 @@ class _BingoMediumMode extends State<BingoMediumMode> {
 
                                 resetBingo();
 
+                                finishedChallengeDialog();
+
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
@@ -338,12 +350,18 @@ class _BingoMediumMode extends State<BingoMediumMode> {
                                 );
 
                               },
+                              style: ElevatedButton.styleFrom(
+                                minimumSize: const Size(110, 50),
+                              ),
                               child: Text('Klar', style: Theme.of(context).textTheme.headlineMedium),
                             ),
                             ElevatedButton(
                               onPressed: () {
                                 Navigator.pop(context);
                               },
+                              style: ElevatedButton.styleFrom(
+                                minimumSize: const Size(110, 50),
+                              ),
                               child: Text('Avbryt', style: Theme.of(context).textTheme.headlineMedium),
                             ),
                           ],
@@ -389,6 +407,9 @@ class _BingoMediumMode extends State<BingoMediumMode> {
           onPressed: () {
             Navigator.pop(context, 'PLANT');
           },
+          style: ElevatedButton.styleFrom(
+            minimumSize: const Size(110, 50),
+          ),
           child: Text('Växt', style: Theme.of(context).textTheme.bodyMedium),
         ),
 
@@ -396,6 +417,9 @@ class _BingoMediumMode extends State<BingoMediumMode> {
           onPressed: () {
             Navigator.pop(context, 'TREE');
           },
+          style: ElevatedButton.styleFrom(
+            minimumSize: const Size(110, 50),
+          ),
           child: Text('Träd', style: Theme.of(context).textTheme.bodyMedium),
         ),
 
@@ -403,6 +427,9 @@ class _BingoMediumMode extends State<BingoMediumMode> {
           onPressed: () {
             Navigator.pop(context, 'ANIMAL');
           },
+          style: ElevatedButton.styleFrom(
+            minimumSize: const Size(110, 50),
+          ),
           child: Text('Djur', style: Theme.of(context).textTheme.bodyMedium),
         ),
       ],
@@ -417,10 +444,30 @@ class _BingoMediumMode extends State<BingoMediumMode> {
 
         if (response != null) {
           if (response['accepted'] == true) {
-            showDialog(
+            /*showDialog(
               context: context,
               builder: (context) => successMessageUploadPicture(),
             );
+            return true;*/
+            final gamification = response['gamification'];
+
+            if (mounted) {
+              await GamificationPopupService.showIfNeeded(
+                context: context,
+                leveledUp: gamification?['leveledUp'] ?? false,
+                previousLevel: gamification?['previousLevel'],
+                currentLevel: gamification?['currentLevel'],
+                newlyUnlockedBadges: gamification?['newlyUnlockedBadges'] ?? [],
+              );
+            }
+
+            if (mounted) {
+              showDialog(
+                context: context,
+                builder: (context) => successMessageUploadPicture(),
+              );
+            }
+
             return true;
           } else {
             showDialog(
@@ -453,7 +500,7 @@ class _BingoMediumMode extends State<BingoMediumMode> {
     return AlertDialog(
       actionsAlignment: MainAxisAlignment.center,
       content: Text(
-        'Ojdå, bilden kunde inte sparas. Testa att ta en ny bild!',
+        'Ojdå, bilden kunde inte sparas. Vill du testa igen?',
         textAlign: TextAlign.center,
       ),
 
@@ -462,7 +509,24 @@ class _BingoMediumMode extends State<BingoMediumMode> {
           onPressed: () {
             Navigator.pop(context);
           },
-          child: Text('Okej', style: Theme.of(context).textTheme.bodyMedium),
+          style: ElevatedButton.styleFrom(
+            minimumSize: const Size(110, 50),
+          ),
+          child: Text('Ok', style: Theme.of(context).textTheme.bodyMedium),
+        ),
+        const SizedBox(width: 20),
+        ElevatedButton(
+          onPressed: () {
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (_) => const HomeScreen()),
+                  (route) => false,
+            );
+          },
+          style: ElevatedButton.styleFrom(
+            minimumSize: const Size(110, 50),
+          ),
+          child: Text('Till hem', style: Theme.of(context).textTheme.bodyMedium),
         ),
       ],
     );
@@ -480,11 +544,34 @@ class _BingoMediumMode extends State<BingoMediumMode> {
           onPressed: () {
             Navigator.pop(context);
           },
+          style: ElevatedButton.styleFrom(
+            minimumSize: const Size(110, 50),
+          ),
           child: Text('Okej', style: Theme.of(context).textTheme.bodyMedium),
         ),
       ],
     );
   }
+
+  AlertDialog finishedChallengeDialog() {
+    return AlertDialog(
+      actionsAlignment: MainAxisAlignment.center,
+      content: const Text(
+        //TODO visa antalet poäng
+        'Bra jobbat! Dina poäng har nu sparats',
+        textAlign: TextAlign.center,
+      ),
+      actions: [
+        ElevatedButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          child: Text('Okej', style: Theme.of(context).textTheme.bodyMedium),
+        ),
+      ],
+    );
+  }
+
 
 // metod för att rensa bingo efter avklarad utmaning
   void resetBingo() {

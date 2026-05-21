@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import '../../services/gamification_popup_helper.dart';
 import '../../widgets/custom_navigation_bar.dart';
 import '../../services/session_storage.dart';
 import '../home.dart';
@@ -227,6 +228,16 @@ class _QuizState extends State<Quiz> {
       final score = submitBody['score'] as int;
       final total = submitBody['totalQuestions'] as int;
       final points = submitBody['pointsAwarded'] as int;
+
+      final gamification = submitBody['gamification'];
+
+      await GamificationPopupService.showIfNeeded(
+        context: context,
+        leveledUp: gamification?['leveledUp'] ?? false,
+        previousLevel: gamification?['previousLevel'],
+        currentLevel: gamification?['currentLevel'],
+        newlyUnlockedBadges: gamification?['newlyUnlockedBadges'] ?? [],
+      );
 
       // Hämta rättning GET för att få rätt/fel per fråga
       final reviewUri = Uri.parse('$_baseUrl/quiz/attempts/$_attemptId/review');

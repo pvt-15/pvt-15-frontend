@@ -17,18 +17,35 @@ class ChooseBingoGame extends StatefulWidget {
 }
 
 class _ChooseBingoGame extends State<ChooseBingoGame> {
+  String? jwtToken;
 
   final List<Map<String, dynamic>> games = [
-    {'name': 'Träd', 'icon': MdiIcons.tree},
-    {'name': 'Växter', 'icon': MdiIcons.flower},
-    {'name': 'Djur', 'icon': MdiIcons.ladybug},
-    {'name': 'Blandad', 'icon': Icons.sunny},
+    {
+      'name': 'Träd',
+      'image': 'assets/Icons/trad.png',
+    },
+    {
+      'name': 'Växter',
+      'image': 'assets/Icons/vaxt.png',
+    },
+    {
+      'name': 'Djur',
+      'image': 'assets/Icons/djur_bibliotek.png',
+    },
+    {
+      'name': 'Blandad',
+      'image': 'assets/Icons/blandad.png',
+    },
   ];
 
   @override
   void initState() {
     super.initState();
+    loadToken();
+  }
 
+  Future<void> loadToken() async {
+    jwtToken = await SessionStorage().getToken();
   }
 
   @override
@@ -86,18 +103,20 @@ class _ChooseBingoGame extends State<ChooseBingoGame> {
                         },
 
                         child: SizedBox(
-                          width: 200,
+                          width: 210,
                           child: Row(
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
                             SizedBox(
                               width: 50,
-                              child: Icon(
-                                games[index]['icon'],
-                              size: 50,
-                              color: Colors.black87),
-                          ),
-                              const SizedBox(width: 20),
+                              child: Image.asset(
+                                games[index]['image'] as String,
+                                width: 55,
+                                height: 55,
+                                fit: BoxFit.contain,
+                            ),
+                            ),
+                              const SizedBox(width: 35),
                               Expanded(
                                 child: Text(
                                   games[index]['name'],
@@ -149,12 +168,7 @@ class _ChooseBingoGame extends State<ChooseBingoGame> {
     if (difficulty == 'EASY') {
       Navigator.push(
         context,
-        MaterialPageRoute(
-          builder: (context) => BingoEasyMode(
-            typeOfBingo: category,
-            challengeId: challengeId,
-          ),
-        ),
+        MaterialPageRoute(builder: (context) => BingoEasyMode(typeOfBingo: category, challengeId: challengeId)),
       );
     } else if (difficulty == 'MEDIUM') {
       Navigator.push(
@@ -170,10 +184,9 @@ class _ChooseBingoGame extends State<ChooseBingoGame> {
   }
 
   Future<Map<String, dynamic>?> findActiveBingoChallenge(String category) async {
-    Future<String?> jwtToken = SessionStorage().getToken();
-    HttpHelpMethods helpMethodsHttp = HttpHelpMethods(jwtToken: await jwtToken);
+    HttpHelpMethods helpMethodsHttp = HttpHelpMethods(jwtToken: jwtToken);
     
-    String? backendCategory = helpMethodsHttp.mapCategoryToBackend(category);
+    String? backendCategory = helpMethodsHttp.mapCategoryToBackendForChallenge(category);
     
     try {
       List<dynamic> allChallenges = await helpMethodsHttp.getAllChallenges();

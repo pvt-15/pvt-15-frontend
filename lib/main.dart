@@ -86,16 +86,16 @@ class MyApp extends StatelessWidget {
 
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF84C06C),
+            backgroundColor: const Color(0xFFF8ED76),
             foregroundColor: const Color(0xFF000000),
-            minimumSize: const Size(290, 60),
+            minimumSize: const Size(180, 60),
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(15),
             ),
             textStyle: const TextStyle(
               fontFamily: 'WinkySans',
-              fontSize: 18,
+              fontSize: 20,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -107,7 +107,7 @@ class MyApp extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
             textStyle: const TextStyle(
               fontFamily: 'WinkySans',
-              fontSize: 16,
+              fontSize: 20,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -154,13 +154,13 @@ class MyApp extends StatelessWidget {
           iconTheme: WidgetStateProperty.resolveWith<IconThemeData>((states) {
             if (states.contains(WidgetState.selected)) {
               return const IconThemeData(
-                color: Colors.black,
+                color: Color(0xFFD470B7),
                 size: 45,
               );
             }
 
             return const IconThemeData(
-              color: Colors.blueGrey,
+              color: Color(0xFFB1067E),
               size: 45,
             );
           }),
@@ -169,11 +169,12 @@ class MyApp extends StatelessWidget {
         ),
 
         dialogTheme: DialogThemeData(
-          backgroundColor: Colors.white,
+          backgroundColor: const Color(0xFFFFF9B3),
           elevation: 10,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(15),
           ),
+          actionsPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
 
           titleTextStyle: TextStyle(
             fontFamily: 'YoungSerif',
@@ -203,7 +204,7 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
-      home: LoginScreen(),
+      home: startScreen,
     );
   }
 }

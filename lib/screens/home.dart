@@ -63,7 +63,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
       // Fetch user data from backend (same as profile.dart)
       final response = await http.get(
-        Uri.parse('https://group-6-15.pvt.dsv.su.se/auth/me'),
+        Uri.parse('https://group-6-15.pvt.dsv.su.se/auth-service/auth/me'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer ${session.token}',
@@ -221,7 +221,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Level: $_level',
+                      'Nivå: $_level',
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                   ],
@@ -234,6 +234,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 context: context,
                 title: 'Dagens utmaning',
                 page: const HomeLibrary(),
+                imagePath: 'assets/maskot_skogstroll.png',
               ),
 
               const SizedBox(height: 34),
@@ -269,6 +270,7 @@ class _HomeScreenState extends State<HomeScreen> {
     required BuildContext context,
     required String title,
     required Widget page,
+    required String imagePath,
   }) {
     return SizedBox(
       width: double.infinity,
@@ -337,10 +339,32 @@ class _HomeScreenState extends State<HomeScreen> {
           // ALLT ANNAT (Bingo, Identifiera art, etc.)
           await _navigateAndRefresh(page);
         },
-        child: Text(
+        /*child: Text(
           title,
           style: Theme.of(context).textTheme.headlineMedium,
           textAlign: TextAlign.center,
+        ),*/
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+
+            Image.asset(
+              imagePath,
+              width: 75,
+              height: 75,
+              fit: BoxFit.contain,
+            ),
+
+            const SizedBox(width: 20),
+
+            Expanded(
+              child: Text(
+                title,
+                style: Theme.of(context).textTheme.headlineMedium,
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ],
         ),
       ),
     );

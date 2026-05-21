@@ -31,7 +31,7 @@ class SettingsScreen extends StatelessWidget {
           }
 
           final response = await http.delete(
-            Uri.parse('https://group-6-15.pvt.dsv.su.se/users/me'),
+            Uri.parse('https://group-6-15.pvt.dsv.su.se/auth-service/users/me'),
             headers: {
               'Content-Type': 'application/json',
               'Authorization': 'Bearer ${session.token}',

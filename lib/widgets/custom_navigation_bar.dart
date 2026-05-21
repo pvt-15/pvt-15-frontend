@@ -25,7 +25,7 @@ class CustomNavigationBar extends StatelessWidget {
     if (selectedIndex == -1) {
       navigationIndex = 0;
       markerColor = Colors.transparent;
-      profileSelectedIcon = Icon(MdiIcons.accountOutline, color: Colors.blueGrey);
+      profileSelectedIcon = Icon(MdiIcons.accountOutline, color: const Color(0xFFB1067E));
     } else {
       navigationIndex = selectedIndex;
       markerColor = null;
