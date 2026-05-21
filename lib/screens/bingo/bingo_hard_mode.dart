@@ -38,6 +38,7 @@ class _BingoHardMode extends State<BingoHardMode> {
 
   late String question;
   late int challengeId;
+  late int points;
 
   @override
   void initState() {
@@ -65,14 +66,16 @@ class _BingoHardMode extends State<BingoHardMode> {
       Map<String, dynamic> data;
       if (widget.challengeId != null) {
         data = await helpMethodsHttp.getStartedQuestion(widget.challengeId!);
+        print('DEBUG set up $data');
       } else {
         data = await helpMethodsHttp.getOrCreateBingoChallenge(widget.typeOfBingo, 'HARD');
-        //data = await helpMethodsHttp.getNewQuestionOnId();
+        //data = await helpMethodsHttp.getQuestionOnId();
       }
 
       setState(() {
         question = data['description'];
         challengeId = data['id'];
+        //points = data['points'];
       });
 
       await setSpecificQuestions();
@@ -222,12 +225,11 @@ class _BingoHardMode extends State<BingoHardMode> {
                           onTap: () async {
 
                             if (images[0] == null) {
-                              //final File? file = await CameraService.takePicture();
-                              //final File? file = await getAssetFile('assets/gran.png');
+                              final File? file = await CameraService.takePicture();
 
-                              final File assetFile = await getAssetFile('assets/gran.png');
-                              final compressedXFile = await FlutterImageCompress.compressAndGetFile(assetFile.path, '${assetFile.path}_comp.jpg', quality: 70);
-                              final File file = File(compressedXFile!.path);
+                              //final File assetFile = await getAssetFile('assets/gran.png');
+                              //final compressedXFile = await FlutterImageCompress.compressAndGetFile(assetFile.path, '${assetFile.path}_comp.jpg', quality: 85);
+                              //final File file = File(compressedXFile!.path);
 
                               bool success = false;
                               String? type;
@@ -237,7 +239,7 @@ class _BingoHardMode extends State<BingoHardMode> {
                                     context: context,
                                     builder: (context) => decideTargetTypeMixedBingo());
                               } else {
-                                type = helpMethodsHttp.mapCategoryToBackend(widget.typeOfBingo);
+                                type = helpMethodsHttp.mapCategoryToBackendForPictureUpload(widget.typeOfBingo);
                               }
 
                               if (type != null) {
@@ -250,10 +252,6 @@ class _BingoHardMode extends State<BingoHardMode> {
                               }
                             }
                             },
-
-
-
-                          //onTap: () => handleImageAction(0, fromGallery: true),
 
                           borderRadius: BorderRadius.circular(15),
                           child: Container(
@@ -280,11 +278,11 @@ class _BingoHardMode extends State<BingoHardMode> {
                           onTap: () async {
 
                             if (images[1] == null){
-                              //final File? file = await CameraService.takePicture();
+                              final File? file = await CameraService.takePicture();
 
-                              final File assetFile = await getAssetFile('assets/gran.png');
-                              final compressedXFile = await FlutterImageCompress.compressAndGetFile(assetFile.path, '${assetFile.path}_comp.jpg', quality: 50);
-                              final File file = File(compressedXFile!.path);
+                              //final File assetFile = await getAssetFile('assets/gran.png');
+                              //final compressedXFile = await FlutterImageCompress.compressAndGetFile(assetFile.path, '${assetFile.path}_comp.jpg', quality: 85, minWidth: 1000);
+                              //final File file = File(compressedXFile!.path);
 
                               bool success = false;
                               String? type;
@@ -294,7 +292,7 @@ class _BingoHardMode extends State<BingoHardMode> {
                                     context: context,
                                     builder: (context) => decideTargetTypeMixedBingo());
                               } else {
-                                type = helpMethodsHttp.mapCategoryToBackend(widget.typeOfBingo);
+                                type = helpMethodsHttp.mapCategoryToBackendForPictureUpload(widget.typeOfBingo);
                               }
 
                               if(type != null) {
@@ -349,7 +347,7 @@ class _BingoHardMode extends State<BingoHardMode> {
                                     context: context,
                                     builder: (context) => decideTargetTypeMixedBingo());
                               } else {
-                                type = helpMethodsHttp.mapCategoryToBackend(widget.typeOfBingo);
+                                type = helpMethodsHttp.mapCategoryToBackendForPictureUpload(widget.typeOfBingo);
                               }
 
                               if(type != null) {
@@ -396,7 +394,7 @@ class _BingoHardMode extends State<BingoHardMode> {
                                     context: context,
                                     builder: (context) => decideTargetTypeMixedBingo());
                               } else {
-                                type = helpMethodsHttp.mapCategoryToBackend(widget.typeOfBingo);
+                                type = helpMethodsHttp.mapCategoryToBackendForPictureUpload(widget.typeOfBingo);
                               }
 
                               if(type != null) {
@@ -443,6 +441,8 @@ class _BingoHardMode extends State<BingoHardMode> {
 
                   resetBingo();
 
+                  finishedChallengeDialog();
+
                   Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -480,6 +480,7 @@ class _BingoHardMode extends State<BingoHardMode> {
                               },
                               child: Text('Klar', style: Theme.of(context).textTheme.headlineMedium),
                             ),
+
                             ElevatedButton(
                               onPressed: () {
                                 Navigator.pop(context);
@@ -567,40 +568,6 @@ class _BingoHardMode extends State<BingoHardMode> {
       if (file != null) {
         Map<String, dynamic>? response = await helpMethodsUploadPicture.sendPictureToBackend(file, type, 'CHALLENGE', challengeId);
 
-        /*if (response != null && response['accepted'] == true) {
-          /*if (response['accepted'] == true) {
-            showDialog(
-              context: context,
-              builder: (context) => successMessageUploadPicture(),
-            );
-            return true;
-          } else {
-            showDialog(
-              context: context,
-              builder: (context) => errorMessageUploadPicture(),
-            );
-            return false;*/
-          final gamification = response['gamification'];
-
-          if (mounted) {
-            await GamificationPopupService.showIfNeeded(
-              context: context,
-              leveledUp: gamification?['leveledUp'] ?? false,
-              previousLevel: gamification?['previousLevel'],
-              currentLevel: gamification?['currentLevel'],
-              newlyUnlockedBadges: gamification?['newlyUnlockedBadges'] ?? [],
-            );
-          }
-
-          if (mounted) {
-            showDialog(
-              context: context,
-              builder: (context) => successMessageUploadPicture(),
-            );
-          }
-
-          return true;
-        }*/
         if (response != null && response['accepted'] == true) {
 
           final gamification = response['gamification'];
@@ -649,7 +616,6 @@ class _BingoHardMode extends State<BingoHardMode> {
       );
       return false;
     }
-    //return false;
   }
 
   AlertDialog errorMessageUploadPicture() {
@@ -703,6 +669,25 @@ class _BingoHardMode extends State<BingoHardMode> {
           style: ElevatedButton.styleFrom(
             minimumSize: const Size(110, 50),
           ),
+          child: Text('Okej', style: Theme.of(context).textTheme.bodyMedium),
+        ),
+      ],
+    );
+  }
+
+  AlertDialog finishedChallengeDialog() {
+    return AlertDialog(
+      actionsAlignment: MainAxisAlignment.center,
+      content: const Text(
+        //TODO visa antalet poäng
+        'Bra jobbat! Dina poäng har nu sparats',
+        textAlign: TextAlign.center,
+      ),
+      actions: [
+        ElevatedButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
           child: Text('Okej', style: Theme.of(context).textTheme.bodyMedium),
         ),
       ],

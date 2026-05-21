@@ -234,7 +234,8 @@ class _HomeScreenState extends State<HomeScreen> {
               _wideMenuCard(
                 context: context,
                 title: 'Dagens utmaning',
-                page: const DailyChallenge(gameTitle: 'Dagens utmaning',),
+                page: const DailyChallenge(gameTitle: 'Dagens utmaning'),
+                imagePath: 'assets/maskot_skogstroll.png',
               ),
 
               const SizedBox(height: 34),
@@ -270,6 +271,7 @@ class _HomeScreenState extends State<HomeScreen> {
     required BuildContext context,
     required String title,
     required Widget page,
+    required String imagePath,
   }) {
     return SizedBox(
       width: double.infinity,
@@ -338,10 +340,32 @@ class _HomeScreenState extends State<HomeScreen> {
           // ALLT ANNAT (Bingo, Identifiera art, etc.)
           await _navigateAndRefresh(page);
         },
-        child: Text(
+        /*child: Text(
           title,
           style: Theme.of(context).textTheme.headlineMedium,
           textAlign: TextAlign.center,
+        ),*/
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+
+            Image.asset(
+              imagePath,
+              width: 75,
+              height: 75,
+              fit: BoxFit.contain,
+            ),
+
+            const SizedBox(width: 20),
+
+            Expanded(
+              child: Text(
+                title,
+                style: Theme.of(context).textTheme.headlineMedium,
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ],
         ),
       ),
     );

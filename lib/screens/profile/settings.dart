@@ -171,7 +171,7 @@ class SettingsScreen extends StatelessWidget {
     ),
    ),
       bottomNavigationBar: const CustomNavigationBar(
-        selectedIndex: 2,
+        selectedIndex: -1,
       ),
  );
 }

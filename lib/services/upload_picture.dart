@@ -49,6 +49,9 @@ class UploadPicture {
       //Vänta på att bilden laddas upp och få tillbaka URL:en
       final imageObjectKey = await sendPictureToGoogleStorage(imageFile);
 
+      targetType = targetType.toUpperCase();
+      pictureMode = pictureMode.toUpperCase();
+
       if (imageObjectKey != null) {
         final Map<String, dynamic> body  = {
           'imageObjectKey': imageObjectKey,
@@ -64,22 +67,22 @@ class UploadPicture {
       final response = await http.post(
         Uri.parse('https://group-6-15.pvt.dsv.su.se/pictures'),
         headers: {
-          'Content-Type': 'application/json',
           'Authorization': 'Bearer $jwtToken',
+          'Content-Type': 'application/json',
         },
         body: jsonEncode(body),
 
         /*body: jsonEncode({
           'imageObjectKey': imageObjectKey,
-          'targetType': targetType,
           'pictureMode': pictureMode,
-          "challengeId": challengeId,
+          'targetType': targetType,
+          'challengeId': challengeId,
 
         }),*/
       );
 
-      print(response.statusCode);
-      print(response.body);
+      //print(response.statusCode);
+      //print(response.body);
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         return jsonDecode(response.body);
