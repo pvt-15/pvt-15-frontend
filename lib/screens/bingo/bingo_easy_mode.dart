@@ -450,14 +450,6 @@ class _BingoEasyMode extends State<BingoEasyMode> {
         Map<String, dynamic>? response = await helpMethodsUploadPicture.sendPictureToBackend(file, type, 'CHALLENGE', challengeId);
         //print('uploadPicture $response');
 
-        /*if (response != null) {
-          if (response['accepted'] == true) {
-            showDialog(
-              context: context,
-              builder: (context) => successMessageUploadPicture(),
-            );
-            return true;
-          }*/
         if (response != null && response['accepted'] == true) {
           final gamification = response['gamification'];
 
@@ -502,7 +494,6 @@ class _BingoEasyMode extends State<BingoEasyMode> {
       );
       return false;
     }
-    //return false;
   }
 
   AlertDialog errorMessageUploadPicture() {
