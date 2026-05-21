@@ -86,20 +86,30 @@ class MyApp extends StatelessWidget {
 
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
-            backgroundColor: Color(0xFF84C06C),
-            foregroundColor: Color(0xFF000000), //Bruna: 0xFF4C290C
-
+            backgroundColor: const Color(0xFF84C06C),
+            foregroundColor: const Color(0xFF000000),
+            minimumSize: const Size(290, 60),
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(15),
             ),
-            textStyle: const TextStyle(fontFamily: 'WinkySans', fontSize: 16),
+            textStyle: const TextStyle(
+              fontFamily: 'WinkySans',
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
 
         textButtonTheme: TextButtonThemeData(
           style: TextButton.styleFrom(
-            foregroundColor: Color(0xFFB1067E),
-            textStyle: const TextStyle(fontFamily: 'WinkySans', fontSize: 14),
+            foregroundColor: const Color(0xFFB1067E),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            textStyle: const TextStyle(
+              fontFamily: 'WinkySans',
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
 

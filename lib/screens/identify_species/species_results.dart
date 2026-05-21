@@ -37,10 +37,15 @@ class SpeciesResults extends StatelessWidget {
           backgroundColor: Colors.transparent,
           elevation: 0,
           centerTitle: true,
-          title: Padding(
-            padding: const EdgeInsets.only(top: 25),
-            child: const Text("Identifiera art"),
+          leading: Center(
+            child: IconButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              icon: const Icon(Icons.arrow_back),
+            ),
           ),
+          title: const Text("Identifiera art"),
         ),
 
         body: SingleChildScrollView(
