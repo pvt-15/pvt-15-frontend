@@ -327,6 +327,8 @@ class _BingoEasyMode extends State<BingoEasyMode> {
 
                   resetBingo();
 
+                  finishedChallengeDialog();
+
                   Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -552,6 +554,26 @@ class _BingoEasyMode extends State<BingoEasyMode> {
       ],
     );
   }
+
+  AlertDialog finishedChallengeDialog() {
+    return AlertDialog(
+      actionsAlignment: MainAxisAlignment.center,
+      content: const Text(
+        //TODO visa antalet poäng
+        'Bra jobbat! Dina poäng har nu sparats',
+        textAlign: TextAlign.center,
+      ),
+      actions: [
+        ElevatedButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          child: Text('Okej', style: Theme.of(context).textTheme.bodyMedium),
+        ),
+      ],
+    );
+  }
+
 
 // metod för att rensa bingo efter avklarad utmaning
   void resetBingo() {

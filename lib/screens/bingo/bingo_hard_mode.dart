@@ -441,6 +441,8 @@ class _BingoHardMode extends State<BingoHardMode> {
 
                   resetBingo();
 
+                  finishedChallengeDialog();
+
                   Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -673,7 +675,6 @@ class _BingoHardMode extends State<BingoHardMode> {
     );
   }
 
-  //TODO lägg till i andra klasserna
   AlertDialog finishedChallengeDialog() {
     return AlertDialog(
       actionsAlignment: MainAxisAlignment.center,
