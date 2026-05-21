@@ -74,7 +74,7 @@ class _CreateAccountState extends State<CreateAccount> {
             },
           icon: const Icon(Icons.arrow_back),
       ),
-        title: Text("Skapa konto"),
+        title: Text("Skogsjakten"),
      ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -90,7 +90,7 @@ class _CreateAccountState extends State<CreateAccount> {
                     "Skapa ett konto",
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      color: const Color(0xFF4C290C),
+                      color: const Color(0xFF000000),
                     ),
                   ),
 

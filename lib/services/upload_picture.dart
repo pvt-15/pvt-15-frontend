@@ -71,14 +71,6 @@ class UploadPicture {
           'Content-Type': 'application/json',
         },
         body: jsonEncode(body),
-
-        /*body: jsonEncode({
-          'imageObjectKey': imageObjectKey,
-          'pictureMode': pictureMode,
-          'targetType': targetType,
-          'challengeId': challengeId,
-
-        }),*/
       );
 
       //print(response.statusCode);
@@ -101,7 +93,8 @@ class UploadPicture {
   Future<List<ProfileImageOption>> getProfileImageOptions() async {
     final response = await http.get(
       Uri.parse(
-        'https://group-6-15.pvt.dsv.su.se/auth-service/users/profile-images/options',
+        //'https://group-6-15.pvt.dsv.su.se/auth-service/users/profile-images/options',
+          'https://group-6-15.pvt.dsv.su.se/storage-service/uploads/profile-images/options',
       ),
       headers: {
         'Authorization': 'Bearer $jwtToken',
@@ -151,15 +144,18 @@ class UploadPicture {
 class ProfileImageOption {
   final String avatarId;
   final String imageUrl;
+  final String objectKey;
 
   ProfileImageOption({
     required this.avatarId,
     required this.imageUrl,
+    required this.objectKey,
   });
 
   factory ProfileImageOption.fromJson(Map<String, dynamic> json) {
     return ProfileImageOption(
       avatarId: json['avatarId']?.toString() ?? '',
+      objectKey: json['objectKey']?.toString() ?? '',
       imageUrl: json['imageUrl']?.toString() ?? '',
     );
   }
