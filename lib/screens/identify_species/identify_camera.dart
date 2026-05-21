@@ -8,6 +8,7 @@ import 'package:Skogsjakten/services/camera_service.dart';
 import 'package:http/http.dart' as http;
 import 'package:Skogsjakten/services/gamification_popup_helper.dart';
 import 'package:Skogsjakten/services/upload_picture.dart';
+import 'package:Skogsjakten/services/translation_service.dart';
 
 import '../home.dart';
 
@@ -169,6 +170,12 @@ class _IdentifyCameraState extends State<IdentifyCamera> {
       if (!mounted) return;
 
       final picture = result['picture'];
+
+      final translatedLabel = await TranslationService.translateWord(
+        picture['label'] ?? '',
+      );
+
+      picture['label'] = translatedLabel;
 
       Navigator.push(
         context,

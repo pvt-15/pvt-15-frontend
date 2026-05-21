@@ -567,40 +567,6 @@ class _BingoHardMode extends State<BingoHardMode> {
       if (file != null) {
         Map<String, dynamic>? response = await helpMethodsUploadPicture.sendPictureToBackend(file, type, 'CHALLENGE', challengeId);
 
-        /*if (response != null && response['accepted'] == true) {
-          /*if (response['accepted'] == true) {
-            showDialog(
-              context: context,
-              builder: (context) => successMessageUploadPicture(),
-            );
-            return true;
-          } else {
-            showDialog(
-              context: context,
-              builder: (context) => errorMessageUploadPicture(),
-            );
-            return false;*/
-          final gamification = response['gamification'];
-
-          if (mounted) {
-            await GamificationPopupService.showIfNeeded(
-              context: context,
-              leveledUp: gamification?['leveledUp'] ?? false,
-              previousLevel: gamification?['previousLevel'],
-              currentLevel: gamification?['currentLevel'],
-              newlyUnlockedBadges: gamification?['newlyUnlockedBadges'] ?? [],
-            );
-          }
-
-          if (mounted) {
-            showDialog(
-              context: context,
-              builder: (context) => successMessageUploadPicture(),
-            );
-          }
-
-          return true;
-        }*/
         if (response != null && response['accepted'] == true) {
 
           final gamification = response['gamification'];
@@ -649,7 +615,6 @@ class _BingoHardMode extends State<BingoHardMode> {
       );
       return false;
     }
-    //return false;
   }
 
   AlertDialog errorMessageUploadPicture() {
