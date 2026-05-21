@@ -1,283 +1,346 @@
-import 'package:flutter/material.dart';
+// screens/home/skattjakt.dart
 import 'dart:io';
+import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../services/camera_service.dart';
+import '../../services/session_storage.dart';
 import '../../services/treasure_hunt_service.dart';
+import '../../models/treasure_hunt_models.dart';
 import '../../widgets/custom_navigation_bar.dart';
-import '../choose_difficulty.dart';
 import '../home.dart';
 
 class Skattjakt extends StatefulWidget {
-  final Difficulty difficulty;
-  final String? category;
+  final String difficulty;
+  final int? challengeId;
 
   const Skattjakt({
     super.key,
     required this.difficulty,
-    this.category,
+    this.challengeId,
   });
 
   @override
   State<Skattjakt> createState() => _SkattjaktState();
 }
 
-// Datamodell för ett träd
-class TreeTarget {
-  final String name;
-  final String imageAsset;
-  bool isFound;
-
-  TreeTarget({
-    required this.name,
-    required this.imageAsset,
-    this.isFound = false,
-  });
-}
-
 class _SkattjaktState extends State<Skattjakt> {
-  static const Map<String, String> treeImageAssets = {
-    'Björk': 'assets/trees/bjork.jpg',
-    'Ek': 'assets/trees/ek.jpg',
-    'Tall': 'assets/trees/tall.jpg',
-    'Gran': 'assets/trees/gran.jpg',
-    'Alm': 'assets/trees/alm.jpg',
-    'Asp': 'assets/trees/asp.jpg',
-    'Lönn': 'assets/trees/lönn.jpg',
-    'Pil': 'assets/trees/pil.jpg',
-    'Bok': 'assets/trees/bok.jpg',
-    'Hassel': 'assets/trees/hassel.jpg',
-    'Rönn': 'assets/trees/rönn.jpg',
-  };
+  final SessionStorage _sessionStorage = SessionStorage();
 
-  late List<TreeTarget> treeTargets;
-  late TreasureHuntService _treasureService;
+  bool _isLoading = true;
+  String? _errorMessage;
 
-  int currentIndex = 0;
-  List<File?> images = [];
-  List<bool> isVerifying = [];
-  bool allCompleted = false;
-  bool isSubmitting = false;  // För att förhindra dubbla anrop
+  List<TreasureHuntTask> _pendingTasks = [];
+  TreasureHuntTask? _currentTask;
+
+  int _totalTasksCount = 0;
+  int _completedCount = 0;
+  bool _allCompleted = false;
+
+  File? _currentImage;
+  bool _isVerifying = false;
+  bool _isSubmitting = false;
+  String? _verificationErrorMessage;
+
+  late TreasureHuntService _treasureHuntService;
+
+  static const String _completedTasksKey = 'treasure_hunt_completed_tasks_';
 
   @override
   void initState() {
     super.initState();
-    _treasureService = TreasureHuntService();
-    _initializeTrees();
+    _initializeTasks();
   }
 
-  void _initializeTrees() {
-    final treeNames = _getTreesForDifficulty(widget.difficulty);
-    treeTargets = treeNames.map((name) {
-      return TreeTarget(
-        name: name,
-        imageAsset: treeImageAssets[name] ?? 'assets/trees/default.png',
-        isFound: false,
-      );
-    }).toList();
-
-    images = List.filled(treeTargets.length, null);
-    isVerifying = List.filled(treeTargets.length, false);
-  }
-
-  List<String> _getTreesForDifficulty(Difficulty difficulty) {
-    switch (difficulty) {
-      case Difficulty.easy:
-        return ['Björk', 'Ek', 'Tall', 'Gran'];
-      case Difficulty.medium:
-        return ['Björk', 'Ek', 'Tall', 'Gran', 'Alm', 'Asp', 'Lönn', 'Pil'];
-      case Difficulty.hard:
-        return [
-          'Björk', 'Ek', 'Tall', 'Gran', 'Alm', 'Asp',
-          'Lönn', 'Pil', 'Bok', 'Hassel', 'Rönn'
-        ];
-    }
-  }
-
-  Future<void> takePictureAndVerify() async {
-    // Förhindra dubbla anrop
-    if (isVerifying[currentIndex] || isSubmitting) {
-      debugPrint('Redan verifierar, vänta...');
-      return;
-    }
-
-    if (treeTargets[currentIndex].isFound) {
-      debugPrint('Trädet är redan hittat!');
-      return;
-    }
-
+  Future<void> _initializeTasks() async {
     setState(() {
-      isSubmitting = true;
+      _isLoading = true;
+      _errorMessage = null;
     });
 
-    // Ta bild
-    final File? file = await CameraService.takePicture();
+    try {
+      final token = await _sessionStorage.getToken();
+      if (token == null) {
+        setState(() {
+          _errorMessage = 'Ingen inloggning hittades';
+          _isLoading = false;
+        });
+        return;
+      }
+
+      _treasureHuntService = TreasureHuntService(jwtToken: token);
+
+      final allTasks = await _treasureHuntService.getAllTasksByDifficulty(
+          widget.difficulty
+      );
+
+      _totalTasksCount = allTasks.length;
+
+      final savedCompletedTaskIds = await _loadCompletedTasks();
+
+      for (var task in allTasks) {
+        if (savedCompletedTaskIds.contains(task.id)) {
+          task.isCompleted = true;
+        }
+      }
+
+      _completedCount = allTasks.where((t) => t.isCompleted).length;
+      final incompleteTasks = allTasks.where((t) => !t.isCompleted).toList();
+
+      if (incompleteTasks.isEmpty) {
+        setState(() {
+          _allCompleted = true;
+          _currentTask = null;
+          _pendingTasks = [];
+          _isLoading = false;
+        });
+      } else {
+        final shuffledTasks = List<TreasureHuntTask>.from(incompleteTasks);
+        shuffledTasks.shuffle();
+
+        setState(() {
+          _pendingTasks = shuffledTasks;
+          _currentTask = _pendingTasks.isNotEmpty ? _pendingTasks.removeAt(0) : null;
+          _isLoading = false;
+        });
+      }
+
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'Kunde inte ladda skattjakt: $e';
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<Set<int>> _loadCompletedTasks() async {
+    final prefs = await SharedPreferences.getInstance();
+    final key = '$_completedTasksKey${widget.difficulty}';
+    final List<String>? savedIds = prefs.getStringList(key);
+
+    if (savedIds == null) return {};
+    return savedIds.map((id) => int.parse(id)).toSet();
+  }
+
+  Future<void> _saveCompletedTasks(Set<int> completedIds) async {
+    final prefs = await SharedPreferences.getInstance();
+    final key = '$_completedTasksKey${widget.difficulty}';
+    final List<String> idsAsString = completedIds.map((id) => id.toString()).toList();
+    await prefs.setStringList(key, idsAsString);
+  }
+
+  Future<void> _markTaskAsCompleted(int taskId) async {
+    final completedIds = await _loadCompletedTasks();
+    completedIds.add(taskId);
+    await _saveCompletedTasks(completedIds);
+  }
+
+  void _skipCurrentTask() {
+    if (_currentTask == null) return;
+
+    setState(() {
+      if (_pendingTasks.isEmpty && _currentTask != null) {
+        _pendingTasks.add(_currentTask!);
+        _currentTask = _pendingTasks.removeAt(0);
+      } else {
+        _pendingTasks.add(_currentTask!);
+        _currentTask = _pendingTasks.removeAt(0);
+      }
+      _currentImage = null;
+      _verificationErrorMessage = null;
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text('Uppgift hoppades över. Du får den igen senare!'),
+        duration: const Duration(seconds: 2),
+        backgroundColor: const Color(0xFFFFF9B3),  // Ljusare bakgrund (matchar dina dialoger)
+        behavior: SnackBarBehavior.floating,  // Gör att den flyter ovanför botten
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _takePictureAndVerify() async {
+    if (_isVerifying || _isSubmitting) return;
+    if (_currentTask == null) return;
+
+    setState(() {
+      _isSubmitting = true;
+      _verificationErrorMessage = null;
+    });
+
+    final File? imageFile = await CameraService.takePicture();
 
     if (!mounted) {
-      setState(() => isSubmitting = false);
+      setState(() => _isSubmitting = false);
       return;
     }
 
-    if (file == null) {
-      setState(() => isSubmitting = false);
-      return;  // Användaren avbröt
+    if (imageFile == null) {
+      setState(() => _isSubmitting = false);
+      return;
     }
 
-    // Spara bilden lokalt och börja verifiera
     setState(() {
-      images[currentIndex] = file;
-      isVerifying[currentIndex] = true;
-      isSubmitting = false;
+      _currentImage = imageFile;
+      _isVerifying = true;
+      _isSubmitting = false;
     });
 
-    // Hämta målets namn
-    final targetTree = treeTargets[currentIndex];
-
-    // Verifiera med AI
-    final result = await _treasureService.verifyTreePicture(
-      imageFile: file,
-      targetTreeName: targetTree.name,
-      targetCategory: 'TREE',
+    final result = await _treasureHuntService.takeAndVerifyPicture(
+      imageFile: imageFile,
+      targetType: _currentTask!.getTargetType(),
+      challengeId: _currentTask!.challengeId,
     );
 
     if (!mounted) return;
 
     setState(() {
-      isVerifying[currentIndex] = false;
+      _isVerifying = false;
     });
 
     if (result.success) {
-      // Rätt träd - lås upp
-      setState(() {
-        treeTargets[currentIndex].isFound = true;
-      });
-
-      // Visa bekräftelse
-      _showSuccessDialog(
-        treeName: targetTree.name,
-        confidence: result.confidence ?? 0,
-        points: result.pointsAwarded ?? 0,
-      );
-
-      // Kolla om alla är klara
-      _checkAllCompleted();
-
+      await _markTaskAsCompleted(_currentTask!.id);
+      _handleSuccessfulVerification();
     } else {
-      // Fel träd eller för låg confidence
-      showDialog(
-        context: context,
-        builder: (context) => errorMessageUploadPicture(),
-      );
-
-      // Rensa bilden så att användaren kan försöka igen
       setState(() {
-        images[currentIndex] = null;
+        _verificationErrorMessage = result.errorMessage ?? 'Bilden kunde inte verifieras. Försök igen!';
+        _currentImage = null;
       });
     }
   }
 
-  void _showSuccessDialog({
-    required String treeName,
-    required double confidence,
-    required int points,
-  }) {
+  void _handleSuccessfulVerification() async {
+    setState(() {
+      _completedCount++;
+      if (_currentTask != null) {
+        _currentTask!.isCompleted = true;
+      }
+    });
+
+    _showSuccessDialog();
+    await _loadNextTask();
+  }
+
+  Future<void> _loadNextTask() async {
+    setState(() {
+      _isLoading = true;
+      _currentImage = null;
+      _verificationErrorMessage = null;
+    });
+
+    try {
+      if (_pendingTasks.isEmpty) {
+        final allTasks = await _treasureHuntService.getAllTasksByDifficulty(
+            widget.difficulty
+        );
+
+        final completedIds = await _loadCompletedTasks();
+        final incompleteTasks = allTasks.where((t) => !completedIds.contains(t.id)).toList();
+
+        if (incompleteTasks.isEmpty) {
+          setState(() {
+            _allCompleted = true;
+            _currentTask = null;
+            _isLoading = false;
+          });
+        } else {
+          final shuffledTasks = List<TreasureHuntTask>.from(incompleteTasks);
+          shuffledTasks.shuffle();
+
+          setState(() {
+            _pendingTasks = shuffledTasks;
+            _currentTask = _pendingTasks.removeAt(0);
+            _isLoading = false;
+          });
+        }
+      } else {
+        setState(() {
+          _currentTask = _pendingTasks.removeAt(0);
+          _isLoading = false;
+        });
+      }
+
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'Kunde inte ladda nästa uppgift: $e';
+        _isLoading = false;
+      });
+    }
+  }
+
+  void _showSuccessDialog() {
+    final completedTask = _currentTask;
+
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (context) => AlertDialog(
-        title: const Text('Hittat!'),
+        title: const Text(
+          'Bra jobbat!',
+          textAlign: TextAlign.center,
+        ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              'Du har hittat en $treeName!',
+              completedTask?.getDisplayText() ?? 'Uppgift slutförd!',
+              textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
-              textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 12),
-            Text('AI-tillförlitlighet: ${(confidence * 100).toStringAsFixed(0)}%'),
-            const SizedBox(height: 8),
-            Text('+$points poäng!', style: const TextStyle(color: Colors.green)),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              _goToNextTree();
-            },
-            child: const Text('Fortsätt →'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showRetryDialog({
-    required String treeName,
-    required double confidence,
-    required String errorMessage,
-  }) {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => AlertDialog(
-        title: const Text('Kändes inte igen'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              errorMessage,
-              textAlign: TextAlign.center,
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+              decoration: BoxDecoration(
+                color: const Color(0xFF84C06C).withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(
+                '$_completedCount/$_totalTasksCount uppgifter klara',
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
             ),
-            const SizedBox(height: 12),
-            if (confidence > 0)
-              Text(
-                'AI-tillförlitlighet: ${(confidence * 100).toStringAsFixed(0)}% (kräver 75%)',
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Colors.grey,
+            if (_completedCount < _totalTasksCount)
+              Padding(
+                padding: const EdgeInsets.only(top: 16),
+                child: Text(
+                  '${_totalTasksCount - _completedCount} uppgifter kvar',
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodySmall,
                 ),
               ),
-            const SizedBox(height: 8),
-            const Text('Försök med en tydligare bild!'),
           ],
         ),
+        actionsAlignment: MainAxisAlignment.center,
         actions: [
-          TextButton(
+          ElevatedButton(
             onPressed: () {
               Navigator.pop(context);
+              setState(() {
+                _currentImage = null;
+                _verificationErrorMessage = null;
+              });
+              if (_allCompleted) {
+                _showCompletionDialog();
+              }
             },
-            child: const Text('Ta ny bild'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF84C06C),
+              minimumSize: const Size(120, 45),
+            ),
+            child: const Text(
+              'Fortsätt',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
           ),
         ],
       ),
     );
-  }
-
-  void _goToNextTree() {
-    if (currentIndex < treeTargets.length - 1) {
-      setState(() {
-        currentIndex++;
-      });
-    }
-  }
-
-  void _goToPreviousTree() {
-    if (currentIndex > 0) {
-      setState(() {
-        currentIndex--;
-      });
-    }
-  }
-
-  void _checkAllCompleted() {
-    final allFound = treeTargets.every((tree) => tree.isFound);
-    if (allFound && !allCompleted) {
-      setState(() {
-        allCompleted = true;
-      });
-      _showCompletionDialog();
-    }
   }
 
   void _showCompletionDialog() {
@@ -285,145 +348,350 @@ class _SkattjaktState extends State<Skattjakt> {
       context: context,
       barrierDismissible: false,
       builder: (context) => AlertDialog(
-        title: const Text('Grattis!'),
+        title: const Text(
+          'Grattis!',
+          textAlign: TextAlign.center,
+        ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            Icon(
+              Icons.celebration,
+              size: 60,
+              color: const Color(0xFF84C06C),
+            ),
+            const SizedBox(height: 16),
             Text(
-              'Du har hittat alla ${treeTargets.length} träd!',
+              'Du har slutfört alla ${_getDifficultyName(widget.difficulty)}-uppgifter!',
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: 16),
-            const Text('Bra jobbat!'),
+            Text(
+              '$_completedCount/$_totalTasksCount uppgifter slutförda',
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Kom tillbaka senare för fler uppgifter!',
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
           ],
         ),
+        actionsAlignment: MainAxisAlignment.center,
         actions: [
           ElevatedButton(
             onPressed: () {
               Navigator.pop(context);
-              // Återgå till hemskärmen
-              Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(builder: (_) => const HomeScreen()),
-                    (route) => false,
-              );
+              Navigator.pop(context);
             },
-            child: const Text('Tillbaka till hem'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF84C06C),
+              minimumSize: const Size(140, 45),
+            ),
+            child: const Text(
+              'Tillbaka',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
           ),
         ],
       ),
     );
   }
 
-  void resetAll() {
-    setState(() {
-      _initializeTrees();
-      currentIndex = 0;
-      allCompleted = false;
-    });
+  void _showAlreadyFoundDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text(
+          'Redan hittad',
+          textAlign: TextAlign.center,
+        ),
+        content: const Text(
+          'Du har redan hittat denna typ!\nFörsök hitta något annat.',
+          textAlign: TextAlign.center,
+        ),
+        actionsAlignment: MainAxisAlignment.center,
+        actions: [
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              setState(() {
+                _currentImage = null;
+              });
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF84C06C),
+            ),
+            child: const Text('Okej'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showConfirmExitDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text(
+          'Avsluta skattjakt?',
+          textAlign: TextAlign.center,
+        ),
+        content: const Text(
+          'Dina framsteg sparas automatiskt.',
+          textAlign: TextAlign.center,
+        ),
+        actionsAlignment: MainAxisAlignment.center,
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Avbryt'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              Navigator.pop(context);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF84C06C),
+            ),
+            child: const Text('Avsluta'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _getDifficultyName(String difficulty) {
+    switch (difficulty) {
+      case 'EASY': return 'lätta';
+      case 'MEDIUM': return 'medelsvåra';
+      case 'HARD': return 'svåra';
+      default: return difficulty.toLowerCase();
+    }
+  }
+
+  Widget _buildPlaceholder() {
+    if (_currentTask == null) {
+      return const Center(
+        child: Text('Ingen uppgift tillgänglig'),
+      );
+    }
+
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(_getIconForTask(_currentTask!), size: 80, color: const Color(0xFF4C290C)),
+        const SizedBox(height: 10),
+        if (_currentTask!.helpText != null && _currentTask!.helpText!.isNotEmpty && _currentTask!.helpText != 'null')
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Text(
+              _currentTask!.helpText!,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+          )
+        else
+          Text(
+            'Ta en bild på det du ser!',
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+        if (_verificationErrorMessage != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 16),
+            child: Text(
+              _verificationErrorMessage!,
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: Colors.red),
+            ),
+          ),
+      ],
+    );
+  }
+
+  IconData _getIconForTask(TreasureHuntTask task) {
+    final category = task.requiredCategory?.toLowerCase() ?? '';
+    switch (category) {
+      case 'tree': return Icons.park;
+      case 'animal': return Icons.pets;
+      case 'bird': return Icons.flutter_dash;
+      case 'flower': return Icons.local_florist;
+      case 'plant': return Icons.grass;
+      case 'insect': return Icons.bug_report;
+      default: return Icons.photo_camera;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    if (treeTargets.isEmpty) {
+    if (_isLoading) {
       return Scaffold(
         backgroundColor: const Color(0xFFBEDBB2),
-        body: const Center(child: Text('Inga träd tillgängliga')),
+        body: const Center(
+          child: CircularProgressIndicator(),
+        ),
       );
     }
 
-    final TreeTarget currentTarget = treeTargets[currentIndex];
-    final File? currentImage = images[currentIndex];
-    final bool currentVerifying = isVerifying[currentIndex];
-    final bool currentFound = currentTarget.isFound;
+    if (_errorMessage != null) {
+      return Scaffold(
+        backgroundColor: const Color(0xFFBEDBB2),
+        appBar: AppBar(
+          leading: IconButton(
+            onPressed: () => Navigator.pop(context),
+            icon: const Icon(Icons.arrow_back),
+          ),
+          title: const Text('Skattjakt'),
+        ),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                _errorMessage!,
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: _initializeTasks,
+                child: const Text('Försök igen'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    if (_allCompleted) {
+      return Scaffold(
+        backgroundColor: const Color(0xFFBEDBB2),
+        appBar: AppBar(
+          leading: IconButton(
+            onPressed: () => Navigator.pop(context),
+            icon: const Icon(Icons.arrow_back),
+          ),
+          title: const Text('Skattjakt'),
+        ),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.celebration,
+                size: 80,
+                color: const Color(0xFF84C06C),
+              ),
+              const SizedBox(height: 24),
+              Text(
+                'Grattis!',
+                style: Theme.of(context).textTheme.headlineLarge,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Du har slutfört alla ${_getDifficultyName(widget.difficulty)}-uppgifter!',
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.headlineMedium,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Kom tillbaka senare för fler uppgifter.',
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+              const SizedBox(height: 40),
+              ElevatedButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Tillbaka'),
+              ),
+            ],
+          ),
+        ),
+        bottomNavigationBar: const CustomNavigationBar(selectedIndex: -1),
+      );
+    }
+
+    if (_currentTask == null) {
+      return Scaffold(
+        backgroundColor: const Color(0xFFBEDBB2),
+        appBar: AppBar(
+          leading: IconButton(
+            onPressed: () => Navigator.pop(context),
+            icon: const Icon(Icons.arrow_back),
+          ),
+          title: const Text('Skattjakt'),
+        ),
+        body: const Center(
+          child: Text('Ingen uppgift tillgänglig'),
+        ),
+      );
+    }
+
+    final currentTask = _currentTask!;
+    final referenceImageUrl = currentTask.getFullReferenceImageUrl();
 
     return Scaffold(
       backgroundColor: const Color(0xFFBEDBB2),
       appBar: AppBar(
         leading: IconButton(
-          onPressed: () => Navigator.pop(context),
+          onPressed: _showConfirmExitDialog,
           icon: const Icon(Icons.arrow_back),
         ),
         title: const Text('Skattjakt'),
-        toolbarHeight: 100,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(50),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('$_completedCount/$_totalTasksCount uppgifter klara'),
+                    const SizedBox(),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                LinearProgressIndicator(
+                  value: _totalTasksCount > 0 ? _completedCount / _totalTasksCount : 0,
+                  backgroundColor: Colors.white70,
+                  color: const Color(0xFF84C06C),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
       body: SafeArea(
         child: Column(
           children: [
-            // Rubrik med progress
-            Padding(
-              padding: const EdgeInsets.only(top: 20, bottom: 10, left: 20, right: 20),
-              child: Text(
-                'Ta bild på dessa träd',
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.headlineMedium,
-              ),
-            ),
-
-            // Progress-indikator (prickar)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: List.generate(treeTargets.length, (index) {
-                  return Container(
-                    width: 12,
-                    height: 12,
-                    margin: const EdgeInsets.symmetric(horizontal: 4),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: index == currentIndex
-                          ? const Color(0xFF4C290C)
-                          : treeTargets[index].isFound
-                          ? const Color(0xff84c06c)
-                          : Colors.grey.shade400,
-                    ),
-                  );
-                }),
-              ),
-            ),
-
-            // Hittade träd räknare
-            Padding(
-              padding: const EdgeInsets.only(top: 8),
-              child: Text(
-                '${treeTargets.where((t) => t.isFound).length}/${treeTargets.length} hittade',
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-            ),
-
             const SizedBox(height: 20),
-
-            // Navigation och trädnamn
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              child: Column(
                 children: [
-                  IconButton(
-                    onPressed: currentIndex > 0 ? _goToPreviousTree : null,
-                    icon: const Icon(Icons.arrow_back_ios),
-                    iconSize: 30,
-                    color: currentIndex > 0 ? const Color(0xFF4C290C) : Colors.grey,
-                  ),
+                  if (currentTask.requiredCount > 1)
+                    Text(
+                      '${currentTask.completedCount}/${currentTask.requiredCount}',
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
                   Text(
-                    currentTarget.name,
-                    style: Theme.of(context).textTheme.headlineLarge,
-                  ),
-                  IconButton(
-                    onPressed: currentIndex < treeTargets.length - 1 ? _goToNextTree : null,
-                    icon: const Icon(Icons.arrow_forward_ios),
-                    iconSize: 30,
-                    color: currentIndex < treeTargets.length - 1 ? const Color(0xFF4C290C) : Colors.grey,
+                    currentTask.taskText.isNotEmpty && currentTask.taskText != 'null'
+                        ? currentTask.taskText
+                        : currentTask.getDisplayText(),
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.headlineMedium,
                   ),
                 ],
               ),
             ),
-
             const SizedBox(height: 20),
-
-            // Bildruta
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 30),
@@ -432,60 +700,30 @@ class _SkattjaktState extends State<Skattjakt> {
                   decoration: BoxDecoration(
                     color: const Color(0xfff8ed76),
                     borderRadius: BorderRadius.circular(20),
-                    border: Border.all(
-                      color: currentFound ? const Color(0xFF4C290C) : Colors.transparent,
-                      width: 3,
-                    ),
                   ),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(17),
                     child: Stack(
                       alignment: Alignment.center,
                       children: [
-                        // Visar tagen bild eller referensbild
-                        if (currentImage != null)
+                        if (_currentImage == null && referenceImageUrl != null && referenceImageUrl.isNotEmpty)
+                          Image.network(
+                            referenceImageUrl,
+                            width: double.infinity,
+                            height: double.infinity,
+                            fit: BoxFit.contain,
+                            errorBuilder: (context, error, stackTrace) => _buildPlaceholder(),
+                          )
+                        else if (_currentImage == null)
+                          _buildPlaceholder()
+                        else
                           Image.file(
-                            currentImage,
+                            _currentImage!,
                             width: double.infinity,
                             height: double.infinity,
                             fit: BoxFit.cover,
-                          )
-                        else
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(12),
-                                child: Image.asset(
-                                  currentTarget.imageAsset,
-                                  width: 200,
-                                  height: 200,
-                                  fit: BoxFit.contain,
-                                  errorBuilder: (context, error, stackTrace) {
-                                    return Column(
-                                      children: [
-                                        const Icon(Icons.image_outlined, size: 80, color: Color(0xFF4C290C)),
-                                        const SizedBox(height: 10),
-                                        Text(
-                                          'Referensbild saknas',
-                                          style: Theme.of(context).textTheme.titleMedium,
-                                        ),
-                                      ],
-                                    );
-                                  },
-                                ),
-                              ),
-                              const SizedBox(height: 10),
-                              Text(
-                                'Ta en bild på en ${currentTarget.name.toLowerCase()}',
-                                textAlign: TextAlign.center,
-                                style: Theme.of(context).textTheme.titleMedium,
-                              ),
-                            ],
                           ),
-
-                        // Verifierings-spinner
-                        if (currentVerifying)
+                        if (_isVerifying)
                           Container(
                             color: Colors.black54,
                             child: const Center(
@@ -502,44 +740,22 @@ class _SkattjaktState extends State<Skattjakt> {
                               ),
                             ),
                           ),
-
-                        // Bockmarkering för hittade träd
-                        if (currentFound && !currentVerifying)
-                          Positioned(
-                            top: 12,
-                            right: 12,
-                            child: Container(
-                              padding: const EdgeInsets.all(6),
-                              decoration: const BoxDecoration(
-                                color: Color(0xff84c06c),
-                                shape: BoxShape.circle,
-                              ),
-                              child: const Icon(
-                                Icons.check,
-                                color: Color(0xFF4C290C),
-                                size: 30,
-                              ),
-                            ),
-                          ),
                       ],
                     ),
                   ),
                 ),
               ),
             ),
-
             const SizedBox(height: 20),
-
-            // Kameraknapp (visas bara om trädet inte är hittat och inte verifierar)
-            if (!currentFound && !currentVerifying)
+            if (!_isVerifying && !_allCompleted)
               Padding(
                 padding: const EdgeInsets.only(bottom: 20),
                 child: ElevatedButton.icon(
-                  onPressed: takePictureAndVerify,
+                  onPressed: _takePictureAndVerify,
                   icon: const Icon(Icons.camera_alt, size: 30),
-                  label: const Text('Ta bild och verifiera'),
+                  label: const Text('Öppna Kameran'),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xfff8ed76),
+                    backgroundColor: const Color(0xFFF8ED76),
                     foregroundColor: const Color(0xFF4C290C),
                     minimumSize: const Size(200, 60),
                     shape: RoundedRectangleBorder(
@@ -549,65 +765,19 @@ class _SkattjaktState extends State<Skattjakt> {
                   ),
                 ),
               ),
-
-            // Statusmeddelande för hittade träd
-            if (currentFound && !allCompleted)
+            if (!_isVerifying && !_allCompleted && _pendingTasks.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.only(bottom: 20),
-                child: Text(
-                  '✓ Hittad! Gå vidare till nästa träd.',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: const Color(0xFF4C290C),
-                  ),
+                child: TextButton(
+                  onPressed: _skipCurrentTask,
+                  child: const Text('Hoppa över ->'),
                 ),
               ),
-
-            // Knapp för att börja om
-            if (allCompleted)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 20),
-                child: ElevatedButton(
-                  onPressed: resetAll,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xff84c06c),
-                    minimumSize: const Size(200, 60),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                  ),
-                  child: Text(
-                    'Alla träd hittade!',
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                ),
-              ),
-
             const SizedBox(height: 10),
           ],
         ),
       ),
       bottomNavigationBar: const CustomNavigationBar(selectedIndex: -1),
-    );
-  }
-
-  AlertDialog errorMessageUploadPicture() {
-    return AlertDialog(
-      actionsAlignment: MainAxisAlignment.center,
-      content: Text(
-        'Ojdå, bilden kunde inte sparas. Testa att ta en ny bild!',
-        textAlign: TextAlign.center,
-      ),
-      actions: [
-        ElevatedButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          child: Text(
-            'Okej',
-            style: Theme.of(context).textTheme.bodyMedium,
-          ),
-        ),
-      ],
     );
   }
 }
