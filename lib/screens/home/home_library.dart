@@ -31,7 +31,10 @@ class _HomeLibraryState extends State<HomeLibrary> {
       'image': 'assets/Icons/medalj.png',
       'page': const MedalsLibrary(),
     },
-    {'name': 'Daglig utmaning', 'image': 'assets/Icons/medalj.png', 'page': const DailyLibrary()},
+    {
+      'name': 'Daglig utmaning',
+      'image': 'assets/Icons/daglig_utmaning_ikon.png',
+      'page': const DailyLibrary()},
   ];
 
   @override
