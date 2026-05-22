@@ -51,7 +51,6 @@ class _BingoEasyMode extends State<BingoEasyMode> {
       helpMethodsUploadPicture = UploadPicture(jwtToken: jwtToken);
 
       await setupChallenge();
-      getPictures();
 
     } catch (e) {
       debugPrint('Initieringsfel: $e');
@@ -65,7 +64,7 @@ class _BingoEasyMode extends State<BingoEasyMode> {
         data = await helpMethodsHttp.getStartedQuestion(widget.challengeId!);
         print(data);
       } else {
-        data = await helpMethodsHttp.getOrCreateBingoChallenge(widget.typeOfBingo, 'EASY');
+        data = await helpMethodsHttp.getNewQuestion('EASY', 'BINGO', helpMethodsHttp.mapCategoryToBackendForChallenge(widget.typeOfBingo));
       }
 
       setState(() {
@@ -74,9 +73,11 @@ class _BingoEasyMode extends State<BingoEasyMode> {
         //points = data['points'];
       });
 
+      getPictures();
+
     } catch (e) {
       setState(() {
-        question = 'Kunde inte ladda utmaning: $e';
+        question = 'Kunde inte ladda utmaning';
       });
     }
   }
@@ -230,12 +231,12 @@ class _BingoEasyMode extends State<BingoEasyMode> {
 
                           //final File assetFile = await getAssetFile('assets/gran.png');
                           //final compressedXFile = await FlutterImageCompress.compressAndGetFile(assetFile.path, '${assetFile.path}_comp.jpg', quality: 85, minWidth: 1000);
-                          //final File file = File(compressedXFile!.path);
+                         //final File file = File(compressedXFile!.path);
 
                           bool success = false;
                           String? type;
 
-                          if(widget.typeOfBingo == 'Blandad') {
+                          if (widget.typeOfBingo == 'Blandad') {
                             type = await showDialog<String>(
                                 context: context,
                                 builder: (context) => decideTargetTypeMixedBingo());
@@ -243,7 +244,7 @@ class _BingoEasyMode extends State<BingoEasyMode> {
                             type = helpMethodsHttp.mapCategoryToBackendForPictureUpload(widget.typeOfBingo);
                           }
 
-                          if(type != null) {
+                          if (type != null) {
                             success = await uploadPicture(file, type);
                           }
 
@@ -275,11 +276,16 @@ class _BingoEasyMode extends State<BingoEasyMode> {
 
                         if (images[1] == null){
                           final File? file = await CameraService.takePicture();
+
+                          //final File assetFile = await getAssetFile('assets/testbild.jpg');
+                          //final compressedXFile = await FlutterImageCompress.compressAndGetFile(assetFile.path, '${assetFile.path}_comp.jpg', quality: 85, minWidth: 1000);
+                          //final File file = File(compressedXFile!.path);
+
                           bool success = false;
 
                           String? type;
 
-                          if(widget.typeOfBingo == 'Blandad') {
+                          if (widget.typeOfBingo == 'Blandad') {
                             type = await showDialog<String>(
                                 context: context,
                                 builder: (context) => decideTargetTypeMixedBingo());
@@ -287,7 +293,7 @@ class _BingoEasyMode extends State<BingoEasyMode> {
                             type = helpMethodsHttp.mapCategoryToBackendForPictureUpload(widget.typeOfBingo);
                           }
 
-                          if(type != null) {
+                          if (type != null) {
                             success = await uploadPicture(file, type);
                           }
 
@@ -335,6 +341,7 @@ class _BingoEasyMode extends State<BingoEasyMode> {
                       builder: (_) => HomeScreen(),
                     ),
                   );
+
                 } else {
                   showDialog(
                       context: context,
@@ -420,16 +427,6 @@ class _BingoEasyMode extends State<BingoEasyMode> {
             minimumSize: const Size(110, 50),
           ),
           child: Text('Växt', style: Theme.of(context).textTheme.bodyMedium),
-        ),
-
-        ElevatedButton(
-          onPressed: () {
-            Navigator.pop(context, 'TREE');
-          },
-          style: ElevatedButton.styleFrom(
-            minimumSize: const Size(110, 50),
-          ),
-          child: Text('Träd', style: Theme.of(context).textTheme.bodyMedium),
         ),
 
         ElevatedButton(

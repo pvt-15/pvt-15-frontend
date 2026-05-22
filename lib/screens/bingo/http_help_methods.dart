@@ -120,19 +120,6 @@ class HttpHelpMethods {
     return null; // För 'Blandad'
   }
 
-  //TODO ändra, denna check sker i bingo
-  Future<Map<String, dynamic>> getOrCreateBingoChallenge(String category, String difficulty) async {
-    List<dynamic> all = await getAllChallenges();
-    String? backendCategory = mapCategoryToBackendForChallenge(category);
-
-    for (var challenge in all) {
-      if (challenge['type'] == 'BINGO' && challenge['category'] == backendCategory && challenge['status'] == 'IN_PROGRESS') {
-        return challenge;
-      }
-    }
-    return await getNewQuestion(difficulty, 'BINGO', backendCategory);
-  }
-
   Future<Map<String, dynamic>> getPicturesForChallenge(int id) async {
     try {
       final response = await http.get(
