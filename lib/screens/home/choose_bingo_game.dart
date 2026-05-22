@@ -171,12 +171,12 @@ class _ChooseBingoGame extends State<ChooseBingoGame> {
     } else if (difficulty == 'MEDIUM') {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => BingoMediumMode(typeOfBingo: category)),
+        MaterialPageRoute(builder: (context) => BingoMediumMode(typeOfBingo: category, challengeId: challengeId)),
       );
     } else if (difficulty == 'HARD') {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => BingoHardMode(typeOfBingo: category)),
+        MaterialPageRoute(builder: (context) => BingoHardMode(typeOfBingo: category, challengeId: challengeId)),
       );
     }
   }

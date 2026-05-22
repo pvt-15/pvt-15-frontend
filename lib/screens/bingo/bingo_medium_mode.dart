@@ -48,7 +48,6 @@ class _BingoMediumMode extends State<BingoMediumMode> {
       helpMethodsUploadPicture = UploadPicture(jwtToken: jwtToken);
 
       await setupChallenge();
-      getPictures();
 
       List<dynamic> pictures = await helpMethodsHttp.getPictures();
       debugPrint('DEBUG: $pictures');
@@ -64,7 +63,7 @@ class _BingoMediumMode extends State<BingoMediumMode> {
       if (widget.challengeId != null) {
         data = await helpMethodsHttp.getStartedQuestion(widget.challengeId!);
       } else {
-        data = await helpMethodsHttp.getOrCreateBingoChallenge(widget.typeOfBingo, 'MEDIUM');
+        data = await helpMethodsHttp.getNewQuestion('MEDIUM', 'BINGO', helpMethodsHttp.mapCategoryToBackendForChallenge(widget.typeOfBingo));
       }
 
       setState(() {
@@ -73,9 +72,11 @@ class _BingoMediumMode extends State<BingoMediumMode> {
         //points = data['points'];
       });
 
+      getPictures();
+
     } catch (e) {
       setState(() {
-        question = 'Kunde inte ladda utmaning: $e';
+        question = 'Kunde inte ladda utmaning';
       });
     }
   }
@@ -302,7 +303,7 @@ class _BingoMediumMode extends State<BingoMediumMode> {
               ],
             ),
 
-            const SizedBox(height: 90),
+            const SizedBox(height: 40),
 
             ElevatedButton(
               onPressed: () async {
@@ -313,12 +314,15 @@ class _BingoMediumMode extends State<BingoMediumMode> {
 
                   resetBingo();
 
+                  finishedChallengeDialog();
+
                   Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (_) => HomeScreen(),
                     ),
                   );
+
                 } else {
                   showDialog(
                       context: context,
@@ -339,8 +343,6 @@ class _BingoMediumMode extends State<BingoMediumMode> {
                                 helpMethodsHttp.endStartedChallenge(challengeId);
 
                                 resetBingo();
-
-                                finishedChallengeDialog();
 
                                 Navigator.push(
                                   context,
@@ -411,16 +413,6 @@ class _BingoMediumMode extends State<BingoMediumMode> {
             minimumSize: const Size(110, 50),
           ),
           child: Text('Växt', style: Theme.of(context).textTheme.bodyMedium),
-        ),
-
-        ElevatedButton(
-          onPressed: () {
-            Navigator.pop(context, 'TREE');
-          },
-          style: ElevatedButton.styleFrom(
-            minimumSize: const Size(110, 50),
-          ),
-          child: Text('Träd', style: Theme.of(context).textTheme.bodyMedium),
         ),
 
         ElevatedButton(
@@ -564,7 +556,7 @@ class _BingoMediumMode extends State<BingoMediumMode> {
       actions: [
         ElevatedButton(
           onPressed: () {
-            Navigator.pop(context);
+            Navigator.pop(context, true);
           },
           child: Text('Okej', style: Theme.of(context).textTheme.bodyMedium),
         ),
