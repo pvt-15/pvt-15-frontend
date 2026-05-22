@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../widgets/custom_navigation_bar.dart';
 import '../services/session_storage.dart';
+import 'home/daily_challenge.dart';
 import 'home/home_library.dart';
 import 'home/species_profile.dart';
 import 'home/quiz.dart';
@@ -233,7 +234,7 @@ class _HomeScreenState extends State<HomeScreen> {
               _wideMenuCard(
                 context: context,
                 title: 'Dagens utmaning',
-                page: const HomeLibrary(),
+                page: const DailyChallenge(gameTitle: 'Dagens utmaning'),
                 imagePath: 'assets/maskot_skogstroll.png',
               ),
 

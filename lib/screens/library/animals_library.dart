@@ -3,6 +3,7 @@ import '../../services/session_storage.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../../widgets/custom_navigation_bar.dart';
+import '../../services/translation_service.dart';
 
 class AnimalPicture {
   final int id;
@@ -81,7 +82,24 @@ class _AnimalsLibraryState extends State<AnimalsLibrary> {
       for (final response in responses) {
         if (response.statusCode == 200) {
           final List<dynamic> data = jsonDecode(response.body);
-          allAnimals.addAll(data.map((e) => AnimalPicture.fromJson(e)));
+          //allAnimals.addAll(data.map((e) => AnimalPicture.fromJson(e))); //Denna används om man inte ska använda översättning
+          //Översätter artnamn
+          for (final item in data) {
+
+            final animal = AnimalPicture.fromJson(item);
+
+            final translatedLabel =
+            await TranslationService.translateWord(animal.label);
+
+            allAnimals.add(
+              AnimalPicture(
+                id: animal.id,
+                label: translatedLabel,
+                imageUrl: animal.imageUrl,
+                aiConfidence: animal.aiConfidence,
+              ),
+            );
+          }
         }
       }
 
@@ -136,6 +154,7 @@ class _AnimalsLibraryState extends State<AnimalsLibrary> {
         content: Text(
           'Vill du ta bort "${animal.label}"?',
         ),
+        actionsAlignment: MainAxisAlignment.center,
         actions: [
           TextButton(
             onPressed: () {

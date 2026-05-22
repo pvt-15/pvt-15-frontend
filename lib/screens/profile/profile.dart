@@ -7,6 +7,7 @@ import 'package:Skogsjakten/screens/login/login.dart';
 import 'package:Skogsjakten/screens/profile/settings.dart';
 import 'package:Skogsjakten/screens/library/medals_library.dart';
 import '../../widgets/custom_navigation_bar.dart';
+import 'package:Skogsjakten/services/upload_picture.dart';
 
 class Profile extends StatefulWidget {
   const Profile({super.key});
@@ -21,7 +22,9 @@ class _ProfileState extends State<Profile> {
   String username = '';
   String level = '';
   String profileImgUrl = '';
+  //String profileImageObjectKey = '';
   List<dynamic> badges = [];
+
 
   int points = 0;
   bool isLoading = true;
@@ -103,7 +106,11 @@ class _ProfileState extends State<Profile> {
           points = data['totalPoints'] ?? 0;
           level = data['level'] ?? '';
           profileImgUrl = data['profileImageUrl'] ?? '';
+          //profileImageObjectKey = data['profileImageObjectKey'] ?? '';
         });
+        //await loadProfileImageUrl(session.token);
+        print("PROFILE BODY: ${response.body}");
+
       } else if (response.statusCode == 401) {
         await sessionStorage.clear();
 
@@ -122,7 +129,30 @@ class _ProfileState extends State<Profile> {
         setState(() => isLoading = false);
       }
     }
+
   }
+
+  /*Future<void> loadProfileImageUrl(String token) async {
+    if (profileImageObjectKey.isEmpty) return;
+
+    final service = UploadPicture(jwtToken: token);
+    final options = await service.getProfileImageOptions();
+
+    final matchingOption = options.firstWhere(
+          (option) => option.objectKey == profileImageObjectKey,
+      orElse: () => ProfileImageOption(
+        avatarId: '',
+        objectKey: '',
+        imageUrl: '',
+      ),
+    );
+
+    if (matchingOption.imageUrl.isNotEmpty) {
+      setState(() {
+        profileImgUrl = matchingOption.imageUrl;
+      });
+    }
+  }*/
 
   Future<void> _logout() async {
     await sessionStorage.clear();
@@ -141,12 +171,12 @@ class _ProfileState extends State<Profile> {
     return (points % 300) / 300;
   }
 
-  NetworkImage getProfileImage() {
+  ImageProvider getProfileImage() {
     if (profileImgUrl.isNotEmpty) {
       return NetworkImage(profileImgUrl);
     }
 
-    return const NetworkImage('assets/rav.png');
+    return const AssetImage('assets/rav.png');
   }
 
   void _navigateAndRefresh(Widget page) async {
@@ -332,7 +362,7 @@ class _ProfileState extends State<Profile> {
                           ),
                         const SizedBox(height: 10),
                         SizedBox(
-                          width: 80,
+                          width: 90,
                           child: Text(
                             badge['name'],
                             textAlign: TextAlign.center,

@@ -2,10 +2,8 @@ import 'dart:io';
 
 import 'package:Skogsjakten/screens/identify_species/species_results.dart';
 import 'package:flutter/material.dart';
-import 'dart:convert';
 import 'package:Skogsjakten/services/session_storage.dart';
 import 'package:Skogsjakten/services/camera_service.dart';
-import 'package:http/http.dart' as http;
 import 'package:Skogsjakten/services/gamification_popup_helper.dart';
 import 'package:Skogsjakten/services/upload_picture.dart';
 import 'package:Skogsjakten/services/translation_service.dart';
@@ -171,6 +169,7 @@ class _IdentifyCameraState extends State<IdentifyCamera> {
 
       final picture = result['picture'];
 
+      //Översätter artnamn med hjälp av klassen translation_service
       final translatedLabel = await TranslationService.translateWord(
         picture['label'] ?? '',
       );
@@ -210,10 +209,15 @@ class _IdentifyCameraState extends State<IdentifyCamera> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
-        title: Padding(
-          padding: const EdgeInsets.only(top: 25),
-          child: const Text("Identifiera art"),
+        leading: Center(
+          child: IconButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            icon: const Icon(Icons.arrow_back),
+          ),
         ),
+        title: const Text("Identifiera art"),
       ),
       body: Center(
         child: isOpeningCamera

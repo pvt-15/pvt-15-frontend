@@ -53,11 +53,13 @@ class _ChooseBingoGame extends State<ChooseBingoGame> {
     return Scaffold(
         backgroundColor: Color(0xFFBEDBB2),
         appBar: AppBar(
-          leading: IconButton(
+          leading: Center(
+            child: IconButton(
               onPressed: () {
                 Navigator.pop(context);
               },
           icon: const Icon(Icons.arrow_back)
+          ),
           ),
         title: const Text('Bingo'),
         ),

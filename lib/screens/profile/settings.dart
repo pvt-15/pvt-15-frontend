@@ -72,6 +72,45 @@ class SettingsScreen extends StatelessWidget {
         }
   }
 
+  Future<void> _logout(
+      BuildContext context,
+      SessionStorage sessionStorage,
+      ) async {
+    try {
+      final session = await sessionStorage.getUserAndToken();
+
+      if (session != null) {
+        await http.post(
+          Uri.parse('https://group-6-15.pvt.dsv.su.se/auth-service/auth/logout'),
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ${session.token}',
+          },
+        );
+      }
+
+      await sessionStorage.clear();
+
+      if (context.mounted) {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (_) => const LoginScreen()),
+              (route) => false,
+        );
+      }
+    } catch (e) {
+      await sessionStorage.clear();
+
+      if (context.mounted) {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (_) => const LoginScreen()),
+              (route) => false,
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final sessionStorage = SessionStorage();
@@ -154,7 +193,7 @@ class SettingsScreen extends StatelessWidget {
               context,
               text: 'Logga ut',
               onPressed: () async {
-            await sessionStorage.clear();
+            /*await sessionStorage.clear();
 
             if (context.mounted) {
             Navigator.pushAndRemoveUntil(
@@ -164,14 +203,15 @@ class SettingsScreen extends StatelessWidget {
             ),
             (route) => false,
             );
-          }
+          }*/
+                await _logout(context, sessionStorage);
         },
        ),
      ],
     ),
    ),
       bottomNavigationBar: const CustomNavigationBar(
-        selectedIndex: 2,
+        selectedIndex: -1,
       ),
  );
 }

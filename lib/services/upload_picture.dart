@@ -71,14 +71,6 @@ class UploadPicture {
           'Content-Type': 'application/json',
         },
         body: jsonEncode(body),
-
-        /*body: jsonEncode({
-          'imageObjectKey': imageObjectKey,
-          'pictureMode': pictureMode,
-          'targetType': targetType,
-          'challengeId': challengeId,
-
-        }),*/
       );
 
       //print(response.statusCode);
@@ -101,7 +93,8 @@ class UploadPicture {
   Future<List<ProfileImageOption>> getProfileImageOptions() async {
     final response = await http.get(
       Uri.parse(
-        'https://group-6-15.pvt.dsv.su.se/auth-service/users/profile-images/options',
+        //'https://group-6-15.pvt.dsv.su.se/auth-service/users/profile-images/options',
+          'https://group-6-15.pvt.dsv.su.se/storage-service/uploads/profile-images/options',
       ),
       headers: {
         'Authorization': 'Bearer $jwtToken',
@@ -146,20 +139,58 @@ class UploadPicture {
       throw Exception('Kunde inte spara profilbild');
     }
   }
+
+  // TODO Matilda lägg ny metod för upload/picture som faktiskt FUNGERERAR
+  // Upload picture, utan AI! Används i daglig utmaning
+  Future<Map<String, dynamic>?> uploadPicture(File imageFile) async {
+    try {
+      final request = http.MultipartRequest(
+        'POST',
+        Uri.parse('https://group-6-15.pvt.dsv.su.se/storage-service/uploads/picture'),
+      );
+
+      request.headers['Authorization'] = 'Bearer $jwtToken';
+      request.files.add(
+        await http.MultipartFile.fromPath('file', imageFile.path),
+      );
+
+      final response = await request.send();
+      final responseBody = await response.stream.bytesToString();
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final data = jsonDecode(responseBody) as Map<String, dynamic>;
+        // Returnerar både imageUrl och objectKey
+        return {
+          'imageUrl': data['imageUrl'],
+          'objectKey': data['objectKey'],
+        };
+      } else {
+        debugPrint('uploadPicture misslyckades: ${response.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      debugPrint('uploadPicture Error: $e');
+      return null;
+    }
+  }
+
 }
 
 class ProfileImageOption {
   final String avatarId;
   final String imageUrl;
+  final String objectKey;
 
   ProfileImageOption({
     required this.avatarId,
     required this.imageUrl,
+    required this.objectKey,
   });
 
   factory ProfileImageOption.fromJson(Map<String, dynamic> json) {
     return ProfileImageOption(
       avatarId: json['avatarId']?.toString() ?? '',
+      objectKey: json['objectKey']?.toString() ?? '',
       imageUrl: json['imageUrl']?.toString() ?? '',
     );
   }

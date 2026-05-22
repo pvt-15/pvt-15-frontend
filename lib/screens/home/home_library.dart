@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import '../../widgets/custom_navigation_bar.dart';
 import '../library/animals_library.dart';
+import '../library/daily_library.dart';
 import '../library/plants_library.dart';
 import '../library/medals_library.dart';
 
@@ -30,6 +31,7 @@ class _HomeLibraryState extends State<HomeLibrary> {
       'image': 'assets/Icons/medalj.png',
       'page': const MedalsLibrary(),
     },
+    {'name': 'Daglig utmaning', 'image': 'assets/Icons/medalj.png', 'page': const DailyLibrary()},
   ];
 
   @override

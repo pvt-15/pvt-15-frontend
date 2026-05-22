@@ -28,6 +28,21 @@ class GamificationPopupService {
     }
   }
 
+  static String getLevelDisplayName(String? level) {
+    switch (level) {
+      case 'LEVEL_1':
+        return 'Skogsjägare';
+      case 'LEVEL_2':
+        return 'Naturspanare';
+      case 'LEVEL_3':
+        return 'Skogsexpert';
+      case 'LEVEL_4':
+        return 'Skogsmästare';
+      default:
+        return level ?? '';
+    }
+  }
+
   static Future<void> _showLevelUpPopup({
     required BuildContext context,
     required String? previousLevel,
@@ -38,7 +53,7 @@ class GamificationPopupService {
       builder: (context) {
         return AlertDialog(
           title: const Text('Grattis!', textAlign: TextAlign.center,),
-          content: Text('Du har gått upp i nivå till $currentLevel!', textAlign: TextAlign.center,),
+          content: Text('Du har gått upp i nivå till ${getLevelDisplayName(currentLevel)}!', textAlign: TextAlign.center,),
           actionsAlignment: MainAxisAlignment.center,
           actions: [
             ElevatedButton(
