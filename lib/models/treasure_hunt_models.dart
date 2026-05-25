@@ -14,7 +14,7 @@ class TreasureHuntTask {
   final String? helpText;
   final String? referenceImageUrl;
 
-  // Frontend progress (används endast för temporär UI-status)
+  // Frontend progress
   bool isCompleted;
   int completedCount;
   List<String> completedLabels;

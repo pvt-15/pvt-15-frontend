@@ -1,7 +1,6 @@
 // screens/home/skattjakt.dart
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../../services/camera_service.dart';
 import '../../services/session_storage.dart';
 import '../../services/treasure_hunt_service.dart';
@@ -43,8 +42,6 @@ class _SkattjaktState extends State<Skattjakt> {
 
   late TreasureHuntService _treasureHuntService;
 
-  static const String _completedTasksKey = 'treasure_hunt_completed_tasks_';
-
   @override
   void initState() {
     super.initState();
@@ -75,7 +72,10 @@ class _SkattjaktState extends State<Skattjakt> {
 
       _totalTasksCount = allTasks.length;
 
-      final savedCompletedTaskIds = await _loadCompletedTasks();
+      // Hämta slutförda task-id:n från backend i stället för SharedPreferences.
+      // user_challenge_task_progress uppdateras automatiskt av backend när en
+      // CHALLENGE-bild godkänns mot rätt challengeId.
+      final savedCompletedTaskIds = await _treasureHuntService.getCompletedTaskIds();
 
       for (var task in allTasks) {
         if (savedCompletedTaskIds.contains(task.id)) {
@@ -113,25 +113,10 @@ class _SkattjaktState extends State<Skattjakt> {
   }
 
   Future<Set<int>> _loadCompletedTasks() async {
-    final prefs = await SharedPreferences.getInstance();
-    final key = '$_completedTasksKey${widget.difficulty}';
-    final List<String>? savedIds = prefs.getStringList(key);
-
-    if (savedIds == null) return {};
-    return savedIds.map((id) => int.parse(id)).toSet();
-  }
-
-  Future<void> _saveCompletedTasks(Set<int> completedIds) async {
-    final prefs = await SharedPreferences.getInstance();
-    final key = '$_completedTasksKey${widget.difficulty}';
-    final List<String> idsAsString = completedIds.map((id) => id.toString()).toList();
-    await prefs.setStringList(key, idsAsString);
-  }
-
-  Future<void> _markTaskAsCompleted(int taskId) async {
-    final completedIds = await _loadCompletedTasks();
-    completedIds.add(taskId);
-    await _saveCompletedTasks(completedIds);
+    // Behållen som tunn wrapper för att inte sprida ändringar i andra
+    // metoder. Returnerar nu progress från backend i stället för
+    // SharedPreferences.
+    return _treasureHuntService.getCompletedTaskIds();
   }
 
   void _skipCurrentTask() {
@@ -202,7 +187,9 @@ class _SkattjaktState extends State<Skattjakt> {
     });
 
     if (result.success) {
-      await _markTaskAsCompleted(_currentTask!.id);
+      // Backend har redan uppdaterat user_challenge_task_progress till
+      // COMPLETED via POST /pictures med pictureMode=CHALLENGE. Ingen
+      // lokal markering behövs.
       _handleSuccessfulVerification();
     } else {
       setState(() {

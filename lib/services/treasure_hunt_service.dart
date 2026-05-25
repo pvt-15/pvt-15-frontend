@@ -114,22 +114,28 @@ class TreasureHuntService {
       for (var challenge in myChallenges) {
         final challengeId = challenge['id'] as int;
         final challengeType = challenge['type'] as String? ?? '';
+        final challengeStatus = challenge['status'] as String? ?? 'NOT_STARTED';
 
-        if (challengeType.toUpperCase() == 'TREASURE_HUNT') {
-          final details = await getChallengeDetails(challengeId);
-          final tasks = details['tasks'] as List? ?? [];
+        if (challengeType.toUpperCase() != 'TREASURE_HUNT') continue;
 
-          for (var task in tasks) {
-            final taskId = task['id'] as int;
-            final taskStatus = task['status'] as String? ?? 'NOT_STARTED';
+        final details = await getChallengeDetails(challengeId);
+        final tasks = details['tasks'] as List? ?? [];
 
-            if (taskStatus == 'COMPLETED') {
-              completedTaskIds.add(taskId);
-            }
+        for (var task in tasks) {
+          final taskId = task['id'] as int;
+          final taskStatus = task['status'] as String?;
+
+          // En task räknas som klar om antingen:
+          //  - backend explicit returnerar status COMPLETED på task, eller
+          //  - hela challenge är COMPLETED (TREASURE_HUNT har bara en task
+          //    med required_count = 1, så challenge COMPLETED => task klar).
+          if (taskStatus == 'COMPLETED' || challengeStatus == 'COMPLETED') {
+            completedTaskIds.add(taskId);
           }
         }
       }
 
+      debugPrint('getCompletedTaskIds: ${completedTaskIds.length} klara tasks: $completedTaskIds');
       return completedTaskIds;
 
     } catch (e) {
@@ -163,7 +169,7 @@ class TreasureHuntService {
       },
     );
 
-    if (response.statusCode != 200) {
+    if (response.statusCode != 200 && response.statusCode != 201) {
       throw Exception('Kunde inte starta challenge: ${response.statusCode}');
     }
 
@@ -180,6 +186,16 @@ class TreasureHuntService {
         return VerificationResult.failure('Ogiltigt challengeId: $challengeId');
       }
 
+      // Säkerställ att challenge är startad i backend så att
+      // user_challenge_progress / user_challenge_task_progress finns innan
+      // vi skickar in bilden. Idempotent — backend returnerar bara befintlig
+      // status om challenge redan är igång.
+      try {
+        await startChallenge(challengeId);
+      } catch (e) {
+        debugPrint('startChallenge ignorerades: $e');
+      }
+
       final objectKey = await _uploadPicture.sendPictureToGoogleStorage(imageFile);
 
       if (objectKey == null) {
@@ -189,6 +205,7 @@ class TreasureHuntService {
       final result = await _verifyPicture(
         objectKey: objectKey,
         targetType: targetType,
+        challengeId: challengeId,
       );
 
       if (result['accepted'] == true) {
@@ -211,11 +228,16 @@ class TreasureHuntService {
   Future<Map<String, dynamic>> _verifyPicture({
     required String objectKey,
     required String targetType,
+    required int challengeId,
   }) async {
+    // pictureMode = CHALLENGE + challengeId gör att backend kopplar bilden
+    // till rätt challenge, kör AI-matchning mot tasks och automatiskt
+    // uppdaterar user_challenge_task_progress / user_challenge_progress.
     final Map<String, dynamic> requestBody = {
       'imageObjectKey': objectKey,
       'targetType': targetType,
-      'pictureMode': 'COLLECTION',
+      'pictureMode': 'CHALLENGE',
+      'challengeId': challengeId,
     };
 
     final response = await http.post(
