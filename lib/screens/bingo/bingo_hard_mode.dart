@@ -54,7 +54,6 @@ class _BingoHardMode extends State<BingoHardMode> {
       helpMethodsUploadPicture = UploadPicture(jwtToken: jwtToken);
 
       await setupChallenge();
-      getPictures();
 
     } catch (e) {
       debugPrint('Initieringsfel: $e');
@@ -68,8 +67,7 @@ class _BingoHardMode extends State<BingoHardMode> {
         data = await helpMethodsHttp.getStartedQuestion(widget.challengeId!);
         print('DEBUG set up $data');
       } else {
-        data = await helpMethodsHttp.getOrCreateBingoChallenge(widget.typeOfBingo, 'HARD');
-        //data = await helpMethodsHttp.getQuestionOnId();
+        data = await helpMethodsHttp.getNewQuestion('HARD', 'BINGO', helpMethodsHttp.mapCategoryToBackendForChallenge(widget.typeOfBingo));
       }
 
       setState(() {
@@ -79,10 +77,11 @@ class _BingoHardMode extends State<BingoHardMode> {
       });
 
       await setSpecificQuestions();
+      getPictures();
 
     } catch (e) {
       setState(() {
-        question = 'Kunde inte ladda utmaning: $e';
+        question = 'Kunde inte ladda utmaning';
       });
     }
   }
@@ -430,7 +429,7 @@ class _BingoHardMode extends State<BingoHardMode> {
               ],
             ),
 
-            const SizedBox(height: 70),
+            const SizedBox(height: 40),
 
             ElevatedButton(
               onPressed: () async {
@@ -537,16 +536,6 @@ class _BingoHardMode extends State<BingoHardMode> {
             minimumSize: const Size(110, 50),
           ),
           child: Text('Växt', style: Theme.of(context).textTheme.bodyMedium),
-        ),
-
-        ElevatedButton(
-          onPressed: () {
-            Navigator.pop(context, 'TREE');
-          },
-          style: ElevatedButton.styleFrom(
-            minimumSize: const Size(110, 50),
-          ),
-          child: Text('Träd', style: Theme.of(context).textTheme.bodyMedium),
         ),
 
         ElevatedButton(

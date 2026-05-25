@@ -174,8 +174,7 @@ class _MedalsLibraryState extends State<MedalsLibrary> {
         Text(
           'Mina medaljer',
           textAlign: TextAlign.center,
-          //style: Theme.of(context).textTheme.headlineSmall,
-          style: Theme.of(context).textTheme.titleLarge,
+          style: Theme.of(context).textTheme.headlineMedium,
         ),
 
         const SizedBox(height: 24),
@@ -192,8 +191,7 @@ class _MedalsLibraryState extends State<MedalsLibrary> {
         Text(
           'Möjliga medaljer',
           textAlign: TextAlign.center,
-          style: Theme.of(context).textTheme.titleLarge,
-          //style: Theme.of(context).textTheme.headlineSmall,
+          style: Theme.of(context).textTheme.headlineMedium,
         ),
 
         const SizedBox(height: 24),

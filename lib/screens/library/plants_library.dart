@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../../services/session_storage.dart';
 import '../../widgets/custom_navigation_bar.dart';
+import '../../services/translation_service.dart';
 
 class PlantPicture {
   final int id;
@@ -81,7 +82,24 @@ class _PlantsLibraryState extends State<PlantsLibrary> {
       for (final response in responses) {
         if (response.statusCode == 200) {
           final List<dynamic> data = jsonDecode(response.body);
-          allPlants.addAll(data.map((e) => PlantPicture.fromJson(e)));
+          //allPlants.addAll(data.map((e) => PlantPicture.fromJson(e))); //används om vi inte ska översätta artnamn
+          //Översätter artnamn
+          for (final item in data) {
+
+            final plant = PlantPicture.fromJson(item);
+
+            final translatedLabel =
+            await TranslationService.translateWord(plant.label);
+
+            allPlants.add(
+              PlantPicture(
+                id: plant.id,
+                label: translatedLabel,
+                imageUrl: plant.imageUrl,
+                aiConfidence: plant.aiConfidence,
+              ),
+            );
+          }
         }
       }
 
