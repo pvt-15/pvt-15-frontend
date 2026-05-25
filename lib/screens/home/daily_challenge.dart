@@ -256,7 +256,7 @@ class _DailyChallengeState extends State<DailyChallenge> {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  'För denna uppgift får du ${_challenge!.rewardPoints} poäng!',
+                  'För denna uppgift får du 25 poäng!',
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
                 const SizedBox(height: 20),
@@ -359,9 +359,21 @@ class _ChallengeCompletePopUpState extends State<_ChallengeCompletePopUp> {
 
     try {
       final token = await widget.sessionStorage.getToken();
-      final uploader = UploadPicture(jwtToken: token);
 
-      // BILD: ladda upp till Storage, metod i upload_picture
+      // Steg 0: starta challenge först
+      final startResponse = await http.post(
+        Uri.parse(
+          'https://group-6-15.pvt.dsv.su.se/challenges/${widget.challenge.id}/start',
+        ),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+      debugPrint('>>> start status: ${startResponse.statusCode}');
+      debugPrint('>>> start body: ${startResponse.body}');
+
+      final uploader = UploadPicture(jwtToken: token);
       final uploadResult = await uploader.uploadPicture(_takenImage!);
 
       if (!mounted) return;
@@ -376,7 +388,6 @@ class _ChallengeCompletePopUpState extends State<_ChallengeCompletePopUp> {
 
       final String objectKey = uploadResult['objectKey'];
 
-      // BILD: skicka till /challenges/{challengeId}/daily-picture
       final response = await http.post(
         Uri.parse(
           'https://group-6-15.pvt.dsv.su.se/challenges/${widget.challenge.id}/daily-picture',
@@ -386,30 +397,23 @@ class _ChallengeCompletePopUpState extends State<_ChallengeCompletePopUp> {
           'Authorization': 'Bearer $token',
         },
         body: jsonEncode({
-          //'imageObjectKey': objectKey, testar byta ut till imageUri
           'imageObjectKey': objectKey,
-          'imageUrl': uploadResult['imageUrl'],
+          'taskId': null,
+          //'imageUrl': uploadResult['imageUrl'],
         }),
       );
 
-      // hitta vad som är fel, print backend svar
-      debugPrint('>>> Status: ${response.statusCode}');
-      debugPrint('>>> Body: ${response.body}');
-      debugPrint('>>> Status: ${response.statusCode}');
-      debugPrint('>>> Body: ${response.body}');
-      debugPrint('>>> challengeId: ${widget.challenge.id}');
-      debugPrint('>>> objectKey: $objectKey');
+      debugPrint('>>> daily-picture status: ${response.statusCode}');
+      debugPrint('>>> daily-picture body: ${response.body}');
 
       if (!mounted) return;
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        await _endChallenge();
         setState(() {
           _isDone = true;
           _isUploading = false;
         });
       } else {
-        await _endChallenge();
         setState(() {
           _uploadError = 'Fel från server: ${response.statusCode}';
           _isUploading = false;
@@ -471,11 +475,6 @@ class _ChallengeCompletePopUpState extends State<_ChallengeCompletePopUp> {
                     ),
                   ),
                 ],
-              ),
-              // TEMPORÄR TESTKNAPP – ta bort sen
-              TextButton(
-                onPressed: _endChallenge,
-                child: const Text('Testa avsluta'),
               ),
             ],
           )
@@ -571,6 +570,7 @@ class _ChallengeCompletePopUpState extends State<_ChallengeCompletePopUp> {
     );
   }
 
+  /*
   // Från Maja bingo att avluta challange
   Future<void> _endChallenge() async {
     try {
@@ -590,5 +590,5 @@ class _ChallengeCompletePopUpState extends State<_ChallengeCompletePopUp> {
     } catch (e) {
       debugPrint('Något gick fel vid avslutande av utmaning: $e');
     }
-  }
+  }*/
 }

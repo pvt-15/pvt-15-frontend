@@ -168,7 +168,7 @@ class UploadPicture {
         final data = jsonDecode(responseBody) as Map<String, dynamic>;
         // Returnerar både imageUrl och objectKey
         return {
-          'imageUrl': data['imageUrl'],
+          //'imageUrl': data['imageUrl'],
           'objectKey': data['objectKey'],
         };
       } else {
