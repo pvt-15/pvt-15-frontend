@@ -105,9 +105,12 @@ class _DailyLibraryState extends State<DailyLibrary> {
           children: [
             Padding(
               padding: const EdgeInsets.only(top: 40, bottom: 30),
-              child: Text(
-                'Mina dagliga utmaningar',
-                style: Theme.of(context).textTheme.headlineLarge,
+              child: SizedBox(
+                width: 200,
+                child: Text(
+                  'Mina dagliga utmaningar',
+                  style: Theme.of(context).textTheme.headlineLarge, textAlign: TextAlign.center,
+                ),
               ),
             ),
             Expanded(child: _buildBody()),

@@ -73,9 +73,6 @@ class UploadPicture {
         body: jsonEncode(body),
       );
 
-      //print(response.statusCode);
-      //print(response.body);
-
       if (response.statusCode == 200 || response.statusCode == 201) {
         return jsonDecode(response.body);
       } else {
@@ -93,7 +90,6 @@ class UploadPicture {
   Future<List<ProfileImageOption>> getProfileImageOptions() async {
     final response = await http.get(
       Uri.parse(
-        //'https://group-6-15.pvt.dsv.su.se/auth-service/users/profile-images/options',
           'https://group-6-15.pvt.dsv.su.se/storage-service/uploads/profile-images/options',
       ),
       headers: {
