@@ -32,7 +32,6 @@ class _BingoMediumMode extends State<BingoMediumMode> {
 
   late String question;
   late int challengeId;
-  late int points;
 
   @override
   void initState() {
@@ -48,9 +47,6 @@ class _BingoMediumMode extends State<BingoMediumMode> {
       helpMethodsUploadPicture = UploadPicture(jwtToken: jwtToken);
 
       await setupChallenge();
-
-      List<dynamic> pictures = await helpMethodsHttp.getPictures();
-      debugPrint('DEBUG: $pictures');
 
     } catch (e) {
       debugPrint('Initieringsfel: $e');
@@ -85,7 +81,6 @@ class _BingoMediumMode extends State<BingoMediumMode> {
   void getPictures() async {
     try {
       Map<String, dynamic> response = await helpMethodsHttp.getPicturesForChallenge(challengeId);
-      debugPrint('Hämtade bilder: $response');
 
       if (response.containsKey('tasks')) {
         List<dynamic> tasks = response['tasks'];
@@ -93,10 +88,19 @@ class _BingoMediumMode extends State<BingoMediumMode> {
 
         for (var task in tasks) {
           if (task['pictures'] != null && (task['pictures'] as List).isNotEmpty) {
-            // Hämta imageUrl från den första bilden i varje task
-            String? url = task['pictures'][0]['imageUrl'];
-            if (url != null) {
-              urls.add(url);
+            if (task['requiredCount'] == 3) {
+              for (var picture in task['pictures']) {
+                String url = picture['imageUrl'];
+                if (url != null) {
+                  urls.add(url);
+                }
+              }
+
+            } else {
+              String? url = task['pictures'][0]['imageUrl'];
+              if (url != null) {
+                urls.add(url);
+              }
             }
           }
         }
@@ -116,6 +120,21 @@ class _BingoMediumMode extends State<BingoMediumMode> {
     } catch (e) {
       debugPrint('DEBUG getpictures $e');
     }
+  }
+
+  ImageProvider? getImageFromList(int index) {
+    var image = images[index];
+
+    if (image == null) {
+      return null;
+    }
+
+    if (image is File) {
+      return FileImage(image);
+    } else if (image is String) {
+      return NetworkImage(image);
+    }
+    return null;
   }
 
   @override
@@ -168,16 +187,19 @@ class _BingoMediumMode extends State<BingoMediumMode> {
 
                         if (images[0] == null){
                           final File? file = await CameraService.takePicture();
+
                           bool success = false;
 
                           String? type;
 
-                          if(widget.typeOfBingo == 'Blandad') {
+                          if(widget.typeOfBingo == 'Blandad' && file != null) {
                             type = await showDialog<String>(
                                 context: context,
                                 builder: (context) => decideTargetTypeMixedBingo());
                           } else {
-                            type = helpMethodsHttp.mapCategoryToBackendForPictureUpload(widget.typeOfBingo);
+                            String category = widget.typeOfBingo;
+                            if (category == 'Växter') category = 'Växt';
+                            type = helpMethodsHttp.mapCategoryToBackendForPictureUpload(category);
                           }
 
                           if(type != null) {
@@ -199,7 +221,7 @@ class _BingoMediumMode extends State<BingoMediumMode> {
                         decoration: BoxDecoration(
                             color: const Color(0xfff8ed76),
                             borderRadius: BorderRadius.circular(15),
-                            image: images[0] != null ? DecorationImage(image: FileImage(images[0]!), fit: BoxFit.cover) : null,
+                            image: images[0] != null ? DecorationImage(image: getImageFromList(0)!, fit: BoxFit.cover) : null,
                         ),
                         child: (images[0] == null) ? Center(child: Icon(MdiIcons.camera, size: 50)) : null,
                       ),
@@ -216,12 +238,14 @@ class _BingoMediumMode extends State<BingoMediumMode> {
 
                           String? type;
 
-                          if(widget.typeOfBingo == 'Blandad') {
+                          if(widget.typeOfBingo == 'Blandad' && file != null) {
                             type = await showDialog<String>(
                                 context: context,
                                 builder: (context) => decideTargetTypeMixedBingo());
                           } else {
-                            type = helpMethodsHttp.mapCategoryToBackendForPictureUpload(widget.typeOfBingo);
+                            String category = widget.typeOfBingo;
+                            if (category == 'Växter') category = 'Växt';
+                            type = helpMethodsHttp.mapCategoryToBackendForPictureUpload(category);
                           }
 
                           if(type != null) {
@@ -243,7 +267,7 @@ class _BingoMediumMode extends State<BingoMediumMode> {
                         decoration: BoxDecoration(
                             color: const Color(0xfff8ed76),
                             borderRadius: BorderRadius.circular(15),
-                            image: images[1] != null ? DecorationImage(image: FileImage(images[1]!), fit: BoxFit.cover) : null,
+                            image: images[1] != null ? DecorationImage(image: getImageFromList(1)!, fit: BoxFit.cover) : null,
                         ),
                         child: (images[1] == null) ? Center(child: Icon(MdiIcons.camera, size: 50)) : null,
                       ),
@@ -266,12 +290,14 @@ class _BingoMediumMode extends State<BingoMediumMode> {
 
                           String? type;
 
-                          if(widget.typeOfBingo == 'Blandad') {
+                          if(widget.typeOfBingo == 'Blandad' && file != null) {
                             type = await showDialog<String>(
                                 context: context,
                                 builder: (context) => decideTargetTypeMixedBingo());
                           } else {
-                            type = helpMethodsHttp.mapCategoryToBackendForPictureUpload(widget.typeOfBingo);
+                            String category = widget.typeOfBingo;
+                            if (category == 'Växter') category = 'Växt';
+                            type = helpMethodsHttp.mapCategoryToBackendForPictureUpload(category);
                           }
 
                           if(type != null) {
@@ -293,7 +319,7 @@ class _BingoMediumMode extends State<BingoMediumMode> {
                         decoration: BoxDecoration(
                             color: const Color(0xfff8ed76),
                             borderRadius: BorderRadius.circular(15),
-                            image: images[2] != null ? DecorationImage(image: FileImage(images[2]!), fit: BoxFit.cover) : null,
+                            image: images[2] != null ? DecorationImage(image: getImageFromList(2)!, fit: BoxFit.cover) : null,
                         ),
                         child: (images[2] == null) ? Center(child: Icon(MdiIcons.camera, size: 50)) : null,
                       ),
@@ -337,20 +363,28 @@ class _BingoMediumMode extends State<BingoMediumMode> {
 
                           actions: [
                             TextButton(
-                              onPressed: () {
+                              onPressed: () async {
 
-                                //TODO kan behöva någon check för om det gick igenom eller inte
-                                helpMethodsHttp.endStartedChallenge(challengeId);
+                                Map<String, dynamic> data = await helpMethodsHttp.endStartedChallenge(challengeId);
+                                String status = data['status'];
 
-                                resetBingo();
+                                if (status == 'NOT_STARTED') {
+                                  resetBingo();
 
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) => HomeScreen(),
-                                  ),
-                                );
-
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => HomeScreen(),
+                                    ),
+                                  );
+                                } else {
+                                  showDialog(
+                                    context: context,
+                                    builder: (context) => const AlertDialog(
+                                      content: Text('Ojdå, något gick fel. Försök igen'),
+                                    ),
+                                  );
+                                }
                               },
                               style: ElevatedButton.styleFrom(
                                 minimumSize: const Size(110, 50),
@@ -398,33 +432,38 @@ class _BingoMediumMode extends State<BingoMediumMode> {
 
   AlertDialog decideTargetTypeMixedBingo() {
     return AlertDialog(
-      actionsAlignment: MainAxisAlignment.spaceBetween,
-      content: Text(
-        'Bestäm typen! Vad var det du tog en bild på?',
+      title: const Text(
+        'Vad tog du en bild på?',
         textAlign: TextAlign.center,
       ),
-
-      actions: [
-        ElevatedButton(
-          onPressed: () {
-            Navigator.pop(context, 'PLANT');
-          },
-          style: ElevatedButton.styleFrom(
-            minimumSize: const Size(110, 50),
-          ),
-          child: Text('Växt', style: Theme.of(context).textTheme.bodyMedium),
+      content: SingleChildScrollView(
+        child: Wrap(
+          spacing: 10,
+          runSpacing: 10,
+          alignment: WrapAlignment.center,
+          children: [
+            dialogButton('Träd', 'PLANT'),
+            dialogButton('Växt', 'PLANT'),
+            dialogButton('Djur', 'ANIMAL'),
+            dialogButton('Blomma', 'PLANT'),
+            dialogButton('Insekt', 'ANIMAL'),
+            dialogButton('Fågel', 'ANIMAL'),
+          ],
         ),
+      ),
+    );
+  }
 
-        ElevatedButton(
-          onPressed: () {
-            Navigator.pop(context, 'ANIMAL');
-          },
-          style: ElevatedButton.styleFrom(
-            minimumSize: const Size(110, 50),
-          ),
-          child: Text('Djur', style: Theme.of(context).textTheme.bodyMedium),
-        ),
-      ],
+  Widget dialogButton(String text, String value) {
+    return ElevatedButton(
+      onPressed: () {
+        Navigator.pop(context, value);
+      },
+      style: ElevatedButton.styleFrom(
+        minimumSize: const Size(120, 50),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      ),
+      child: Text(text, style: Theme.of(context).textTheme.bodyMedium),
     );
   }
 
@@ -434,40 +473,33 @@ class _BingoMediumMode extends State<BingoMediumMode> {
       if (file != null) {
         Map<String, dynamic>? response = await helpMethodsUploadPicture.sendPictureToBackend(file, type, 'CHALLENGE', challengeId);
 
-        if (response != null) {
-          if (response['accepted'] == true) {
-            /*showDialog(
+        if (response != null && response['accepted'] == true) {
+          final gamification = response['gamification'];
+
+          if (mounted) {
+            await GamificationPopupService.showIfNeeded(
+              context: context,
+              leveledUp: gamification?['leveledUp'] ?? false,
+              previousLevel: gamification?['previousLevel'],
+              currentLevel: gamification?['currentLevel'],
+              newlyUnlockedBadges: gamification?['newlyUnlockedBadges'] ?? [],
+            );
+          }
+
+          if (mounted) {
+            showDialog(
               context: context,
               builder: (context) => successMessageUploadPicture(),
             );
-            return true;*/
-            final gamification = response['gamification'];
-
-            if (mounted) {
-              await GamificationPopupService.showIfNeeded(
-                context: context,
-                leveledUp: gamification?['leveledUp'] ?? false,
-                previousLevel: gamification?['previousLevel'],
-                currentLevel: gamification?['currentLevel'],
-                newlyUnlockedBadges: gamification?['newlyUnlockedBadges'] ?? [],
-              );
-            }
-
-            if (mounted) {
-              showDialog(
-                context: context,
-                builder: (context) => successMessageUploadPicture(),
-              );
-            }
-
-            return true;
-          } else {
-            showDialog(
-              context: context,
-              builder: (context) => errorMessageUploadPicture(),
-            );
-            return false;
           }
+
+          return true;
+        } else {
+          showDialog(
+            context: context,
+            builder: (context) => errorMessageUploadPicture(),
+          );
+          return false;
         }
 
       } else {
@@ -485,7 +517,6 @@ class _BingoMediumMode extends State<BingoMediumMode> {
       );
       return false;
     }
-    return false;
   }
 
   AlertDialog errorMessageUploadPicture() {
@@ -549,7 +580,6 @@ class _BingoMediumMode extends State<BingoMediumMode> {
     return AlertDialog(
       actionsAlignment: MainAxisAlignment.center,
       content: const Text(
-        //TODO visa antalet poäng
         'Bra jobbat! Dina poäng har nu sparats',
         textAlign: TextAlign.center,
       ),

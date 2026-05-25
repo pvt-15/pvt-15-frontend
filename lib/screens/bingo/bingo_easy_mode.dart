@@ -3,10 +3,7 @@ import 'dart:io';
 
 import 'package:Skogsjakten/services/upload_picture.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
-import 'package:path_provider/path_provider.dart';
 import '../../services/camera_service.dart';
 import '../../services/gamification_popup_helper.dart';
 import '../../services/session_storage.dart';
@@ -35,7 +32,6 @@ class _BingoEasyMode extends State<BingoEasyMode> {
 
   late String question;
   late int challengeId;
-  late int points;
 
   @override
   void initState() {
@@ -82,37 +78,6 @@ class _BingoEasyMode extends State<BingoEasyMode> {
     }
   }
 
-  /*
-  //Metod för att hämta ut bilder från en utmaning från databasen
-  void getPictures() async {
-    try {
-      Map<String, dynamic> response = await helpMethodsHttp.getPicturesForChallenge(challengeId);
-
-      if (response.containsKey('tasks')) {
-        List<dynamic> tasks = response['tasks'];
-        List<String> urls = [];
-
-        for (var task in tasks) {
-          if (task['pictures'] != null && (task['pictures'] as List).isNotEmpty) {
-            String? url = task['pictures'][0]['imageUrl'];
-            if (url != null) {
-              urls.add(url);
-            }
-          }
-        }
-
-        setState(() {
-          if (urls.isNotEmpty) images[0] = urls[0];
-          if (urls.length > 1) images[1] = urls[1];
-        });
-      }
-    } catch (e) {
-      debugPrint('DEBUG getpictures $e');
-    }
-  }
-
-   */
-
   //Metod för att hämta ut bilder från en utmaning från databasen
   void getPictures() async {
     try {
@@ -155,28 +120,20 @@ class _BingoEasyMode extends State<BingoEasyMode> {
     }
   }
 
-  Future<File> getAssetFile(String assetPath) async {
-    final byteData = await rootBundle.load(assetPath);
-    final file = File('${(await getTemporaryDirectory()).path}/test_asset.jpg');
-    await file.writeAsBytes(byteData.buffer.asUint8List());
-    return file;
-  }
-
-  /*
-  Object? getImageFromList(int index) {
+  ImageProvider? getImageFromList(int index) {
     var image = images[index];
 
-    if (image != null) {
-      if (image is File) {
-        return FileImage(image);
-      } else if (image is String) {
-        return NetworkImage(image);
-      }
+    if (image == null) {
+      return null;
+    }
+
+    if (image is File) {
+      return FileImage(image);
+    } else if (image is String) {
+      return NetworkImage(image);
     }
     return null;
   }
-
-   */
 
   @override
   Widget build(BuildContext context) {
@@ -229,19 +186,17 @@ class _BingoEasyMode extends State<BingoEasyMode> {
                         if (images[0] == null){
                           final File? file = await CameraService.takePicture();
 
-                          //final File assetFile = await getAssetFile('assets/gran.png');
-                          //final compressedXFile = await FlutterImageCompress.compressAndGetFile(assetFile.path, '${assetFile.path}_comp.jpg', quality: 85, minWidth: 1000);
-                         //final File file = File(compressedXFile!.path);
-
                           bool success = false;
                           String? type;
 
-                          if (widget.typeOfBingo == 'Blandad') {
+                          if (widget.typeOfBingo == 'Blandad' && file != null) {
                             type = await showDialog<String>(
                                 context: context,
                                 builder: (context) => decideTargetTypeMixedBingo());
                           } else {
-                            type = helpMethodsHttp.mapCategoryToBackendForPictureUpload(widget.typeOfBingo);
+                            String category = widget.typeOfBingo;
+                            if (category == 'Växter') category = 'Växt';
+                            type = helpMethodsHttp.mapCategoryToBackendForPictureUpload(category);
                           }
 
                           if (type != null) {
@@ -263,7 +218,7 @@ class _BingoEasyMode extends State<BingoEasyMode> {
                         decoration: BoxDecoration(
                             color: const Color(0xfff8ed76),
                             borderRadius: BorderRadius.circular(15),
-                            image: images[0] != null ? DecorationImage(image: FileImage(images[0]!), fit: BoxFit.cover) : null,
+                            image: images[0] != null ? DecorationImage(image: getImageFromList(0)!, fit: BoxFit.cover) : null,
                         ),
                         child: (images[0] == null) ? Center(child: Icon(MdiIcons.camera, size: 50)) : null,
                       ),
@@ -277,20 +232,18 @@ class _BingoEasyMode extends State<BingoEasyMode> {
                         if (images[1] == null){
                           final File? file = await CameraService.takePicture();
 
-                          //final File assetFile = await getAssetFile('assets/testbild.jpg');
-                          //final compressedXFile = await FlutterImageCompress.compressAndGetFile(assetFile.path, '${assetFile.path}_comp.jpg', quality: 85, minWidth: 1000);
-                          //final File file = File(compressedXFile!.path);
-
                           bool success = false;
 
                           String? type;
 
-                          if (widget.typeOfBingo == 'Blandad') {
+                          if (widget.typeOfBingo == 'Blandad' && file != null) {
                             type = await showDialog<String>(
                                 context: context,
                                 builder: (context) => decideTargetTypeMixedBingo());
                           } else {
-                            type = helpMethodsHttp.mapCategoryToBackendForPictureUpload(widget.typeOfBingo);
+                            String category = widget.typeOfBingo;
+                            if (category == 'Växter') category = 'Växt';
+                            type = helpMethodsHttp.mapCategoryToBackendForPictureUpload(category);
                           }
 
                           if (type != null) {
@@ -312,7 +265,7 @@ class _BingoEasyMode extends State<BingoEasyMode> {
                         decoration: BoxDecoration(
                             color: const Color(0xfff8ed76),
                             borderRadius: BorderRadius.circular(15),
-                            image: images[1] != null ? DecorationImage(image: FileImage(images[1]!), fit: BoxFit.cover) : null,
+                            image: images[1] != null ? DecorationImage(image: getImageFromList(1)!, fit: BoxFit.cover) : null,
                         ),
                         child: (images[1] == null) ? Center(child: Icon(MdiIcons.camera, size: 50)) : null,
                       ),
@@ -356,20 +309,28 @@ class _BingoEasyMode extends State<BingoEasyMode> {
 
                           actions: [
                             TextButton(
-                              onPressed: () {
+                              onPressed: () async {
 
-                                //TODO kan behöva någon check för om det gick igenom eller inte
-                                helpMethodsHttp.endStartedChallenge(challengeId);
+                                Map<String, dynamic> data = await helpMethodsHttp.endStartedChallenge(challengeId);
+                                String status = data['status'];
 
-                                resetBingo();
+                                if (status == 'NOT_STARTED') {
+                                  resetBingo();
 
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) => HomeScreen(),
-                                  ),
-                                );
-
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => HomeScreen(),
+                                    ),
+                                  );
+                                } else {
+                                  showDialog(
+                                    context: context,
+                                    builder: (context) => const AlertDialog(
+                                      content: Text('Ojdå, något gick fel. Försök igen'),
+                                    ),
+                                  );
+                                }
                               },
                               child: Text('Klar', style: Theme.of(context).textTheme.headlineMedium),
                             ),
@@ -410,35 +371,41 @@ class _BingoEasyMode extends State<BingoEasyMode> {
 
     );
   }
+
   AlertDialog decideTargetTypeMixedBingo() {
     return AlertDialog(
-      actionsAlignment: MainAxisAlignment.spaceBetween,
-      content: Text(
-        'Bestäm typen! Vad var det du tog en bild på?',
+      title: const Text(
+        'Vad tog du en bild på?',
         textAlign: TextAlign.center,
       ),
-
-      actions: [
-        ElevatedButton(
-          onPressed: () {
-            Navigator.pop(context, 'PLANT');
-          },
-          style: ElevatedButton.styleFrom(
-            minimumSize: const Size(110, 50),
-          ),
-          child: Text('Växt', style: Theme.of(context).textTheme.bodyMedium),
+      content: SingleChildScrollView(
+        child: Wrap(
+          spacing: 10,
+          runSpacing: 10,
+          alignment: WrapAlignment.center,
+          children: [
+            dialogButton('Träd', 'TREE'),
+            dialogButton('Växt', 'PLANT'),
+            dialogButton('Djur', 'ANIMAL'),
+            dialogButton('Blomma', 'FLOWER'),
+            dialogButton('Insekt', 'INSECT'),
+            dialogButton('Fågel', 'BIRD'),
+          ],
         ),
+      ),
+    );
+  }
 
-        ElevatedButton(
-          onPressed: () {
-            Navigator.pop(context, 'ANIMAL');
-          },
-          style: ElevatedButton.styleFrom(
-            minimumSize: const Size(110, 50),
-          ),
-          child: Text('Djur', style: Theme.of(context).textTheme.bodyMedium),
-        ),
-      ],
+  Widget dialogButton(String text, String value) {
+    return ElevatedButton(
+      onPressed: () {
+        Navigator.pop(context, value);
+      },
+      style: ElevatedButton.styleFrom(
+        minimumSize: const Size(120, 50),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      ),
+      child: Text(text, style: Theme.of(context).textTheme.bodyMedium),
     );
   }
 
@@ -447,7 +414,6 @@ class _BingoEasyMode extends State<BingoEasyMode> {
       helpMethodsUploadPicture = UploadPicture(jwtToken: await token);
       if (file != null) {
         Map<String, dynamic>? response = await helpMethodsUploadPicture.sendPictureToBackend(file, type, 'CHALLENGE', challengeId);
-        //print('uploadPicture $response');
 
         if (response != null && response['accepted'] == true) {
           final gamification = response['gamification'];
@@ -556,7 +522,6 @@ class _BingoEasyMode extends State<BingoEasyMode> {
     return AlertDialog(
       actionsAlignment: MainAxisAlignment.center,
       content: const Text(
-        //TODO visa antalet poäng
         'Bra jobbat! Dina poäng har nu sparats',
         textAlign: TextAlign.center,
       ),

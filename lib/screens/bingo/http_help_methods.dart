@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 
@@ -67,10 +68,10 @@ class HttpHelpMethods {
     }
   }
 
-  Future<Map<String, dynamic>> getQuestionOnId() async {
+  Future<Map<String, dynamic>> getQuestionOnId(int id) async {
     try {
       final response = await http.post(
-        Uri.parse('https://group-6-15.pvt.dsv.su.se/challenges/364/start'),
+        Uri.parse('https://group-6-15.pvt.dsv.su.se/challenges/$id/start'),
         headers: {
           'Authorization': 'Bearer $jwtToken',
           'Content-Type': 'application/json',
@@ -107,17 +108,39 @@ class HttpHelpMethods {
   }
 
   String? mapCategoryToBackendForChallenge(String category) {
-    if (category == 'Träd') return 'TREE';
-    if (category == 'Växter') return 'PLANT';
-    if (category == 'Djur') return 'ANIMAL';
-    return null; // För 'Blandad'
+    final random = Random();
+    
+    if (category == 'Träd') {
+      return 'TREE';
+    }
+    
+    if (category == 'Växter') {
+      // Slumpa mellan PLANT och FLOWER
+      List<String> options = ['PLANT', 'FLOWER'];
+      return options[random.nextInt(options.length)];
+    }
+    
+    if (category == 'Djur') {
+      // Slumpa mellan ANIMAL, INSECT och BIRD
+      List<String> options = ['ANIMAL', 'INSECT', 'BIRD'];
+      return options[random.nextInt(options.length)];
+    }
+    
+    if (category == 'Blandad') {
+      return null;
+    }
+    
+    return null;
   }
-
+  
   String? mapCategoryToBackendForPictureUpload(String category) {
-    if (category == 'Träd') return 'PLANT';
-    if (category == 'Växter') return 'PLANT';
-    if (category == 'Djur') return 'ANIMAL';
-    return null; // För 'Blandad'
+    if (category == 'Träd' || category == 'Växt' || category == 'Blomma') {
+      return 'PLANT';
+    }
+    if (category == 'Djur' || category == 'Insekt' || category == 'Fågel') {
+      return 'ANIMAL';
+    }
+    return null;
   }
 
   Future<Map<String, dynamic>> getPicturesForChallenge(int id) async {

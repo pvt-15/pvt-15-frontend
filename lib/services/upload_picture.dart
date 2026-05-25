@@ -72,6 +72,9 @@ class UploadPicture {
         },
         body: jsonEncode(body),
       );
+        
+      print(response.statusCode);
+      print(response.body);
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         return jsonDecode(response.body);
@@ -155,9 +158,8 @@ class UploadPicture {
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         final data = jsonDecode(responseBody) as Map<String, dynamic>;
-        // Returnerar både imageUrl och objectKey
         return {
-          'imageUrl': data['imageUrl'],
+          //'imageUrl': data['imageUrl'],
           'objectKey': data['objectKey'],
         };
       } else {

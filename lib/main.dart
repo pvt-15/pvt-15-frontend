@@ -33,8 +33,8 @@ void main() async {
 
   runApp(
       MyApp(
-        //startScreen: initialScreen,
-        startScreen: LoginScreen(),
+        startScreen: initialScreen,
+        //startScreen: LoginScreen(),
         //startScreen: HomeScreen(),
       )
   );

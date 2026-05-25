@@ -1,177 +1,278 @@
-import 'dart:io';
+// services/treasure_hunt_service.dart
 import 'dart:convert';
-import 'package:http/http.dart' as http;
+import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:Skogsjakten/services/session_storage.dart';
-import 'package:Skogsjakten/services/upload_picture.dart';
+import 'package:http/http.dart' as http;
+import '../models/treasure_hunt_models.dart';
+import 'upload_picture.dart';
 
 class TreasureHuntService {
-  final SessionStorage _sessionStorage = SessionStorage();
+  final String baseUrl = 'https://group-6-15.pvt.dsv.su.se';
+  final String? jwtToken;
+  late final UploadPicture _uploadPicture;
 
-  /// Huvudmetod: ladda upp bild och verifiera mot AI
-  Future<TreasureHuntResult> verifyTreePicture({
-    required File imageFile,
-    required String targetTreeName,  // t.ex. "Björk", "Ek"
-    required String targetCategory,  // "TREE"
-  }) async {
+  TreasureHuntService({required this.jwtToken}) {
+    _uploadPicture = UploadPicture(jwtToken: jwtToken);
+  }
+
+  Future<List<TreasureHuntTask>> getIncompleteTasksByDifficulty(String difficulty) async {
     try {
-      final token = await _sessionStorage.getToken();
-      if (token == null) {
-        return TreasureHuntResult.failure('Ingen inloggning hittades');
+      final completedTaskIds = await getCompletedTaskIds();
+      final allTasks = await getAllTasksByDifficulty(difficulty);
+
+      final incompleteTasks = allTasks.where((task) =>
+      !completedTaskIds.contains(task.id)
+      ).toList();
+
+      debugPrint('=== getIncompleteTasksByDifficulty($difficulty) ===');
+      debugPrint('Totalt antal tasks: ${allTasks.length}');
+      debugPrint('Slutförda tasks: ${completedTaskIds.length}');
+      debugPrint('Återstående tasks: ${incompleteTasks.length}');
+
+      return incompleteTasks;
+
+    } catch (e) {
+      throw Exception('Fel vid hämtning av tasks: $e');
+    }
+  }
+
+  Future<List<TreasureHuntTask>> getAllTasksByDifficulty(String difficulty) async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/challenges'),
+      headers: {
+        'Authorization': 'Bearer $jwtToken',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('Kunde inte hämta challenges: ${response.statusCode}');
+    }
+
+    final List<dynamic> allChallenges = jsonDecode(response.body);
+    final List<TreasureHuntTask> allTasks = [];
+
+    debugPrint('=== getAllTasksByDifficulty($difficulty) ===');
+
+    for (var challenge in allChallenges) {
+      final challengeId = challenge['id'] as int;
+      final challengeType = challenge['type'] as String? ?? '';
+      final challengeDifficulty = challenge['difficulty'] as String? ?? '';
+      final isActive = challenge['active'] == true || challenge['active'] == 1;
+
+      if (challengeType.toUpperCase() == 'TREASURE_HUNT' &&
+          challengeDifficulty == difficulty &&
+          isActive) {
+
+        debugPrint('Hittade aktiv TREASURE_HUNT challenge: id=$challengeId');
+
+        final detailsResponse = await http.get(
+          Uri.parse('$baseUrl/challenges/$challengeId'),
+          headers: {
+            'Authorization': 'Bearer $jwtToken',
+            'Content-Type': 'application/json',
+          },
+        );
+
+        if (detailsResponse.statusCode == 200) {
+          final challengeDetails = jsonDecode(detailsResponse.body);
+          final tasks = challengeDetails['tasks'] as List? ?? [];
+
+          for (var task in tasks) {
+            final taskObj = TreasureHuntTask.fromJson(task);
+            if (taskObj.challengeId == 0) {
+              final correctedTask = TreasureHuntTask(
+                id: taskObj.id,
+                mustBeUnique: taskObj.mustBeUnique,
+                requiredCategory: taskObj.requiredCategory,
+                requiredCount: taskObj.requiredCount,
+                requiredLabel: taskObj.requiredLabel,
+                taskText: taskObj.taskText,
+                taskType: taskObj.taskType,
+                challengeId: challengeId,
+                helpText: taskObj.helpText,
+                referenceImageUrl: taskObj.referenceImageUrl,
+              );
+              allTasks.add(correctedTask);
+            } else {
+              allTasks.add(taskObj);
+            }
+          }
+        }
+      }
+    }
+
+    debugPrint('RESULTAT: ${allTasks.length} tasks totalt');
+    return allTasks;
+  }
+
+  Future<Set<int>> getCompletedTaskIds() async {
+    try {
+      final myChallenges = await _getMyChallenges();
+      final Set<int> completedTaskIds = {};
+
+      for (var challenge in myChallenges) {
+        final challengeId = challenge['id'] as int;
+        final challengeType = challenge['type'] as String? ?? '';
+        final challengeStatus = challenge['status'] as String? ?? 'NOT_STARTED';
+
+        if (challengeType.toUpperCase() != 'TREASURE_HUNT') continue;
+
+        final details = await getChallengeDetails(challengeId);
+        final tasks = details['tasks'] as List? ?? [];
+
+        for (var task in tasks) {
+          final taskId = task['id'] as int;
+          final taskStatus = task['status'] as String?;
+
+          // En task räknas som klar om antingen:
+          //  - backend explicit returnerar status COMPLETED på task, eller
+          //  - hela challenge är COMPLETED (TREASURE_HUNT har bara en task
+          //    med required_count = 1, så challenge COMPLETED => task klar).
+          if (taskStatus == 'COMPLETED' || challengeStatus == 'COMPLETED') {
+            completedTaskIds.add(taskId);
+          }
+        }
       }
 
-      // Steg 1: Ladda upp bild till Google Cloud Storage
-      final uploadService = UploadPicture(jwtToken: token);
-      final objectKey = await uploadService.sendPictureToGoogleStorage(imageFile);
+      debugPrint('getCompletedTaskIds: ${completedTaskIds.length} klara tasks: $completedTaskIds');
+      return completedTaskIds;
+
+    } catch (e) {
+      debugPrint('Fel vid hämtning av slutförda tasks: $e');
+      return {};
+    }
+  }
+
+  Future<Map<String, dynamic>> getChallengeDetails(int challengeId) async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/challenges/$challengeId'),
+      headers: {
+        'Authorization': 'Bearer $jwtToken',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('Kunde inte hämta challenge-detaljer: ${response.statusCode}');
+    }
+
+    return jsonDecode(response.body);
+  }
+
+  Future<Map<String, dynamic>> startChallenge(int challengeId) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/challenges/$challengeId/start'),
+      headers: {
+        'Authorization': 'Bearer $jwtToken',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode != 200 && response.statusCode != 201) {
+      throw Exception('Kunde inte starta challenge: ${response.statusCode}');
+    }
+
+    return jsonDecode(response.body);
+  }
+
+  Future<VerificationResult> takeAndVerifyPicture({
+    required File imageFile,
+    required String targetType,
+    required int challengeId,
+  }) async {
+    try {
+      if (challengeId <= 0) {
+        return VerificationResult.failure('Ogiltigt challengeId: $challengeId');
+      }
+
+      // Säkerställ att challenge är startad i backend så att
+      // user_challenge_progress / user_challenge_task_progress finns innan
+      // vi skickar in bilden. Idempotent — backend returnerar bara befintlig
+      // status om challenge redan är igång.
+      try {
+        await startChallenge(challengeId);
+      } catch (e) {
+        debugPrint('startChallenge ignorerades: $e');
+      }
+
+      final objectKey = await _uploadPicture.sendPictureToGoogleStorage(imageFile);
 
       if (objectKey == null) {
-        return TreasureHuntResult.failure('Kunde inte ladda upp bild');
+        return VerificationResult.failure('Kunde inte ladda upp bild');
       }
 
-      debugPrint('Uppladdad bild, objectKey: $objectKey');
-
-      // Steg 2: Skicka till AI för identifiering
-      final aiResult = await _identifyWithAI(
-        token: token,
+      final result = await _verifyPicture(
         objectKey: objectKey,
+        targetType: targetType,
+        challengeId: challengeId,
       );
 
-      if (aiResult == null) {
-        return TreasureHuntResult.failure('AI-identifiering misslyckades');
-      }
+      if (result['accepted'] == true) {
+        final picture = result['picture'];
+        final label = picture?['label'] as String? ?? '';
 
-      debugPrint('=== TREASURE HUNT DEBUG ===');
-      debugPrint('Target tree: $targetTreeName');
-      debugPrint('AI label: ${aiResult.label}');
-      debugPrint('AI confidence: ${aiResult.confidence}');
-      debugPrint('Match: $aiResult');
-      debugPrint('============================');
-
-      debugPrint('AI resultat: ${aiResult.label}, confidence: ${aiResult.confidence}');
-
-      // Steg 3: Kontrollera om det är rätt träd (med 75% tröskel)
-      final isCorrect = _isCorrectTree(
-        aiLabel: aiResult.label,
-        targetTreeName: targetTreeName,
-        confidence: aiResult.confidence,
-        threshold: 0.75,
-      );
-
-      return TreasureHuntResult(
-        success: isCorrect,
-        aiLabel: aiResult.label,
-        confidence: aiResult.confidence,
-        pointsAwarded: aiResult.pointsAwarded,
-        errorMessage: isCorrect ? null : 'Bilden känns inte igen som $targetTreeName. Försök igen!',
-      );
-
-    } catch (e) {
-      debugPrint('TreasureHuntService fel: $e');
-      return TreasureHuntResult.failure('Ett fel uppstod: $e');
-    }
-  }
-
-  /// Skicka bild till AI via backend
-  Future<AIResult?> _identifyWithAI({
-    required String token,
-    required String objectKey,
-  }) async {
-    try {
-      final response = await http.post(
-        Uri.parse('https://group-6-15.pvt.dsv.su.se/pictures'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-        body: jsonEncode({
-          'imageObjectKey': objectKey,
-          'targetType': 'PLANT',        // Viktigt: sätt till PLANT för träd
-          'pictureMode': 'CHALLENGE',  // Använd CHALLENGE-läge
-          'challengeId': '254' // TODO: TEMP
-        }),
-      );
-
-      debugPrint('AI Response status: ${response.statusCode}');
-      debugPrint('AI Response body: ${response.body}');
-
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        final data = jsonDecode(response.body);
-
-        return AIResult(
-          label: data['label'] ?? 'Okänd',
-          category: data['category'] ?? 'TREE',
-          confidence: (data['aiConfidence'] as num?)?.toDouble() ?? 0.0,
-          pointsAwarded: data['pointsAwarded'] ?? 0,
-          imageUrl: data['imageUrl'] ?? '',
+        return VerificationResult.success(
+          label: label,
+          pointsAwarded: picture?['pointsAwarded'] as int? ?? 0,
         );
       } else {
-        debugPrint('AI identifiering misslyckades: ${response.body}');
-        return null;
+        final message = result['message'] as String? ?? 'Bilden kändes inte igen';
+        return VerificationResult.failure(message);
       }
     } catch (e) {
-      debugPrint('AI anrop fel: $e');
-      return null;
+      return VerificationResult.failure('Ett fel uppstod vid verifiering');
     }
   }
 
-  /// Kontrollera om AI-resultatet matchar målet (med 75% tröskel)
-  bool _isCorrectTree({
-    required String aiLabel,
-    required String targetTreeName,
-    required double confidence,
-    required double threshold,
-  }) {
-    // Normalisera strängar för jämförelse
-    final normalizedAILabel = aiLabel.toLowerCase().trim();
-    final normalizedTarget = targetTreeName.toLowerCase().trim();
+  Future<Map<String, dynamic>> _verifyPicture({
+    required String objectKey,
+    required String targetType,
+    required int challengeId,
+  }) async {
+    // pictureMode = CHALLENGE + challengeId gör att backend kopplar bilden
+    // till rätt challenge, kör AI-matchning mot tasks och automatiskt
+    // uppdaterar user_challenge_task_progress / user_challenge_progress.
+    final Map<String, dynamic> requestBody = {
+      'imageObjectKey': objectKey,
+      'targetType': targetType,
+      'pictureMode': 'CHALLENGE',
+      'challengeId': challengeId,
+    };
 
-    // Kollar om etiketten matchar (exakt eller innehåller)
-    final labelMatches = normalizedAILabel == normalizedTarget ||
-        normalizedAILabel.contains(normalizedTarget) ||
-        normalizedTarget.contains(normalizedAILabel);
-
-    // Kräver både matchande etikett OCH tillräckligt hög confidence
-    return labelMatches && confidence >= threshold;
-  }
-}
-
-/// Resultat från AI-identifiering
-class AIResult {
-  final String label;
-  final String category;
-  final double confidence;
-  final int pointsAwarded;
-  final String imageUrl;
-
-  AIResult({
-    required this.label,
-    required this.category,
-    required this.confidence,
-    required this.pointsAwarded,
-    required this.imageUrl,
-  });
-}
-
-/// Resultat från TreasureHuntService
-class TreasureHuntResult {
-  final bool success;
-  final String? aiLabel;
-  final double? confidence;
-  final int? pointsAwarded;
-  final String? errorMessage;
-
-  TreasureHuntResult({
-    required this.success,
-    this.aiLabel,
-    this.confidence,
-    this.pointsAwarded,
-    this.errorMessage,
-  });
-
-  factory TreasureHuntResult.failure(String message) {
-    return TreasureHuntResult(
-      success: false,
-      errorMessage: message,
+    final response = await http.post(
+      Uri.parse('$baseUrl/pictures'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $jwtToken',
+      },
+      body: jsonEncode(requestBody),
     );
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Verifiering misslyckades: ${response.statusCode}');
+    }
+  }
+
+  Future<List<dynamic>> _getMyChallenges() async {
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/challenges/me'),
+        headers: {
+          'Authorization': 'Bearer $jwtToken',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        return [];
+      }
+    } catch (e) {
+      return [];
+    }
   }
 }

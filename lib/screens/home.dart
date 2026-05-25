@@ -328,10 +328,12 @@ class _HomeScreenState extends State<HomeScreen> {
               await Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => Skattjakt(difficulty: result),
+                  builder: (_) => Skattjakt(
+                    difficulty: result.name.toUpperCase(),
+                    challengeId: null,
+                  ),
                 ),
               );
-              // Refresh user data after skattjakt
               await _loadUserData();
             }
             return;
@@ -428,10 +430,12 @@ class _HomeScreenState extends State<HomeScreen> {
             await Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (_) => Skattjakt(difficulty: result),
+                builder: (_) => Skattjakt(
+                  difficulty: result.name.toUpperCase(),
+                  challengeId: null,
+                ),
               ),
             );
-            // Refresh user data after skattjakt
             await _loadUserData();
           }
           return;

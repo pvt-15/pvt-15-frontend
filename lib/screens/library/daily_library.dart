@@ -90,6 +90,8 @@ class _DailyLibraryState extends State<DailyLibrary> {
     }
   }
 
+  // TODO delete picture
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
