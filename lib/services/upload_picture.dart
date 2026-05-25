@@ -73,8 +73,8 @@ class UploadPicture {
         body: jsonEncode(body),
       );
 
-      //print(response.statusCode);
-      //print(response.body);
+      print(response.statusCode);
+      print(response.body);
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         return jsonDecode(response.body);

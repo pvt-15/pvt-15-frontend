@@ -69,7 +69,6 @@ class _ChooseBingoGame extends State<ChooseBingoGame> {
             children: [
               Padding(
                 padding: const EdgeInsets.only(
-                  left: 30,
                   top: 40,
                   bottom: 30
                 ),
@@ -116,7 +115,7 @@ class _ChooseBingoGame extends State<ChooseBingoGame> {
                                 fit: BoxFit.contain,
                             ),
                             ),
-                              const SizedBox(width: 35),
+                              const SizedBox(width: 25),
                               Expanded(
                                 child: Text(
                                   games[index]['name'],
@@ -186,13 +185,24 @@ class _ChooseBingoGame extends State<ChooseBingoGame> {
   Future<Map<String, dynamic>?> findActiveBingoChallenge(String category) async {
     HttpHelpMethods helpMethodsHttp = HttpHelpMethods(jwtToken: jwtToken);
     
-    String? backendCategory = helpMethodsHttp.mapCategoryToBackendForChallenge(category);
+    List<String?> targetCategories = [];
+    if (category == 'Träd') {
+      targetCategories = ['TREE'];
+    } else if (category == 'Växter') {
+      targetCategories = ['PLANT', 'FLOWER'];
+    } else if (category == 'Djur') {
+      targetCategories = ['ANIMAL', 'INSECT', 'BIRD'];
+    } else if (category == 'Blandad') {
+      targetCategories = [null];
+    }
     
     try {
       List<dynamic> allChallenges = await helpMethodsHttp.getAllChallenges();
       for (var challenge in allChallenges) {
-        if (challenge['type'] == 'BINGO' && challenge['category'] == backendCategory && challenge['status'] == 'IN_PROGRESS') {
-          return challenge;
+        if (challenge['type'] == 'BINGO' && challenge['status'] == 'IN_PROGRESS') {
+          if (targetCategories.contains(challenge['category'])) {
+            return challenge;
+          }
         }
       }
     } catch (e) {
