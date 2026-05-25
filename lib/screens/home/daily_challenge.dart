@@ -279,7 +279,7 @@ class _DailyChallengeState extends State<DailyChallenge> {
                   child: ElevatedButton(
                     onPressed: _showCompleteDialog,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xffb1067e),
+                      backgroundColor: const Color(0xff84c06c),
                       padding: const EdgeInsets.symmetric(vertical: 18),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
@@ -467,7 +467,7 @@ class _ChallengeCompletePopUpState extends State<_ChallengeCompletePopUp> {
                   ElevatedButton(
                     onPressed: _confirmAndUpload,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xffb1067e),
+                      backgroundColor: const Color(0xff84c06c),
                     ),
                     child: Text(
                       'Skicka in',
@@ -485,7 +485,7 @@ class _ChallengeCompletePopUpState extends State<_ChallengeCompletePopUp> {
                 icon: const Icon(Icons.camera_alt),
                 label: const Text('Öppna kamera'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xffb1067e),
+                  backgroundColor: const Color(0xff84c06c),
                 ),
               ),
             ),
