@@ -205,7 +205,7 @@ class _DailyChallengeState extends State<DailyChallenge> {
                       ),
                     ),
                     const Positioned(
-                      right: -35,
+                      right: -34,
                       top: 26,
                       child: Icon(
                         Icons.arrow_right,
