@@ -140,6 +140,8 @@ class UploadPicture {
     }
   }
 
+  /*
+
   // TODO Matilda lägg ny metod för upload/picture som faktiskt FUNGERERAR
   // Upload picture, utan AI! Används i daglig utmaning
   Future<Map<String, dynamic>?> uploadPicture(File imageFile) async {
@@ -172,6 +174,8 @@ class UploadPicture {
       return null;
     }
   }
+
+   */
 
 }
 

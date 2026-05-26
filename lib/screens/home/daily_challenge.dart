@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'dart:io';
 import '../../widgets/custom_navigation_bar.dart';
@@ -92,6 +93,20 @@ class _DailyChallengeState extends State<DailyChallenge> {
     _fetchDailyChallenge();
   }
 
+  Future<Map<String, dynamic>?> findActiveDaily() async {
+    final token = await _sessionStorage.getToken();
+    final httpHelper = HttpHelpMethods(jwtToken: token);
+
+    List<dynamic> allChallenges = await httpHelper.getAllChallenges();
+    for (var c in allChallenges) {
+      if (c['type'] == 'DAILY' && c['status'] == 'IN_PROGRESS') {
+        //return challenge;
+        return c;
+      }
+    }
+    return null;
+  }
+
   Future<void> _fetchDailyChallenge() async {
     print(">>> _fetchDailyChallenge anropad");
     setState(() {
@@ -104,13 +119,36 @@ class _DailyChallengeState extends State<DailyChallenge> {
       final httpHelper = HttpHelpMethods(jwtToken: token);
 
       // Bugfix: getAllChallenges returnerar List<dynamic>
-      final List<dynamic> challenges = await httpHelper.getAllChallenges();
+      //List<dynamic> challenges = await httpHelper.getAllChallenges();
+      //Map<String, dynamic> challenge = await httpHelper.getNewQuestion('EASY', 'DAILY', null);
 
+      Map<String, dynamic>? challenge = await findActiveDaily();
+
+      //httpHelper.endStartedChallenge(365);
+
+      //Map<String, dynamic> challenge = await httpHelper.getQuestionOnId(366);
+
+      if (challenge == null) {
+        challenge = await httpHelper.getNewQuestion('EASY', 'DAILY', null);
+      }
+
+      /*
       final dailyChallenge = challenges.firstWhere(
             (c) => c['type'] == 'DAILY',
         orElse: () => null,
       );
 
+       */
+
+      //Map<String, dynamic>? dailyChallenge;
+
+      //for (var challenge in challenges) {
+        //if (challenge['type'] == 'DAILY') {
+         //dailyChallenge = challenge;
+        //}
+      //}
+
+      /*
       if (dailyChallenge == null) {
         setState(() {
           _errorMessage = 'Ingen daglig utmaning hittades';
@@ -118,20 +156,22 @@ class _DailyChallengeState extends State<DailyChallenge> {
         });
         return;
       }
+       */
 
-      final int challengeId = dailyChallenge['id'];
+      //final int challengeId = challenge['id'];
 
-      final Map<String, dynamic> details =
-      await httpHelper.getStartedQuestion(challengeId);
+      //final Map<String, dynamic> details =
+      //await httpHelper.getStartedQuestion(challengeId);
 
       setState(() {
-        _challenge = DailyChallengeModel.fromJson(details);
+        _challenge = DailyChallengeModel.fromJson(challenge!);
+        print(challenge);
         _isLoading = false;
       });
     } catch (e) {
       debugPrint('Error: $e');
       setState(() {
-        _errorMessage = 'Något gick fel. Kolla din internetanslutning.';
+        _errorMessage = 'Något gick fel';
         _isLoading = false;
       });
     }
@@ -286,7 +326,8 @@ class _DailyChallengeState extends State<DailyChallenge> {
                       ),
                     ),
                     child: const Text(
-                      "KLAR!",
+                      //TODO något bättre så att användaren förstår
+                      "Klar!",
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -339,6 +380,7 @@ class _ChallengeCompletePopUpState extends State<_ChallengeCompletePopUp> {
   bool _isDone = false;
   String? _uploadError;
 
+
   Future<void> _takePicture() async {
     final File? file = await CameraService.takePicture();
     if (file != null) {
@@ -348,6 +390,24 @@ class _ChallengeCompletePopUpState extends State<_ChallengeCompletePopUp> {
       });
     }
   }
+
+  /*
+  Future<File> getAssetFile(String assetPath) async {
+    final byteData = await rootBundle.load(assetPath);
+    final file = File('${(await getTemporaryDirectory()).path}/test_asset.jpg');
+    await file.writeAsBytes(byteData.buffer.asUint8List());
+    return file;
+  }
+
+  Future<void> _takePicture() async {
+    final File assetFile = await getAssetFile('assets/gran.png');
+    final compressedXFile = await FlutterImageCompress.compressAndGetFile(assetFile.path, '${assetFile.path}_comp.jpg', quality: 85, minWidth: 1000);
+    final File file = File(compressedXFile!.path);
+  }
+
+   */
+
+
 
   Future<void> _confirmAndUpload() async {
     if (_takenImage == null) return;
@@ -359,6 +419,7 @@ class _ChallengeCompletePopUpState extends State<_ChallengeCompletePopUp> {
 
     try {
       final token = await widget.sessionStorage.getToken();
+      /*
 
       // Steg 0: starta challenge först
       final startResponse = await http.post(
@@ -373,12 +434,17 @@ class _ChallengeCompletePopUpState extends State<_ChallengeCompletePopUp> {
       debugPrint('>>> start status: ${startResponse.statusCode}');
       debugPrint('>>> start body: ${startResponse.body}');
 
+       */
+
+      final httpHelper = HttpHelpMethods(jwtToken: token);
+      Map<String, dynamic> data = await httpHelper.getStartedQuestion(widget.challenge.id);
+
       final uploader = UploadPicture(jwtToken: token);
-      final uploadResult = await uploader.uploadPicture(_takenImage!);
+      final objectKey = await uploader.sendPictureToGoogleStorage(_takenImage!);
 
       if (!mounted) return;
 
-      if (uploadResult == null || uploadResult['objectKey'] == null) {
+      if (objectKey == null) {
         setState(() {
           _uploadError = 'Uppladdningen misslyckades. Försök igen.';
           _isUploading = false;
@@ -386,24 +452,31 @@ class _ChallengeCompletePopUpState extends State<_ChallengeCompletePopUp> {
         return;
       }
 
-      final String objectKey = uploadResult['objectKey'];
+      //final String objectKey = uploadResult['objectKey'];
+
+      print(token);
+      print(objectKey);
+      print(widget.challenge.id);
 
       final response = await http.post(
         Uri.parse(
           'https://group-6-15.pvt.dsv.su.se/challenges/${widget.challenge.id}/daily-picture',
         ),
         headers: {
-          'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
         },
         body: jsonEncode({
           'imageObjectKey': objectKey,
-          'taskId': null,
+          //lägg till challengeid
+          //'taskId': 83,
+          //'taskId': 83,
           //'imageUrl': uploadResult['imageUrl'],
         }),
       );
 
       debugPrint('>>> daily-picture status: ${response.statusCode}');
+      debugPrint('>>> daily-picture message: ${response.reasonPhrase}');
       debugPrint('>>> daily-picture body: ${response.body}');
 
       if (!mounted) return;
@@ -430,92 +503,36 @@ class _ChallengeCompletePopUpState extends State<_ChallengeCompletePopUp> {
 
   @override
   Widget build(BuildContext context) {
+    if (_isDone) {
+      return _buildSuccessPopup();
+    }
+    if (_isUploading) {
+      return _buildUploadingPopup();
+    }
+    if (_takenImage != null) {
+      return _buildPreviewPopup();
+    }
+    return _buildInitialPopup();
+  }
+
+  AlertDialog _buildInitialPopup() {
     return AlertDialog(
       backgroundColor: const Color(0xfff8ed76),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       title: Text(
-        _isDone ? 'Bra jobbat!' : 'Ta en bild',
+        'Ta en bild',
         style: Theme.of(context).textTheme.titleLarge,
         textAlign: TextAlign.center,
       ),
-      content: _isDone ? _buildDoneContent() : _buildCameraContent(),
-      actions: [
-        if (_isDone)
-          Center(
-            child: ElevatedButton(
-              onPressed: () => Navigator.pop(context),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xffb1067e),
-              ),
-              child: Text(
-                'Tack!',
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-            ),
-          )
-        else if (_takenImage != null && !_isUploading)
-          Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  TextButton(
-                    onPressed: _takePicture,
-                    child: const Text('Ta om'),
-                  ),
-                  ElevatedButton(
-                    onPressed: _confirmAndUpload,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xff84c06c),
-                    ),
-                    child: Text(
-                      'Skicka in',
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          )
-        else if (!_isUploading)
-            Center(
-              child: ElevatedButton.icon(
-                onPressed: _takePicture,
-                icon: const Icon(Icons.camera_alt),
-                label: const Text('Öppna kamera'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xff84c06c),
-                ),
-              ),
-            ),
-      ],
-    );
-  }
-
-  Widget _buildCameraContent() {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(
-          'Ta en bild som bevis att du klarat utmaningen!',
-          style: Theme.of(context).textTheme.bodyMedium,
-          textAlign: TextAlign.center,
-        ),
-        const SizedBox(height: 16),
-
-        // Förhandsvisning av tagen bild
-        if (_takenImage != null)
-          ClipRRect(
-            borderRadius: BorderRadius.circular(12),
-            child: Image.file(
-              _takenImage!,
-              height: 180,
-              width: 240,        // fast bredd istället för double.infinity
-              fit: BoxFit.cover,
-            ),
-          )
-        else
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            'Ta en bild som bevis att du klarat utmaningen!',
+            style: Theme.of(context).textTheme.bodyMedium,
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 16),
           Container(
             height: 120,
             decoration: BoxDecoration(
@@ -526,31 +543,133 @@ class _ChallengeCompletePopUpState extends State<_ChallengeCompletePopUp> {
               child: Icon(Icons.camera_alt, size: 50, color: Colors.grey),
             ),
           ),
+        ],
+      ),
+      actions: [
+        Center(
+          child: ElevatedButton.icon(
+            onPressed: _takePicture,
+            icon: const Icon(Icons.camera_alt),
+            label: const Text('Öppna kamera'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xff84c06c),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
 
-        if (_isUploading) ...[
+  AlertDialog _buildPreviewPopup() {
+    return AlertDialog(
+      backgroundColor: const Color(0xfff8ed76),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+      title: Text(
+        'Ta en bild',
+        style: Theme.of(context).textTheme.titleLarge,
+        textAlign: TextAlign.center,
+      ),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            'Ta en bild som bevis att du klarat utmaningen!',
+            style: Theme.of(context).textTheme.bodyMedium,
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 16),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: Image.file(
+              _takenImage!,
+              height: 180,
+              width: 240,
+              fit: BoxFit.cover,
+            ),
+          ),
+          if (_uploadError != null) ...[
+            const SizedBox(height: 12),
+            Text(
+              _uploadError!,
+              style: const TextStyle(color: Colors.red),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ],
+      ),
+      actions: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            TextButton(
+              onPressed: _takePicture,
+              child: const Text('Ta om'),
+            ),
+            ElevatedButton(
+              onPressed: _confirmAndUpload,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xff84c06c),
+              ),
+              child: Text(
+                'Skicka in',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  AlertDialog _buildUploadingPopup() {
+    return AlertDialog(
+      backgroundColor: const Color(0xfff8ed76),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+      title: Text(
+        'Ta en bild',
+        style: Theme.of(context).textTheme.titleLarge,
+        textAlign: TextAlign.center,
+      ),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            'Ta en bild som bevis att du klarat utmaningen!',
+            style: Theme.of(context).textTheme.bodyMedium,
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 16),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: Image.file(
+              _takenImage!,
+              height: 180,
+              width: 240,
+              fit: BoxFit.cover,
+            ),
+          ),
           const SizedBox(height: 16),
           const CircularProgressIndicator(),
           const SizedBox(height: 8),
           const Text('Laddar upp...'),
         ],
-
-        if (_uploadError != null) ...[
-          const SizedBox(height: 12),
-          Text(
-            _uploadError!,
-            style: const TextStyle(color: Colors.red),
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ],
+      ),
+      actions: const [],
     );
   }
 
-  Widget _buildDoneContent() {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        if (_takenImage != null)
+  AlertDialog _buildSuccessPopup() {
+    return AlertDialog(
+      backgroundColor: const Color(0xfff8ed76),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+      title: Text(
+        'Bra jobbat!',
+        style: Theme.of(context).textTheme.titleLarge,
+        textAlign: TextAlign.center,
+      ),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(12),
             child: Image.file(
@@ -560,35 +679,28 @@ class _ChallengeCompletePopUpState extends State<_ChallengeCompletePopUp> {
               fit: BoxFit.cover,
             ),
           ),
-        const SizedBox(height: 16),
-        Text(
-          'Du klarade dagens utmaning och fick ${widget.challenge.rewardPoints} poäng!',
-          style: Theme.of(context).textTheme.titleMedium,
-          textAlign: TextAlign.center,
+          const SizedBox(height: 16),
+          Text(
+            'Du klarade dagens utmaning och fick ${widget.challenge.rewardPoints} poäng!',
+            style: Theme.of(context).textTheme.titleMedium,
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+      actions: [
+        Center(
+          child: ElevatedButton(
+            onPressed: () => Navigator.pop(context),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xffb1067e),
+            ),
+            child: Text(
+              'Tack!',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+          ),
         ),
       ],
     );
   }
-
-  /*
-  // Från Maja bingo att avluta challange
-  Future<void> _endChallenge() async {
-    try {
-      final token = await widget.sessionStorage.getToken();
-      debugPrint('>>> Försöker avsluta challenge id: ${widget.challenge.id}');
-
-      final response = await http.delete(
-        Uri.parse(
-          'https://group-6-15.pvt.dsv.su.se/challenges/${widget.challenge.id}/progress',
-        ),
-        headers: {
-          'Authorization': 'Bearer $token',
-        },
-      );
-      debugPrint('>>> endChallenge status: ${response.statusCode}');
-      debugPrint('>>> endChallenge body: ${response.body}');
-    } catch (e) {
-      debugPrint('Något gick fel vid avslutande av utmaning: $e');
-    }
-  }*/
 }

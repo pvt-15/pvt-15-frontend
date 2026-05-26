@@ -196,8 +196,8 @@ class _BingoHardMode extends State<BingoHardMode> {
           children: [
             Padding(
               padding: const EdgeInsets.only(
-                  top: 40,
-                  bottom: 40
+                  top: 20,
+                  bottom: 30
               ),
               child: Text(
                 widget.typeOfBingo,
@@ -429,7 +429,7 @@ class _BingoHardMode extends State<BingoHardMode> {
               ],
             ),
 
-            const SizedBox(height: 40),
+            const SizedBox(height: 30),
 
             ElevatedButton(
               onPressed: () async {
