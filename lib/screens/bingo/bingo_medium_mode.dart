@@ -155,8 +155,8 @@ class _BingoMediumMode extends State<BingoMediumMode> {
           children: [
             Padding(
               padding: const EdgeInsets.only(
-                  top: 40,
-                  bottom: 40
+                  top: 20,
+                  bottom: 30
               ),
               child: Text(
                 widget.typeOfBingo,
@@ -275,7 +275,7 @@ class _BingoMediumMode extends State<BingoMediumMode> {
                   ],
                 ),
 
-                const SizedBox(height: 30),
+                const SizedBox(height: 50),
 
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -329,7 +329,7 @@ class _BingoMediumMode extends State<BingoMediumMode> {
               ],
             ),
 
-            const SizedBox(height: 40),
+            const SizedBox(height: 50),
 
             ElevatedButton(
               onPressed: () async {

@@ -20,7 +20,7 @@ class HttpHelpMethods {
         },
       );
 
-      //debugPrint(response.body);
+      debugPrint(response.body);
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
