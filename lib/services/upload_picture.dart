@@ -72,7 +72,7 @@ class UploadPicture {
         },
         body: jsonEncode(body),
       );
-        
+
       print(response.statusCode);
       print(response.body);
 

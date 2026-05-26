@@ -90,7 +90,63 @@ class _DailyLibraryState extends State<DailyLibrary> {
     }
   }
 
-  // TODO delete picture
+  Future<void> _deletePicture(int pictureId, int index) async {
+    try {
+      final token = await _sessionStorage.getToken();
+
+      if (token == null) return;
+
+      final response = await http.delete(
+        Uri.parse(
+          'https://group-6-15.pvt.dsv.su.se/pictures/$pictureId',
+        ),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200 ||
+          response.statusCode == 204) {
+        setState(() {
+          _pictures.removeAt(index);
+        });
+      }
+
+    } catch (e) {
+      debugPrint('Kunde inte radera bilden: $e');
+    }
+  }
+
+  void _showDeleteDialog(int index) {
+    final picture = _pictures[index];
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Radera bild?'),
+        content: Text(
+          'Vill du ta bort "${picture.label}"?',
+        ),
+        actionsAlignment: MainAxisAlignment.center,
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: const Text('Avbryt'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _deletePicture(picture.id, index);
+            },
+            child: const Text('Radera'),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -171,24 +227,56 @@ class _DailyLibraryState extends State<DailyLibrary> {
             child: Column(
               children: [
                 Expanded(
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: Image.network(
-                      picture.imageUrl,
-                      width: double.infinity,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) => Container(
-                        color: Colors.white,
-                        child: const Icon(Icons.image_not_supported, size: 50),
+
+                  child: Stack(
+                    children: [
+                      Positioned.fill(
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: Image.network(
+                            picture.imageUrl,
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) => Container(
+                              color: Colors.white,
+                              child: const Icon(
+                                Icons.image_not_supported,
+                                size: 50,
+                              ),
+                            ),
+                            loadingBuilder:
+                                (context, child, loadingProgress) {
+                              if (loadingProgress == null) return child;
+
+                              return Container(
+                                color: Colors.white,
+                                child: const Center(
+                                  child: CircularProgressIndicator(),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
                       ),
-                      loadingBuilder: (context, child, loadingProgress) {
-                        if (loadingProgress == null) return child;
-                        return Container(
-                          color: Colors.white,
-                          child: const Center(child: CircularProgressIndicator()),
-                        );
-                      },
-                    ),
+
+                      Positioned(
+                        top: 4,
+                        right: 4,
+                        child: CircleAvatar(
+                          radius: 16,
+                          backgroundColor: Colors.black45,
+                          child: IconButton(
+                            padding: EdgeInsets.zero,
+                            icon: const Icon(
+                              Icons.delete,
+                              size: 18,
+                              color: Colors.white,
+                            ),
+                            onPressed: () => _showDeleteDialog(index),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 const SizedBox(height: 10),
