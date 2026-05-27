@@ -67,7 +67,7 @@ class DailyChallengeModel {
 
 // TODO ändra bild och fixa pratbubbla.
 // TODO dubbelkolla att man inte kan få en massa poäng samma dag- att poäng registreras
-// TODO kolla om man kan få nästa fråga
+// TODO kolla om man kan få nästa fråga - funkar:)
 
 // --- Widget ---
 
@@ -391,24 +391,6 @@ class _ChallengeCompletePopUpState extends State<_ChallengeCompletePopUp> {
     }
   }
 
-  /*
-  Future<File> getAssetFile(String assetPath) async {
-    final byteData = await rootBundle.load(assetPath);
-    final file = File('${(await getTemporaryDirectory()).path}/test_asset.jpg');
-    await file.writeAsBytes(byteData.buffer.asUint8List());
-    return file;
-  }
-
-  Future<void> _takePicture() async {
-    final File assetFile = await getAssetFile('assets/gran.png');
-    final compressedXFile = await FlutterImageCompress.compressAndGetFile(assetFile.path, '${assetFile.path}_comp.jpg', quality: 85, minWidth: 1000);
-    final File file = File(compressedXFile!.path);
-  }
-
-   */
-
-
-
   Future<void> _confirmAndUpload() async {
     if (_takenImage == null) return;
 
@@ -468,16 +450,12 @@ class _ChallengeCompletePopUpState extends State<_ChallengeCompletePopUp> {
         },
         body: jsonEncode({
           'imageObjectKey': objectKey,
-          //lägg till challengeid
-          //'taskId': 83,
-          //'taskId': 83,
-          //'imageUrl': uploadResult['imageUrl'],
         }),
       );
 
-      debugPrint('>>> daily-picture status: ${response.statusCode}');
-      debugPrint('>>> daily-picture message: ${response.reasonPhrase}');
-      debugPrint('>>> daily-picture body: ${response.body}');
+      //debugPrint('>>> daily-picture status: ${response.statusCode}');
+      //debugPrint('>>> daily-picture message: ${response.reasonPhrase}');
+      //debugPrint('>>> daily-picture body: ${response.body}');
 
       if (!mounted) return;
 

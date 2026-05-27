@@ -70,7 +70,8 @@ class _BingoHardMode extends State<BingoHardMode> {
       });
 
       await setSpecificQuestions();
-      getPictures();
+      await getPictures();
+      //await refreshImages();
 
     } catch (e) {
       setState(() {
@@ -80,7 +81,7 @@ class _BingoHardMode extends State<BingoHardMode> {
   }
 
   //Metod för att hämta ut bilder från en utmaning med flera mindre utmaningar it sig
-  void getPictures() async {
+  Future<void> getPictures() async {
     try {
       Map<String, dynamic> response = await helpMethodsHttp.getPicturesForChallenge(challengeId);
 
@@ -90,7 +91,7 @@ class _BingoHardMode extends State<BingoHardMode> {
 
         for (var task in tasks) {
           if (task['pictures'] != null && (task['pictures'] as List).isNotEmpty) {
-            if (task['requiredCount'] == 2) {
+            if (task['requiredCount'] == 4) {
               for (var picture in task['pictures']) {
                 String url = picture['imageUrl'];
                 if (url != null) {
@@ -99,32 +100,75 @@ class _BingoHardMode extends State<BingoHardMode> {
               }
 
             } else {
+              // Tänk så här: Matcha uppgiftens text mot våra rutor i UI:t
               String? url = task['pictures'][0]['imageUrl'];
+              String? taskText = task['taskText'];
+              
               if (url != null) {
-                urls.add(url);
+                // Försök matcha mot texten först (för specifika utmaningar)
+                int slotIndex = -1;
+                if (taskText != null && taskText.isNotEmpty) {
+                  slotIndex = specificQuestionsForTask.indexOf(taskText);
+                }
+
+                // Om ingen matchning, använd ordningen (för ospecifika utmaningar)
+                int targetIndex = (slotIndex != -1) ? slotIndex : tasks.indexOf(task);
+
+                if (targetIndex != -1 && targetIndex < 4) {
+                  // Vi uppdaterar images direkt på rätt plats
+                  setState(() {
+                    images[targetIndex] = url;
+                  });
+                }
               }
             }
           }
         }
 
-        setState(() {
-          if (urls.isNotEmpty) {
-            images[0] = urls[0];
-          }
-          if (urls.length > 1) {
-            images[1] = urls[1];
-          }
-          if (urls.length > 2) {
-            images[2] = urls[2];
-          }
-          if (urls.length > 3) {
-            images[3] = urls[3];
-          }
-        });
+        // Om vi har bilder från en "Mixed Bingo" (requiredCount == 4), fyll rutorna i ordning
+        if (urls.isNotEmpty) {
+          setState(() {
+            for (int i = 0; i < urls.length && i < 4; i++) {
+              images[i] = urls[i];
+            }
+          });
+        }
       }
     } catch (e) {
       debugPrint('DEBUG getpictures $e');
     }
+  }
+
+  Future<String?> setCorrectPictureInInterface(int indexQuestion) async {
+    try {
+      Map<String, dynamic> response = await helpMethodsHttp.getStartedQuestion(challengeId);
+      if (response.containsKey('tasks')) {
+        List<dynamic> tasks = response['tasks'];
+        String targetText = specificQuestionsForTask[indexQuestion];
+
+        List<dynamic> matchingTasks = tasks.where((t) => (t['taskText'] ?? '') == targetText).toList();
+        List<String> allPictures = [];
+        for (var t in matchingTasks) {
+          if (t['pictures'] != null) {
+            for (var pic in t['pictures']) {
+              if (pic['imageUrl'] != null) allPictures.add(pic['imageUrl']);
+            }
+          }
+        }
+
+        int occurrenceIndex = 0;
+        for (int i = 0; i < indexQuestion; i++) {
+          if (specificQuestionsForTask[i] == targetText) occurrenceIndex++;
+        }
+
+        if (occurrenceIndex < allPictures.length) {
+          return allPictures[occurrenceIndex];
+        }
+      }
+    } catch (e) {
+      debugPrint('DEBUG setCorrectPictureInInterface $e');
+    }
+    return null;
   }
 
   Future<void> setSpecificQuestions() async {
@@ -141,19 +185,10 @@ class _BingoHardMode extends State<BingoHardMode> {
           }
         }
 
-        if (questions.length > 2) {
+        if (questions.length < 3) {
           setState(() {
-            if (questions.isNotEmpty) {
-              specificQuestionsForTask[0] = questions[0];
-            }
-            if (questions.length > 1) {
-              specificQuestionsForTask[1] = questions[1];
-            }
-            if (questions.length > 2) {
-              specificQuestionsForTask[2] = questions[2];
-            }
-            if (questions.length > 3) {
-              specificQuestionsForTask[3] = questions[3];
+            for (int i = 0; i < 4; i++) {
+              specificQuestionsForTask[i] = i < questions.length ? questions[i] : '';
             }
           });
         }
@@ -248,9 +283,7 @@ class _BingoHardMode extends State<BingoHardMode> {
                                 success = await uploadPicture(file, type);
                               }
                               if (file != null && success) {
-                                setState(() {
-                                  images[0] = file;
-                                });
+                                await getPictures();
                               }
                             }
                           },
@@ -261,7 +294,7 @@ class _BingoHardMode extends State<BingoHardMode> {
                             decoration: BoxDecoration(
                               color: const Color(0xfff8ed76),
                               borderRadius: BorderRadius.circular(15),
-                              image: images[0] != null ? DecorationImage(image: getImageFromList(0)!, fit: BoxFit.cover) : null,
+                              image: images[0] != null && getImageFromList(0) != null ? DecorationImage(image: getImageFromList(0)!, fit: BoxFit.cover) : null,
                             ),
                             child: (images[0] == null) ? Center(child: Icon(MdiIcons.camera, size: 50)) : null,
                           ),
@@ -298,9 +331,7 @@ class _BingoHardMode extends State<BingoHardMode> {
                               }
 
                               if (file != null && success) {
-                                setState(() {
-                                  images[1] = file;
-                                });
+                                await getPictures();
                               }
                             }
                           },
@@ -311,7 +342,7 @@ class _BingoHardMode extends State<BingoHardMode> {
                             decoration: BoxDecoration(
                               color: const Color(0xfff8ed76),
                               borderRadius: BorderRadius.circular(15),
-                              image: images[1] != null ? DecorationImage(image: getImageFromList(1)!, fit: BoxFit.cover) : null,
+                              image: images[1] != null && getImageFromList(1) != null ? DecorationImage(image: getImageFromList(1)!, fit: BoxFit.cover) : null,
                             ),
                             child: (images[1] == null) ? Center(child: Icon(MdiIcons.camera, size: 50)) : null,
                           ),
@@ -353,9 +384,7 @@ class _BingoHardMode extends State<BingoHardMode> {
                               }
 
                               if (file != null && success) {
-                                setState(() {
-                                  images[2] = file;
-                                });
+                                await getPictures();
                               }
                             }
                           },
@@ -402,9 +431,7 @@ class _BingoHardMode extends State<BingoHardMode> {
                               }
 
                               if (file != null && success) {
-                                setState(() {
-                                  images[3] = file;
-                                });
+                                await getPictures();
                               }
                             }
                           },
