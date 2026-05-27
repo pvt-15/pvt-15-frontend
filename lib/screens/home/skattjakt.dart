@@ -287,20 +287,14 @@ class _SkattjaktState extends State<Skattjakt> {
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Text(
-                '$_completedCount/$_totalTasksCount uppgifter klara',
+                '+${completedTask?.rewardPoints ?? 0} poäng',
                 textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-            ),
-            if (_completedCount < _totalTasksCount)
-              Padding(
-                padding: const EdgeInsets.only(top: 16),
-                child: Text(
-                  '${_totalTasksCount - _completedCount} uppgifter kvar',
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.bodySmall,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: const Color(0xFF4C290C),
                 ),
               ),
+            ),
           ],
         ),
         actionsAlignment: MainAxisAlignment.center,
@@ -630,29 +624,6 @@ class _SkattjaktState extends State<Skattjakt> {
           icon: const Icon(Icons.arrow_back),
         ),
         title: const Text('Skattjakt'),
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(50),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text('$_completedCount/$_totalTasksCount uppgifter klara'),
-                    const SizedBox(),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                LinearProgressIndicator(
-                  value: _totalTasksCount > 0 ? _completedCount / _totalTasksCount : 0,
-                  backgroundColor: Colors.white70,
-                  color: const Color(0xFF84C06C),
-                ),
-              ],
-            ),
-          ),
-        ),
       ),
       body: SafeArea(
         child: Column(
