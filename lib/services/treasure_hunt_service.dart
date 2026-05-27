@@ -77,26 +77,29 @@ class TreasureHuntService {
         if (detailsResponse.statusCode == 200) {
           final challengeDetails = jsonDecode(detailsResponse.body);
           final tasks = challengeDetails['tasks'] as List? ?? [];
+          // rewardPoints ligger på challenge-nivå i API:t, inte på task-nivå.
+          // Plocka från parent-challenge så det följer med ner till varje task.
+          final challengeRewardPoints =
+              (challenge['rewardPoints'] as int?) ?? 0;
 
           for (var task in tasks) {
             final taskObj = TreasureHuntTask.fromJson(task);
-            if (taskObj.challengeId == 0) {
-              final correctedTask = TreasureHuntTask(
-                id: taskObj.id,
-                mustBeUnique: taskObj.mustBeUnique,
-                requiredCategory: taskObj.requiredCategory,
-                requiredCount: taskObj.requiredCount,
-                requiredLabel: taskObj.requiredLabel,
-                taskText: taskObj.taskText,
-                taskType: taskObj.taskType,
-                challengeId: challengeId,
-                helpText: taskObj.helpText,
-                referenceImageUrl: taskObj.referenceImageUrl,
-              );
-              allTasks.add(correctedTask);
-            } else {
-              allTasks.add(taskObj);
-            }
+            // Bygg om task med korrekt challengeId och rewardPoints från
+            // parent-challenge (fromJson har inte tillgång till det).
+            final enrichedTask = TreasureHuntTask(
+              id: taskObj.id,
+              mustBeUnique: taskObj.mustBeUnique,
+              requiredCategory: taskObj.requiredCategory,
+              requiredCount: taskObj.requiredCount,
+              requiredLabel: taskObj.requiredLabel,
+              taskText: taskObj.taskText,
+              taskType: taskObj.taskType,
+              challengeId: taskObj.challengeId == 0 ? challengeId : taskObj.challengeId,
+              rewardPoints: challengeRewardPoints,
+              helpText: taskObj.helpText,
+              referenceImageUrl: taskObj.referenceImageUrl,
+            );
+            allTasks.add(enrichedTask);
           }
         }
       }

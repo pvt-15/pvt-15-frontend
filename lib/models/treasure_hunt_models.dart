@@ -11,6 +11,7 @@ class TreasureHuntTask {
   final String taskText;
   final String taskType;
   final int challengeId;
+  final int rewardPoints;
   final String? helpText;
   final String? referenceImageUrl;
 
@@ -28,6 +29,7 @@ class TreasureHuntTask {
     required this.taskText,
     required this.taskType,
     required this.challengeId,
+    this.rewardPoints = 0,
     this.helpText,
     this.referenceImageUrl,
     this.isCompleted = false,
@@ -45,6 +47,7 @@ class TreasureHuntTask {
       taskText: json['taskText'] as String? ?? '',
       taskType: json['taskType'] as String? ?? 'CATEGORY',
       challengeId: json['challengeId'] as int? ?? 0,
+      rewardPoints: json['rewardPoints'] as int? ?? 0,
       helpText: json['helpText'] as String?,
       referenceImageUrl: json['referenceImageUrl'] as String?,
     );
