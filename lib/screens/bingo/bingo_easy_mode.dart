@@ -284,9 +284,24 @@ class _BingoEasyMode extends State<BingoEasyMode> {
 
                 if (status == 'COMPLETED') {
 
-                  resetBingo();
+                  /*resetBingo();
 
                   finishedChallengeDialog();
+
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => HomeScreen(),
+                    ),
+                  );*/
+                  resetBingo();
+
+                  await showDialog(
+                    context: context,
+                    builder: (context) => finishedChallengeDialog(),
+                  );
+
+                  if (!mounted) return;
 
                   Navigator.push(
                     context,
