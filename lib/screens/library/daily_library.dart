@@ -63,7 +63,7 @@ class _DailyLibraryState extends State<DailyLibrary> {
 
       // Hämta bilder utan category (category = null)
       final response = await http.get(
-        Uri.parse('https://group-6-15.pvt.dsv.su.se/pictures'),
+        Uri.parse('https://group-6-15.pvt.dsv.su.se/pictures?type=DAILY'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
@@ -74,7 +74,7 @@ class _DailyLibraryState extends State<DailyLibrary> {
         final List<dynamic> data = jsonDecode(response.body);
         setState(() {
           _pictures = data
-              .where((e) => e['category'] == null)
+              //.where((e) => e['category'] == null && e['type'] == 'DAILY')
               .map((e) => UnknownPicture.fromJson(e))
               .toList();
           _isLoading = false;
