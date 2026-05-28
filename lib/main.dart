@@ -146,7 +146,7 @@ class MyApp extends StatelessWidget {
         ),
 
         navigationBarTheme: NavigationBarThemeData(
-          height: 70,
+          height: 60,
           backgroundColor: const Color(0xff84c06c),
           indicatorColor: Colors.transparent,
           labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
