@@ -194,7 +194,7 @@ class _DailyLibraryState extends State<DailyLibrary> {
 
     if (_pictures.isEmpty) {
       return const Center(
-        child: Text('Du har inga bilder än!'),
+        child: Text('Du har inte klarat några dagliga utmaningar än!'),
       );
     }
 

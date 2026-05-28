@@ -464,8 +464,23 @@ class _BingoHardMode extends State<BingoHardMode> {
                 String status = challenge['status'];
 
                 if (status == 'COMPLETED') {
-                  resetBingo();
+                  /*resetBingo();
                   finishedChallengeDialog();
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => HomeScreen(),
+                    ),
+                  );*/
+                  resetBingo();
+
+                  await showDialog(
+                    context: context,
+                    builder: (context) => finishedChallengeDialog(),
+                  );
+
+                  if (!mounted) return;
+
                   Navigator.push(
                     context,
                     MaterialPageRoute(

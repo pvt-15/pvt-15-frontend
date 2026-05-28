@@ -338,9 +338,24 @@ class _BingoMediumMode extends State<BingoMediumMode> {
 
                 if (status == 'COMPLETED') {
 
-                  resetBingo();
+                  /*resetBingo();
 
                   finishedChallengeDialog();
+
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => HomeScreen(),
+                    ),
+                  );*/
+                  resetBingo();
+
+                  await showDialog(
+                    context: context,
+                    builder: (context) => finishedChallengeDialog(),
+                  );
+
+                  if (!mounted) return;
 
                   Navigator.push(
                     context,
