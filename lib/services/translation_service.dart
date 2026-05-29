@@ -18,7 +18,6 @@ class TranslationService {
     'Common lilac' : 'Syren',
     'Garden Pansy' : 'Penséer',
     'Sweet William' : 'Nejlikor',
-
   };
 
   // debugging - skriv ut manuella översättningar
