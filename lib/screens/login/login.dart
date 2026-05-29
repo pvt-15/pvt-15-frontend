@@ -189,7 +189,8 @@ class _LoginScreenState extends State<LoginScreen> {
       if (response.statusCode == 200 && mounted) {
         final data = jsonDecode(response.body);
 
-        await SessionStorage().saveUser(
+        final storage = SessionStorage();
+        await storage.saveUser(
           Session(
             token: data['token'],
             user: UserModel(
@@ -199,6 +200,7 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
           ),
         );
+        await storage.saveIsGoogleUser(false);
 
 
         Navigator.pushReplacement(
@@ -214,7 +216,7 @@ class _LoginScreenState extends State<LoginScreen> {
               "Fel email eller lösenord",
               textAlign: TextAlign.center,
               //style: const TextStyle(
-                //color: Colors.white,
+              //color: Colors.white,
               //),
             ),
           ),
@@ -269,7 +271,8 @@ class _LoginScreenState extends State<LoginScreen> {
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
 
-      await SessionStorage().saveUser(
+      final storage = SessionStorage();
+      await storage.saveUser(
         Session(
           token: data['token'],
           user: UserModel(
@@ -279,6 +282,7 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         ),
       );
+      await storage.saveIsGoogleUser(true);
       return true;
     } else {
       print('Fel lösenord eller email: ${response.body}');
