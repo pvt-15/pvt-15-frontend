@@ -192,7 +192,10 @@ class _DailyChallengeState extends State<DailyChallenge> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(_errorMessage!),
+            Text(
+              _errorMessage!,
+              textAlign: TextAlign.center,
+            ),
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () => Navigator.of(context).pushAndRemoveUntil(

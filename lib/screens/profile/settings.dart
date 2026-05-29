@@ -7,15 +7,35 @@ import '../../widgets/custom_navigation_bar.dart';
 import 'package:Skogsjakten/screens/login/profile_pic.dart';
 
 
-class SettingsScreen extends StatelessWidget {
+class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
 
-  Future<void> _deleteAccount(
-      BuildContext context,
-      SessionStorage sessionStorage,
-      ) async {
+  @override
+  State<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends State<SettingsScreen> {
+  final SessionStorage _sessionStorage = SessionStorage();
+  bool _isGoogleUser = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadGoogleUserStatus();
+  }
+
+  Future<void> _loadGoogleUserStatus() async {
+    final isGoogle = await _sessionStorage.getIsGoogleUser();
+    if (mounted) {
+      setState(() {
+        _isGoogleUser = isGoogle;
+      });
+    }
+  }
+
+  Future<void> _deleteAccount(BuildContext context) async {
     try {
-      final session = await sessionStorage.getUserAndToken();
+      final session = await _sessionStorage.getUserAndToken();
 
       if (session == null) {
         if (context.mounted) {
@@ -39,7 +59,7 @@ class SettingsScreen extends StatelessWidget {
       );
 
       if (response.statusCode == 204) {
-        await sessionStorage.clear();
+        await _sessionStorage.clear();
 
         if (context.mounted) {
           Navigator.pushAndRemoveUntil(
@@ -76,12 +96,9 @@ class SettingsScreen extends StatelessWidget {
     }
   }
 
-  Future<void> _logout(
-      BuildContext context,
-      SessionStorage sessionStorage,
-      ) async {
+  Future<void> _logout(BuildContext context) async {
     try {
-      final session = await sessionStorage.getUserAndToken();
+      final session = await _sessionStorage.getUserAndToken();
 
       if (session != null) {
         await http.post(
@@ -93,7 +110,7 @@ class SettingsScreen extends StatelessWidget {
         );
       }
 
-      await sessionStorage.clear();
+      await _sessionStorage.clear();
 
       if (context.mounted) {
         Navigator.pushAndRemoveUntil(
@@ -103,7 +120,7 @@ class SettingsScreen extends StatelessWidget {
         );
       }
     } catch (e) {
-      await sessionStorage.clear();
+      await _sessionStorage.clear();
 
       if (context.mounted) {
         Navigator.pushAndRemoveUntil(
@@ -117,8 +134,6 @@ class SettingsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final sessionStorage = SessionStorage();
-
     return Scaffold(
       backgroundColor: const Color(0xFFBEDBB2),
       appBar: AppBar(
@@ -152,12 +167,30 @@ class SettingsScreen extends StatelessWidget {
               context,
               text: 'Ändra lösenord',
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const ChangePassword(),
-                  ),
-                );
+                if (_isGoogleUser) {
+                  showDialog(
+                    context: context,
+                    builder: (_) => AlertDialog(
+                      content: const Text(
+                        'Kan inte byta lösenord på Google-konto',
+                        textAlign: TextAlign.center,
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text('OK'),
+                        ),
+                      ],
+                    ),
+                  );
+                } else {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const ChangePassword(),
+                    ),
+                  );
+                }
               },
             ),
             const SizedBox(height: 20),
@@ -182,7 +215,7 @@ class SettingsScreen extends StatelessWidget {
                       TextButton(
                         onPressed: () async {
                           Navigator.pop(dialogContext);
-                          await _deleteAccount(context, sessionStorage);
+                          await _deleteAccount(context);
                         },
                         child: const Text('Radera'),
                       ),
@@ -191,24 +224,12 @@ class SettingsScreen extends StatelessWidget {
                 );
               },
             ),
-
             const SizedBox(height: 20),
             _settingsButton(
               context,
               text: 'Logga ut',
               onPressed: () async {
-                /*await sessionStorage.clear();
-
-            if (context.mounted) {
-            Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(
-            builder: (_) => const LoginScreen(),
-            ),
-            (route) => false,
-            );
-          }*/
-                await _logout(context, sessionStorage);
+                await _logout(context);
               },
             ),
           ],
