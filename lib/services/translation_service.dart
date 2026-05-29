@@ -10,6 +10,7 @@ class TranslationService {
   // lista med manuella översättningar
   static final Map<String, String> _manualTranslations = {
     'Daisy': 'Prästkrage',
+    'Dog' : 'Hund',
   };
 
   // debugging - skriv ut manuella översättningar
