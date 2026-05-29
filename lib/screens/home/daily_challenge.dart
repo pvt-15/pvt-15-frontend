@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'dart:io';
+import '../../services/gamification_popup_helper.dart';
 import '../../widgets/custom_navigation_bar.dart';
 import '../../services/session_storage.dart';
 import '../../services/camera_service.dart';
@@ -460,6 +461,18 @@ class _ChallengeCompletePopUpState extends State<_ChallengeCompletePopUp> {
       if (!mounted) return;
 
       if (response.statusCode == 200 || response.statusCode == 201) {
+        final responseData = jsonDecode(response.body);
+        final gamification = responseData['gamification'];
+
+        await GamificationPopupService.showIfNeeded(
+          context: context,
+          leveledUp: gamification?['leveledUp'] ?? false,
+          previousLevel: gamification?['previousLevel'],
+          currentLevel: gamification?['currentLevel'],
+          newlyUnlockedBadges: gamification?['newlyUnlockedBadges'] ?? [],
+        );
+
+        if (!mounted) return;
         setState(() {
           _isDone = true;
           _isUploading = false;
