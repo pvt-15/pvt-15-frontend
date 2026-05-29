@@ -53,7 +53,7 @@ class _HomeLibraryState extends State<HomeLibrary> {
             Padding(
               padding: const EdgeInsets.only(
                   left: 30,
-                  top: 40,
+                  top: 10,
                   bottom: 30
               ),
             ),
