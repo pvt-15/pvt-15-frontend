@@ -3,7 +3,6 @@ import 'dart:io';
 
 import 'package:Skogsjakten/services/upload_picture.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import '../../services/camera_service.dart';
 import '../../services/gamification_popup_helper.dart';
@@ -12,8 +11,6 @@ import '../../widgets/custom_navigation_bar.dart';
 import '../home.dart';
 import '../home/choose_bingo_game.dart';
 import 'http_help_methods.dart';
-import 'package:flutter_image_compress/flutter_image_compress.dart';
-import 'package:path_provider/path_provider.dart';
 
 class BingoHardMode extends StatefulWidget{
   final String typeOfBingo;

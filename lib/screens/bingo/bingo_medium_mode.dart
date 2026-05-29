@@ -9,6 +9,7 @@ import '../../services/gamification_popup_helper.dart';
 import '../../services/session_storage.dart';
 import '../../widgets/custom_navigation_bar.dart';
 import '../home.dart';
+import '../home/choose_bingo_game.dart';
 import 'http_help_methods.dart';
 
 class BingoMediumMode extends StatefulWidget{
@@ -72,7 +73,31 @@ class _BingoMediumMode extends State<BingoMediumMode> {
 
     } catch (e) {
       setState(() {
-        question = 'Kunde inte ladda utmaning';
+        showDialog(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                actionsAlignment: MainAxisAlignment.spaceBetween,
+                content: const Text(
+                  'Kunde inte ladda utmaning, testa starta ett annat bingo!',
+                  textAlign: TextAlign.center,
+                ),
+                actions: [
+                  ElevatedButton(
+                    onPressed: () async {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => ChooseBingoGame(),
+                        ),
+                      );
+                    },
+                    child: Text('Okej', style: Theme.of(context).textTheme.headlineMedium),
+                  ),
+                ],
+              );
+            }
+        );
       });
     }
   }
