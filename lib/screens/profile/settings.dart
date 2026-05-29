@@ -55,7 +55,8 @@ class SettingsScreen extends StatelessWidget {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                'Kunde inte radera konto. Statuskod: ${response.statusCode}',
+                'Kunde inte radera konto ${response.statusCode}',
+                textAlign: TextAlign.center,
               ),
             ),
           );
@@ -65,7 +66,10 @@ class SettingsScreen extends StatelessWidget {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Något gick fel: $e'),
+            content: Text(
+              'Något gick fel $e',
+              textAlign: TextAlign.center,
+            ),
           ),
         );
       }

@@ -114,6 +114,8 @@ class MyApp extends StatelessWidget {
         ),
 
         snackBarTheme: SnackBarThemeData(
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: const Color(0xFFF8ED76),
           insetPadding: const EdgeInsets.symmetric(
             horizontal: 20.0,
             vertical: 15.0,
@@ -122,6 +124,9 @@ class MyApp extends StatelessWidget {
             fontFamily: 'WinkySans',
             fontSize: 16,
             color: Color(0xFF000000),
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
           ),
         ),
 
