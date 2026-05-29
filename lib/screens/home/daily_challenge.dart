@@ -118,7 +118,6 @@ class _DailyChallengeState extends State<DailyChallenge> {
       Map<String, dynamic>? challenge = await findActiveDaily();
 
       //httpHelper.endStartedChallenge(365);
-
       //Map<String, dynamic> challenge = await httpHelper.getQuestionOnId(366);
 
       if (challenge == null) {
@@ -192,7 +191,7 @@ class _DailyChallengeState extends State<DailyChallenge> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(_errorMessage!),
+            Text(_errorMessage!, textAlign: TextAlign.center,),
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () => Navigator.of(context).pushAndRemoveUntil(

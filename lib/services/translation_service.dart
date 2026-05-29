@@ -16,8 +16,10 @@ class TranslationService {
     'Ladybird beetle' : 'Nyckelpiga',
     'Gulls' : 'Mås',
     'Common lilac' : 'Syren',
+    'Persian lilac' : 'Syren',
     'Garden Pansy' : 'Penséer',
     'Sweet William' : 'Nejlikor',
+    'Rowan' : 'Rönn',
   };
 
   // debugging - skriv ut manuella översättningar
