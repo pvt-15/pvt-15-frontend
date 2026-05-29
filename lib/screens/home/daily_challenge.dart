@@ -321,8 +321,7 @@ class _DailyChallengeState extends State<DailyChallenge> {
                       ),
                     ),
                     child: const Text(
-                      //TODO något bättre så att användaren förstår
-                      "Klar!",
+                      "Jag är klar med uppgiften!",
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -353,8 +352,7 @@ class _DailyChallengeState extends State<DailyChallenge> {
   }
 }
 
-// Pop-up när det är klart
-
+// Pop-up när uppgiften är klar
 class _ChallengeCompletePopUp extends StatefulWidget {
   final DailyChallengeModel challenge;
   final SessionStorage sessionStorage;
@@ -429,12 +427,6 @@ class _ChallengeCompletePopUpState extends State<_ChallengeCompletePopUp> {
         return;
       }
 
-      //final String objectKey = uploadResult['objectKey'];
-
-      print(token);
-      print(objectKey);
-      print(widget.challenge.id);
-
       final response = await http.post(
         Uri.parse(
           'https://group-6-15.pvt.dsv.su.se/challenges/${widget.challenge.id}/daily-picture',
@@ -447,10 +439,6 @@ class _ChallengeCompletePopUpState extends State<_ChallengeCompletePopUp> {
           'imageObjectKey': objectKey,
         }),
       );
-
-      //debugPrint('>>> daily-picture status: ${response.statusCode}');
-      //debugPrint('>>> daily-picture message: ${response.reasonPhrase}');
-      //debugPrint('>>> daily-picture body: ${response.body}');
 
       if (!mounted) return;
 

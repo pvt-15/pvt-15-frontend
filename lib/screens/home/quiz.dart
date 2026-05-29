@@ -7,7 +7,7 @@ import '../../services/session_storage.dart';
 import '../home.dart';
 import '../choose_difficulty.dart';
 
-// Datamodeller, gör klasser av det vi får (data) från backend
+
 
 // svars alt.
 class QuizOption {
@@ -19,7 +19,7 @@ class QuizOption {
       QuizOption(id: j['id'] as int, text: j['optionText'] as String);
 }
 
-// quiz fråga
+// quiz frågor
 class QuizQuestion {
   final int id;
   final String text;
@@ -224,7 +224,7 @@ class _QuizState extends State<Quiz> {
       final submitBody = jsonDecode(submitResponse.body) as Map<String, dynamic>;
       final quiz = submitBody['quiz'] as Map<String, dynamic>;
 
-// Hämta poäng från submit
+      // Hämta poäng från submit
       final points = (quiz['pointsAwarded'] as num?)?.toInt() ?? 0;
 
       final gamification = submitBody['gamification'];
