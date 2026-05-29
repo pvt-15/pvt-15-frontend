@@ -160,7 +160,8 @@ class _PlantsLibraryState extends State<PlantsLibrary> {
           TextButton(
             onPressed: () {
               Navigator.pop(context);
-              _deletePlant(plant.id, index);
+              _deletePlant(plant.id, index); // Ful lösning
+              //_deletePlant(plant.id);
             },
             child: const Text('Radera'),
           ),

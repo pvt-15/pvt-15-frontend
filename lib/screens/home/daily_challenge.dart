@@ -1,3 +1,4 @@
+import 'package:Skogsjakten/screens/home.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
@@ -8,8 +9,6 @@ import '../../services/camera_service.dart';
 import '../../services/upload_picture.dart';
 import 'dart:convert';
 import '../bingo/http_help_methods.dart';
-
-// --- Modeller ---
 
 class ChallengeTask {
   final String taskText;
@@ -64,12 +63,6 @@ class DailyChallengeModel {
     );
   }
 }
-
-// TODO ändra bild och fixa pratbubbla.
-// TODO dubbelkolla att man inte kan få en massa poäng samma dag- att poäng registreras
-// TODO kolla om man kan få nästa fråga - funkar:)
-
-// --- Widget ---
 
 class DailyChallenge extends StatefulWidget {
   final String gameTitle;
@@ -171,7 +164,7 @@ class _DailyChallengeState extends State<DailyChallenge> {
     } catch (e) {
       debugPrint('Error: $e');
       setState(() {
-        _errorMessage = 'Något gick fel';
+        _errorMessage = 'Du har redan gjort dagens utmaning! \nKom tillbaka imorgon för nya utmaningar!';
         _isLoading = false;
       });
     }
@@ -202,8 +195,11 @@ class _DailyChallengeState extends State<DailyChallenge> {
             Text(_errorMessage!),
             const SizedBox(height: 16),
             ElevatedButton(
-              onPressed: _fetchDailyChallenge,
-              child: const Text('Försök igen'),
+              onPressed: () => Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(builder: (_) => const HomeScreen()),
+                    (route) => false,
+              ),
+              child: const Text('Gå till hem'),
             ),
           ],
         ),
@@ -541,7 +537,7 @@ class _ChallengeCompletePopUpState extends State<_ChallengeCompletePopUp> {
   AlertDialog _buildPreviewPopup() {
     return AlertDialog(
       backgroundColor: const Color(0xfff8ed76),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       title: Text(
         'Ta en bild',
         style: Theme.of(context).textTheme.titleLarge,
@@ -670,7 +666,7 @@ class _ChallengeCompletePopUpState extends State<_ChallengeCompletePopUp> {
           child: ElevatedButton(
             onPressed: () => Navigator.pop(context),
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xffb1067e),
+              backgroundColor: const Color(0xff84c06c),
             ),
             child: Text(
               'Tack!',

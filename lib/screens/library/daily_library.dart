@@ -8,11 +8,13 @@ class UnknownPicture {
   final int id;
   final String label;
   final String imageUrl;
+  final String? type;
 
   UnknownPicture({
     required this.id,
     required this.label,
     required this.imageUrl,
+    this.type,
   });
 
   factory UnknownPicture.fromJson(Map<String, dynamic> json) {
@@ -20,6 +22,7 @@ class UnknownPicture {
       id: json['id'],
       label: json['label'],
       imageUrl: json['imageUrl'],
+      type: json['type'],
     );
   }
 }
@@ -63,7 +66,8 @@ class _DailyLibraryState extends State<DailyLibrary> {
 
       // Hämta bilder utan category (category = null)
       final response = await http.get(
-        Uri.parse('https://group-6-15.pvt.dsv.su.se/pictures?type=DAILY'),
+        //Uri.parse('https://group-6-15.pvt.dsv.su.se/pictures?type=DAILY'),
+        Uri.parse('https://group-6-15.pvt.dsv.su.se/pictures'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
@@ -74,8 +78,8 @@ class _DailyLibraryState extends State<DailyLibrary> {
         final List<dynamic> data = jsonDecode(response.body);
         setState(() {
           _pictures = data
-              //.where((e) => e['category'] == null && e['type'] == 'DAILY')
               .map((e) => UnknownPicture.fromJson(e))
+              .where((p) => p.label == 'Daily challenge submission') //lite ful lösning kanske... men det går inte att filtrera på type 'DAILY' av någon anledning
               .toList();
           _isLoading = false;
         });
@@ -269,13 +273,13 @@ class _DailyLibraryState extends State<DailyLibrary> {
                   ),
                 ),
                 const SizedBox(height: 10),
-                Text(
+                /*Text(
                   picture.label,
                   style: Theme.of(context).textTheme.titleMedium,
                   textAlign: TextAlign.center,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                ),
+                ),*/
               ],
             ),
           );
