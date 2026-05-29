@@ -289,7 +289,7 @@ class _SkattjaktState extends State<Skattjakt> {
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.bold,
-                  color: const Color(0xFF4C290C),
+                  color: Colors.black,
                 ),
               ),
             ),
@@ -463,7 +463,7 @@ class _SkattjaktState extends State<Skattjakt> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Icon(_getIconForTask(_currentTask!), size: 80, color: const Color(0xFF4C290C)),
+        Icon(_getIconForTask(_currentTask!), size: 80, color: Colors.black),
         const SizedBox(height: 10),
         if (_currentTask!.helpText != null && _currentTask!.helpText!.isNotEmpty && _currentTask!.helpText != 'null')
           Padding(
@@ -712,7 +712,7 @@ class _SkattjaktState extends State<Skattjakt> {
                   label: const Text('Öppna Kameran'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFF8ED76),
-                    foregroundColor: const Color(0xFF4C290C),
+                    foregroundColor: Colors.black,
                     minimumSize: const Size(200, 60),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15),

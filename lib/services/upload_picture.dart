@@ -93,7 +93,6 @@ class UploadPicture {
   Future<List<ProfileImageOption>> getProfileImageOptions() async {
     final response = await http.get(
       Uri.parse(
-        //'https://group-6-15.pvt.dsv.su.se/auth-service/users/profile-images/options',
           'https://group-6-15.pvt.dsv.su.se/storage-service/uploads/profile-images/options',
       ),
       headers: {

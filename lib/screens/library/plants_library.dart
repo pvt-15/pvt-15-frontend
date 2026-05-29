@@ -132,8 +132,12 @@ class _PlantsLibraryState extends State<PlantsLibrary> {
       if (response.statusCode == 200 || response.statusCode == 204) {
         setState(() {
           _plants.removeAt(index);
+          //_plants.removeWhere((plant) => plant.id == pictureId);
         });
       }
+      /*if (response.statusCode == 200 || response.statusCode == 204) {
+        await _fetchPlants();
+      }*/
     } catch (e) {
       debugPrint('Kunde inte radera bilden: $e');
     }
@@ -156,7 +160,8 @@ class _PlantsLibraryState extends State<PlantsLibrary> {
           TextButton(
             onPressed: () {
               Navigator.pop(context);
-              _deletePlant(plant.id, index);
+              _deletePlant(plant.id, index); // Ful lösning
+              //_deletePlant(plant.id);
             },
             child: const Text('Radera'),
           ),

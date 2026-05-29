@@ -206,7 +206,7 @@ class _ProfileState extends State<Profile> {
             icon: const Icon(
               Icons.settings,
               size: 50,
-              color: Color(0xFF000000),
+              color: Color(0xFFA90A79),
             ),
             onPressed: () => _navigateAndRefresh(const SettingsScreen()),
           ),

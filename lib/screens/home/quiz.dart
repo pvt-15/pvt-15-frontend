@@ -408,14 +408,14 @@ class _QuizState extends State<Quiz> {
                       onPressed: () => _selectAnswer(question.id, option.id),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: isSelected
-                            ? const Color(0xFF84C06C) // valda alternativ
+                            ? const Color(0xFFFFFFFF)//.withOpacity(0.2) // valda alternativ
                             : const Color(0xFFFFEE7A),
                         foregroundColor: const Color(0xFF000000),
                         elevation: isSelected ? 2 : 5,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(18),
                           side: isSelected
-                              ? const BorderSide(color: Color(0xFF000000), width: 2)
+                              ? const BorderSide(color: Color(0xFFB1067E), width: 4)
                               : BorderSide.none,
                         ),
                       ),

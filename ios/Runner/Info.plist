@@ -2,23 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-    <key>NSCameraUsageDescription</key>
-    <string>Appen behöver tillgång till kameran för att ta bilder.</string>
-    <key>NSPhotoLibraryUsageDescription</key>
-    <string>Appen behöver tillgång till ditt galleri för att kunna spara eller välja bilder.</string>
-    <key>NSMicrophoneUsageDescription</key>
-    <string>Appen behöver tillgång till mikrofonen om du spelar in video.</string>
-
-
-     <key>GIDClientID</key> <string>171324929378-s80ticbmtbc99b3akm5e6q8lvfgohhpf.apps.googleusercontent.com</string>
-
-     <key>GIDServerClientID</key> <string>171324929378-o6f6ehfj8vtte1fasnhdd2jnjf376uto.apps.googleusercontent.com</string>
-
-     <key>CFBundleURLTypes</key> <array> <dict> <key>CFBundleTypeRole</key> <string>Editor</string> <key>CFBundleURLSchemes</key> <array>
-
-     <string>com.googleusercontent.apps.171324929378-s80ticbmtbc99b3akm5e6q8lvfgohhpf</string> </array> </dict> </array>
-
-
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
 	<key>CFBundleDevelopmentRegion</key>
@@ -39,10 +22,31 @@
 	<string>$(FLUTTER_BUILD_NAME)</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.171324929378-s80ticbmtbc99b3akm5e6q8lvfgohhpf</string>
+			</array>
+		</dict>
+	</array>
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
+	<key>GIDClientID</key>
+	<string>171324929378-s80ticbmtbc99b3akm5e6q8lvfgohhpf.apps.googleusercontent.com</string>
+	<key>GIDServerClientID</key>
+	<string>171324929378-o6f6ehfj8vtte1fasnhdd2jnjf376uto.apps.googleusercontent.com</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>Appen behöver tillgång till kameran för att ta bilder.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Appen behöver tillgång till mikrofonen om du spelar in video.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Appen behöver tillgång till ditt galleri för att kunna spara eller välja bilder.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
