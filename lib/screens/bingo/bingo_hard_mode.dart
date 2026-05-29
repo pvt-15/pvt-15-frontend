@@ -82,6 +82,7 @@ class _BingoHardMode extends State<BingoHardMode> {
 
         showDialog(
             context: context,
+            barrierDismissible: false,
             builder: (context) {
               return AlertDialog(
                 actionsAlignment: MainAxisAlignment.spaceBetween,

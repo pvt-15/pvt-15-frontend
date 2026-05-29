@@ -76,6 +76,7 @@ class _BingoEasyMode extends State<BingoEasyMode> {
       setState(() {
         showDialog(
             context: context,
+            barrierDismissible: false,
             builder: (context) {
               return AlertDialog(
                 actionsAlignment: MainAxisAlignment.spaceBetween,
