@@ -9,6 +9,7 @@ import '../../services/gamification_popup_helper.dart';
 import '../../services/session_storage.dart';
 import '../../widgets/custom_navigation_bar.dart';
 import '../home.dart';
+import '../home/choose_bingo_game.dart';
 import 'http_help_methods.dart';
 
 class BingoHardMode extends StatefulWidget{
@@ -60,6 +61,7 @@ class _BingoHardMode extends State<BingoHardMode> {
       Map<String, dynamic> data;
       if (widget.challengeId != null) {
         data = await helpMethodsHttp.getStartedQuestion(widget.challengeId!);
+        print (data);
       } else {
         data = await helpMethodsHttp.getNewQuestion('HARD', 'BINGO', helpMethodsHttp.mapCategoryToBackendForChallenge(widget.typeOfBingo));
       }
@@ -71,11 +73,42 @@ class _BingoHardMode extends State<BingoHardMode> {
 
       await setSpecificQuestions();
       await getPictures();
-      //await refreshImages();
 
     } catch (e) {
       setState(() {
-        question = 'Kunde inte ladda utmaning';
+        //question = 'Kunde inte ladda utmaning';
+        //TODO gör detta till en popup med push till 'choose_bingo_game'
+        //question = 'Kunde inte ladda utmaning, testa starta ett annat bingo!';
+
+        showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (context) {
+              return AlertDialog(
+                actionsAlignment: MainAxisAlignment.spaceBetween,
+                content: const Text(
+                  'Kunde inte ladda utmaning, testa starta ett annat bingo!',
+                  textAlign: TextAlign.center,
+                ),
+                actions: [
+                  ElevatedButton(
+                    onPressed: () async {
+
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => ChooseBingoGame(),
+                        ),
+                      );
+
+                    },
+                    child: Text('Okej', style: Theme.of(context).textTheme.headlineMedium),
+                  ),
+                ],
+              );
+            }
+        );
+
       });
     }
   }
@@ -84,6 +117,7 @@ class _BingoHardMode extends State<BingoHardMode> {
   Future<void> getPictures() async {
     try {
       Map<String, dynamic> response = await helpMethodsHttp.getPicturesForChallenge(challengeId);
+      print (response);
 
       if (response.containsKey('tasks')) {
         List<dynamic> tasks = response['tasks'];
@@ -91,7 +125,7 @@ class _BingoHardMode extends State<BingoHardMode> {
 
         for (var task in tasks) {
           if (task['pictures'] != null && (task['pictures'] as List).isNotEmpty) {
-            if (task['requiredCount'] == 4) {
+            if (task['requiredCount'] != 1) {
               for (var picture in task['pictures']) {
                 String url = picture['imageUrl'];
                 if (url != null) {
@@ -139,38 +173,6 @@ class _BingoHardMode extends State<BingoHardMode> {
     }
   }
 
-  Future<String?> setCorrectPictureInInterface(int indexQuestion) async {
-    try {
-      Map<String, dynamic> response = await helpMethodsHttp.getStartedQuestion(challengeId);
-      if (response.containsKey('tasks')) {
-        List<dynamic> tasks = response['tasks'];
-        String targetText = specificQuestionsForTask[indexQuestion];
-
-        List<dynamic> matchingTasks = tasks.where((t) => (t['taskText'] ?? '') == targetText).toList();
-        List<String> allPictures = [];
-        for (var t in matchingTasks) {
-          if (t['pictures'] != null) {
-            for (var pic in t['pictures']) {
-              if (pic['imageUrl'] != null) allPictures.add(pic['imageUrl']);
-            }
-          }
-        }
-
-        int occurrenceIndex = 0;
-        for (int i = 0; i < indexQuestion; i++) {
-          if (specificQuestionsForTask[i] == targetText) occurrenceIndex++;
-        }
-
-        if (occurrenceIndex < allPictures.length) {
-          return allPictures[occurrenceIndex];
-        }
-      }
-    } catch (e) {
-      debugPrint('DEBUG setCorrectPictureInInterface $e');
-    }
-    return null;
-  }
-
   Future<void> setSpecificQuestions() async {
     try {
       Map<String, dynamic> response = await helpMethodsHttp.getStartedQuestion(challengeId);
@@ -185,7 +187,7 @@ class _BingoHardMode extends State<BingoHardMode> {
           }
         }
 
-        if (questions.length < 3) {
+        if (questions.length > 3) {
           setState(() {
             for (int i = 0; i < 4; i++) {
               specificQuestionsForTask[i] = i < questions.length ? questions[i] : '';
@@ -366,6 +368,7 @@ class _BingoHardMode extends State<BingoHardMode> {
                           onTap: () async {
                             if (images[2] == null){
                               final File? file = await CameraService.takePicture();
+
                               bool success = false;
                               String? type;
 
@@ -413,6 +416,7 @@ class _BingoHardMode extends State<BingoHardMode> {
                           onTap: () async {
                             if (images[3] == null){
                               final File? file = await CameraService.takePicture();
+
                               bool success = false;
                               String? type;
 
@@ -556,27 +560,50 @@ class _BingoHardMode extends State<BingoHardMode> {
     );
   }
 
+  //TODO ändra dessa, ska inte mappa på dessa sättet
   AlertDialog decideTargetTypeMixedBingo() {
     return AlertDialog(
-      title: const Text(
-        'Vad tog du en bild på?',
-        textAlign: TextAlign.center,
-      ),
-      content: SingleChildScrollView(
-        child: Wrap(
-          spacing: 10,
-          runSpacing: 10,
-          alignment: WrapAlignment.center,
-          children: [
-            dialogButton('Träd', 'TREE'),
-            dialogButton('Växt', 'PLANT'),
-            dialogButton('Djur', 'ANIMAL'),
-            dialogButton('Blomma', 'FLOWER'),
-            dialogButton('Insekt', 'INSECT'),
-            dialogButton('Fågel', 'BIRD'),
-          ],
+      actionsAlignment: MainAxisAlignment.center,
+      title: const Text('Vad tog du en bild på?', textAlign: TextAlign.center,),
+      content: const Text("Välj kategori för identifieringen.", textAlign: TextAlign.center,),
+
+      actions: [
+        ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            minimumSize: const Size(110, 50),
+          ),
+          onPressed: () {
+            Navigator.pop(context, "PLANT");
+          },
+          child: const Text("Växt"),
         ),
-      ),
+        const SizedBox(width: 20,),
+        ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            minimumSize: const Size(110, 50),
+          ),
+          onPressed: () {
+            Navigator.pop(context, "ANIMAL");
+          },
+          child: const Text("Djur"),
+        ),
+      ],
+
+      //content: SingleChildScrollView(
+       //child: Wrap(
+          //spacing: 10,
+          //runSpacing: 10,
+          //alignment: WrapAlignment.center,
+          //children: [
+            //dialogButton('Träd', 'PLANT'),
+            //dialogButton('Växt', 'PLANT'),
+            //dialogButton('Djur', 'ANIMAL'),
+            //dialogButton('Blomma', 'PLANT'),
+            //dialogButton('Insekt', 'ANIMAL'),
+            //dialogButton('Fågel', 'ANIMAL'),
+          //],
+        //),
+      //),
     );
   }
 

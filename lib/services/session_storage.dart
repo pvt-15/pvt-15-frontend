@@ -59,11 +59,22 @@ class SessionStorage {
     return await _secure.read(key: _tokenKey);
   }
 
+  Future<void> saveIsGoogleUser(bool isGoogle) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('is_google_user', isGoogle);
+  }
+
+  Future<bool> getIsGoogleUser() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool('is_google_user') ?? false;
+  }
+
   Future<void> clear() async {
     final prefs = await SharedPreferences.getInstance();
 
     await _secure.delete(key: _tokenKey);
     await prefs.remove(_userKey);
+    await prefs.remove('is_google_user');
   }
 }
 

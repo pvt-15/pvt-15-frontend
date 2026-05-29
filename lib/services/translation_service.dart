@@ -11,6 +11,11 @@ class TranslationService {
   static final Map<String, String> _manualTranslations = {
     'Daisy': 'Prästkrage',
     'Dog' : 'Hund',
+    'Kramp' : 'Hund',
+    'Lilac' : 'Syren',
+    'Common lilac' : 'Syren',
+    'Dandelion' : 'Maskros',
+    'Ducks' : 'Anka',
     'Dairy cattle' : 'Ko',
     'Japanese flowering cherry' : 'Körsbärsträd',
     'Ladybird beetle' : 'Nyckelpiga',

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'dart:io';
+import '../../services/gamification_popup_helper.dart';
 import '../../widgets/custom_navigation_bar.dart';
 import '../../services/session_storage.dart';
 import '../../services/camera_service.dart';
@@ -191,7 +192,10 @@ class _DailyChallengeState extends State<DailyChallenge> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(_errorMessage!, textAlign: TextAlign.center,),
+            Text(
+              _errorMessage!,
+              textAlign: TextAlign.center,
+            ),
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () => Navigator.of(context).pushAndRemoveUntil(
@@ -427,6 +431,12 @@ class _ChallengeCompletePopUpState extends State<_ChallengeCompletePopUp> {
         return;
       }
 
+      //final String objectKey = uploadResult['objectKey'];
+
+      print(token);
+      print(objectKey);
+      print(widget.challenge.id);
+
       final response = await http.post(
         Uri.parse(
           'https://group-6-15.pvt.dsv.su.se/challenges/${widget.challenge.id}/daily-picture',
@@ -443,6 +453,18 @@ class _ChallengeCompletePopUpState extends State<_ChallengeCompletePopUp> {
       if (!mounted) return;
 
       if (response.statusCode == 200 || response.statusCode == 201) {
+        final responseData = jsonDecode(response.body);
+        final gamification = responseData['gamification'];
+
+        await GamificationPopupService.showIfNeeded(
+          context: context,
+          leveledUp: gamification?['leveledUp'] ?? false,
+          previousLevel: gamification?['previousLevel'],
+          currentLevel: gamification?['currentLevel'],
+          newlyUnlockedBadges: gamification?['newlyUnlockedBadges'] ?? [],
+        );
+
+        if (!mounted) return;
         setState(() {
           _isDone = true;
           _isUploading = false;

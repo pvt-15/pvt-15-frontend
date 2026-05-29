@@ -135,14 +135,12 @@ class _SkattjaktState extends State<Skattjakt> {
     });
 
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text('Uppgift hoppades över. Du får den igen senare!'),
-        duration: const Duration(seconds: 2),
-        backgroundColor: const Color(0xFFFFF9B3),  // Ljusare bakgrund (matchar dina dialoger)
-        behavior: SnackBarBehavior.floating,  // Gör att den flyter ovanför botten
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
+      const SnackBar(
+        content: Text(
+          'Uppgift hoppades över. Du får den igen senare!',
+          textAlign: TextAlign.center,
         ),
+        duration: Duration(seconds: 2),
       ),
     );
   }

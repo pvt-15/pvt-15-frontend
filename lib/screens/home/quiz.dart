@@ -215,7 +215,12 @@ class _QuizState extends State<Quiz> {
         setState(() => _submitting = false);
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Fel vid inlämning (${submitResponse.statusCode})')),
+            SnackBar(
+              content: Text(
+                'Fel vid inlämning (${submitResponse.statusCode})',
+                textAlign: TextAlign.center,
+              ),
+            ),
           );
         }
         return;
@@ -269,7 +274,12 @@ class _QuizState extends State<Quiz> {
       setState(() => _submitting = false);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Nätverksfel: $e')),
+          SnackBar(
+            content: Text(
+              'Nätverksfel: $e',
+              textAlign: TextAlign.center,
+            ),
+          ),
         );
       }
     }
