@@ -14,7 +14,7 @@ class TranslationService {
     'Dairy cattle' : 'Ko',
     'Japanese flowering cherry' : 'Körsbärsträd',
     'Ladybird beetle' : 'Nyckelpiga',
-    'Gulls' : 'Fiskmås',
+    'Gulls' : 'Mås',
     'Common lilac' : 'Syren',
     'Garden Pansy' : 'Penséer',
     'Sweet William' : 'Nejlikor',
