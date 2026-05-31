@@ -59,7 +59,6 @@ class _BingoEasyMode extends State<BingoEasyMode> {
       Map<String, dynamic> data;
       if (widget.challengeId != null) {
         data = await helpMethodsHttp.getStartedQuestion(widget.challengeId!);
-        print(data);
       } else {
         data = await helpMethodsHttp.getNewQuestion('EASY', 'BINGO', helpMethodsHttp.mapCategoryToBackendForChallenge(widget.typeOfBingo));
       }
@@ -67,7 +66,6 @@ class _BingoEasyMode extends State<BingoEasyMode> {
       setState(() {
         question = data['description'];
         challengeId = data['id'];
-        //points = data['points'];
       });
 
       getPictures();
@@ -225,7 +223,7 @@ class _BingoEasyMode extends State<BingoEasyMode> {
                             type = helpMethodsHttp.mapCategoryToBackendForPictureUpload(category);
                           }
 
-                          if (type != null) {
+                          if (type != null && file != null) {
                             success = await uploadPicture(file, type);
                           }
 
@@ -272,7 +270,7 @@ class _BingoEasyMode extends State<BingoEasyMode> {
                             type = helpMethodsHttp.mapCategoryToBackendForPictureUpload(category);
                           }
 
-                          if (type != null) {
+                          if (type != null && file != null) {
                             success = await uploadPicture(file, type);
                           }
 
@@ -310,16 +308,6 @@ class _BingoEasyMode extends State<BingoEasyMode> {
 
                 if (status == 'COMPLETED') {
 
-                  /*resetBingo();
-
-                  finishedChallengeDialog();
-
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => HomeScreen(),
-                    ),
-                  );*/
                   resetBingo();
 
                   await showDialog(
@@ -415,25 +403,31 @@ class _BingoEasyMode extends State<BingoEasyMode> {
 
   AlertDialog decideTargetTypeMixedBingo() {
     return AlertDialog(
-      title: const Text(
-        'Vad tog du en bild på?',
-        textAlign: TextAlign.center,
-      ),
-      content: SingleChildScrollView(
-        child: Wrap(
-          spacing: 10,
-          runSpacing: 10,
-          alignment: WrapAlignment.center,
-          children: [
-            dialogButton('Träd', 'TREE'),
-            dialogButton('Växt', 'PLANT'),
-            dialogButton('Djur', 'ANIMAL'),
-            dialogButton('Blomma', 'FLOWER'),
-            dialogButton('Insekt', 'INSECT'),
-            dialogButton('Fågel', 'BIRD'),
-          ],
+      actionsAlignment: MainAxisAlignment.center,
+      title: const Text('Vad tog du en bild på?', textAlign: TextAlign.center,),
+      content: const Text("Välj kategori för identifieringen.", textAlign: TextAlign.center,),
+
+      actions: [
+        ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            minimumSize: const Size(110, 50),
+          ),
+          onPressed: () {
+            Navigator.pop(context, "PLANT");
+          },
+          child: const Text("Växt"),
         ),
-      ),
+        const SizedBox(width: 20,),
+        ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            minimumSize: const Size(110, 50),
+          ),
+          onPressed: () {
+            Navigator.pop(context, "ANIMAL");
+          },
+          child: const Text("Djur"),
+        ),
+      ],
     );
   }
 
@@ -453,7 +447,6 @@ class _BingoEasyMode extends State<BingoEasyMode> {
   Future<bool> uploadPicture(File? file, String type) async {
     try {
       helpMethodsUploadPicture = UploadPicture(jwtToken: await token);
-      if (file != null) {
         Map<String, dynamic>? response = await helpMethodsUploadPicture.sendPictureToBackend(file, type, 'CHALLENGE', challengeId);
 
         if (response != null && response['accepted'] == true) {
@@ -480,33 +473,39 @@ class _BingoEasyMode extends State<BingoEasyMode> {
         } else {
           showDialog(
             context: context,
-            builder: (context) => errorMessageUploadPicture(),
+            builder: (context) => errorMessageUploadPicture(response?['rejectionReason']),
           );
           return false;
         }
 
-      } else {
-        showDialog(
-          context: context,
-          builder: (context) => errorMessageUploadPicture(),
-        );
-        return false;
-      }
-
     } catch (e) {
       showDialog(
         context: context,
-        builder: (context) => errorMessageUploadPicture(),
+        builder: (context) => errorMessageUploadPicture(null),
       );
       return false;
     }
   }
 
-  AlertDialog errorMessageUploadPicture() {
+  AlertDialog errorMessageUploadPicture(String? rejectionReason) {
+    String errorMessage = '';
+
+    if (rejectionReason == null) {
+      errorMessage = 'Ojdå, bilden kunde inte sparas. Vill du testa igen?';
+    } else if (rejectionReason == 'LOW_CONFIDENCE'){
+      errorMessage = 'Bilden var lite suddig. Testa ta en ny bild!';
+    } else if (rejectionReason == 'CHALLENGE_NO_MATCH') {
+      errorMessage = 'Bilden passar inte uppgiften. Titta på uppgiften och försök igen!';
+    } else if (rejectionReason == 'UNKNOWN_CATEGORY') {
+      errorMessage = 'Det gick inte att se vad som är på bilden. Testa ta en ny bild!';
+    } else {
+      errorMessage = 'Ojdå, bilden kunde inte sparas. Vill du testa igen?';
+    }
+
     return AlertDialog(
       actionsAlignment: MainAxisAlignment.center,
       content: Text(
-        'Ojdå, bilden kunde inte sparas. Vill du testa igen?',
+        errorMessage,
         textAlign: TextAlign.center,
       ),
 

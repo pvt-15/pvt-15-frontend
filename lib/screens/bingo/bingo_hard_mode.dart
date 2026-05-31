@@ -61,7 +61,6 @@ class _BingoHardMode extends State<BingoHardMode> {
       Map<String, dynamic> data;
       if (widget.challengeId != null) {
         data = await helpMethodsHttp.getStartedQuestion(widget.challengeId!);
-        print (data);
       } else {
         data = await helpMethodsHttp.getNewQuestion('HARD', 'BINGO', helpMethodsHttp.mapCategoryToBackendForChallenge(widget.typeOfBingo));
       }
@@ -76,9 +75,6 @@ class _BingoHardMode extends State<BingoHardMode> {
 
     } catch (e) {
       setState(() {
-        //question = 'Kunde inte ladda utmaning';
-        //TODO gör detta till en popup med push till 'choose_bingo_game'
-        //question = 'Kunde inte ladda utmaning, testa starta ett annat bingo!';
 
         showDialog(
             context: context,
@@ -117,7 +113,6 @@ class _BingoHardMode extends State<BingoHardMode> {
   Future<void> getPictures() async {
     try {
       Map<String, dynamic> response = await helpMethodsHttp.getPicturesForChallenge(challengeId);
-      print (response);
 
       if (response.containsKey('tasks')) {
         List<dynamic> tasks = response['tasks'];
@@ -134,22 +129,18 @@ class _BingoHardMode extends State<BingoHardMode> {
               }
 
             } else {
-              // Tänk så här: Matcha uppgiftens text mot våra rutor i UI:t
               String? url = task['pictures'][0]['imageUrl'];
               String? taskText = task['taskText'];
               
               if (url != null) {
-                // Försök matcha mot texten först (för specifika utmaningar)
                 int slotIndex = -1;
                 if (taskText != null && taskText.isNotEmpty) {
                   slotIndex = specificQuestionsForTask.indexOf(taskText);
                 }
 
-                // Om ingen matchning, använd ordningen (för ospecifika utmaningar)
                 int targetIndex = (slotIndex != -1) ? slotIndex : tasks.indexOf(task);
 
                 if (targetIndex != -1 && targetIndex < 4) {
-                  // Vi uppdaterar images direkt på rätt plats
                   setState(() {
                     images[targetIndex] = url;
                   });
@@ -159,7 +150,6 @@ class _BingoHardMode extends State<BingoHardMode> {
           }
         }
 
-        // Om vi har bilder från en "Mixed Bingo" (requiredCount == 4), fyll rutorna i ordning
         if (urls.isNotEmpty) {
           setState(() {
             for (int i = 0; i < urls.length && i < 4; i++) {
@@ -281,7 +271,7 @@ class _BingoHardMode extends State<BingoHardMode> {
                                 type = helpMethodsHttp.mapCategoryToBackendForPictureUpload(category);
                               }
 
-                              if (type != null) {
+                              if (type != null && file != null) {
                                 success = await uploadPicture(file, type);
                               }
                               if (file != null && success) {
@@ -328,7 +318,7 @@ class _BingoHardMode extends State<BingoHardMode> {
                                 type = helpMethodsHttp.mapCategoryToBackendForPictureUpload(category);
                               }
 
-                              if(type != null) {
+                              if (type != null && file != null) {
                                 success = await uploadPicture(file, type);
                               }
 
@@ -382,7 +372,7 @@ class _BingoHardMode extends State<BingoHardMode> {
                                 type = helpMethodsHttp.mapCategoryToBackendForPictureUpload(category);
                               }
 
-                              if(type != null) {
+                              if (type != null && file != null) {
                                 success = await uploadPicture(file, type);
                               }
 
@@ -430,7 +420,7 @@ class _BingoHardMode extends State<BingoHardMode> {
                                 type = helpMethodsHttp.mapCategoryToBackendForPictureUpload(category);
                               }
 
-                              if(type != null) {
+                              if (type != null && file != null) {
                                 success = await uploadPicture(file, type);
                               }
 
@@ -468,14 +458,7 @@ class _BingoHardMode extends State<BingoHardMode> {
                 String status = challenge['status'];
 
                 if (status == 'COMPLETED') {
-                  /*resetBingo();
-                  finishedChallengeDialog();
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => HomeScreen(),
-                    ),
-                  );*/
+
                   resetBingo();
 
                   await showDialog(
@@ -560,7 +543,6 @@ class _BingoHardMode extends State<BingoHardMode> {
     );
   }
 
-  //TODO ändra dessa, ska inte mappa på dessa sättet
   AlertDialog decideTargetTypeMixedBingo() {
     return AlertDialog(
       actionsAlignment: MainAxisAlignment.center,
@@ -588,22 +570,6 @@ class _BingoHardMode extends State<BingoHardMode> {
           child: const Text("Djur"),
         ),
       ],
-
-      //content: SingleChildScrollView(
-       //child: Wrap(
-          //spacing: 10,
-          //runSpacing: 10,
-          //alignment: WrapAlignment.center,
-          //children: [
-            //dialogButton('Träd', 'PLANT'),
-            //dialogButton('Växt', 'PLANT'),
-            //dialogButton('Djur', 'ANIMAL'),
-            //dialogButton('Blomma', 'PLANT'),
-            //dialogButton('Insekt', 'ANIMAL'),
-            //dialogButton('Fågel', 'ANIMAL'),
-          //],
-        //),
-      //),
     );
   }
 
@@ -649,31 +615,45 @@ class _BingoHardMode extends State<BingoHardMode> {
         } else {
           showDialog(
             context: context,
-            builder: (context) => errorMessageUploadPicture(),
+            builder: (context) => errorMessageUploadPicture(response?['rejectionReason']),
           );
           return false;
         }
       } else {
         showDialog(
           context: context,
-          builder: (context) => errorMessageUploadPicture(),
+          builder: (context) => errorMessageUploadPicture(null),
         );
         return false;
       }
     } catch (e) {
       showDialog(
         context: context,
-        builder: (context) => errorMessageUploadPicture(),
+        builder: (context) => errorMessageUploadPicture(null),
       );
       return false;
     }
   }
 
-  AlertDialog errorMessageUploadPicture() {
+  AlertDialog errorMessageUploadPicture(String? rejectionReason) {
+    String errorMessage = '';
+
+    if (rejectionReason == null) {
+      errorMessage = 'Ojdå, bilden kunde inte sparas. Vill du testa igen?';
+    } else if (rejectionReason == 'LOW_CONFIDENCE'){
+      errorMessage = 'Bilden var lite suddig. Testa ta en ny bild!';
+    } else if (rejectionReason == 'CHALLENGE_NO_MATCH') {
+      errorMessage = 'Bilden passar inte uppgiften. Titta på uppgiften och försök igen!';
+    } else if (rejectionReason == 'UNKNOWN_CATEGORY') {
+      errorMessage = 'Det gick inte att se vad som är på bilden. Testa ta en ny bild!';
+    } else {
+      errorMessage = 'Ojdå, bilden kunde inte sparas. Vill du testa igen?';
+    }
+
     return AlertDialog(
       actionsAlignment: MainAxisAlignment.center,
-      content: const Text(
-        'Ojdå, bilden kunde inte sparas. Vill du testa igen?',
+      content: Text(
+        errorMessage,
         textAlign: TextAlign.center,
       ),
       actions: [
