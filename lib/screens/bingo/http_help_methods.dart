@@ -19,8 +19,6 @@ class HttpHelpMethods {
         },
       );
 
-      //debugPrint(response.body);
-
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         return data;
@@ -53,8 +51,6 @@ class HttpHelpMethods {
         }),
       );
 
-      //debugPrint(response.body);
-
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         return data;
@@ -76,8 +72,6 @@ class HttpHelpMethods {
           'Content-Type': 'application/json',
         },
       );
-
-      //debugPrint(response.body);
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -150,7 +144,6 @@ class HttpHelpMethods {
           'Authorization': 'Bearer $jwtToken',
         }
       );
-      //debugPrint(response.body);
       final data = jsonDecode(response.body);
       return data;
     } catch (e) {
@@ -166,8 +159,6 @@ class HttpHelpMethods {
             'Authorization': 'Bearer $jwtToken',
           }
       );
-      //debugPrint(jwtToken);
-      //debugPrint(response.body);
       final data = jsonDecode(response.body);
       return data;
     } catch (e) {
@@ -183,7 +174,6 @@ class HttpHelpMethods {
             'Authorization': 'Bearer $jwtToken',
           }
       );
-      //debugPrint(response.body);
       final data = jsonDecode(response.body);
       return data;
     } catch (e) {

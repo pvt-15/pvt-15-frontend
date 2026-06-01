@@ -6,7 +6,6 @@ import 'create_account.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:google_sign_in/google_sign_in.dart';
-import '../skogsjakten_exception.dart';
 import 'package:Skogsjakten/services/session_storage.dart';
 import 'package:Skogsjakten/services/session.dart';
 
@@ -243,7 +242,7 @@ class _LoginScreenState extends State<LoginScreen> {
       final String? idToken = auth.idToken;
 
       if (idToken == null) {
-        throw SkogsjaktenException("Ingen token mottagen från Google");
+        throw Exception("Ingen token mottagen från Google");
       }
 
       debugPrint('DEBUG: Mottagen google id token: $idToken');
