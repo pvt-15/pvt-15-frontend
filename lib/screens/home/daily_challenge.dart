@@ -673,9 +673,10 @@ class _ChallengeCompletePopUpState extends State<_ChallengeCompletePopUp> {
       actions: [
         Center(
           child: ElevatedButton(
-            onPressed: () => Navigator.pop(context),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xff84c06c),
+            onPressed: () => Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (_) => const HomeScreen()),
+                  (route) => false,
             ),
             child: Text(
               'Tack!',

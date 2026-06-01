@@ -78,7 +78,7 @@ class _BingoMediumMode extends State<BingoMediumMode> {
             barrierDismissible: false,
             builder: (context) {
               return AlertDialog(
-                actionsAlignment: MainAxisAlignment.spaceBetween,
+                actionsAlignment: MainAxisAlignment.center,
                 content: const Text(
                   'Kunde inte ladda utmaning, testa starta ett annat bingo!',
                   textAlign: TextAlign.center,

@@ -79,7 +79,7 @@ class _BingoEasyMode extends State<BingoEasyMode> {
             barrierDismissible: false,
             builder: (context) {
               return AlertDialog(
-                actionsAlignment: MainAxisAlignment.spaceBetween,
+                actionsAlignment: MainAxisAlignment.center,
                 content: const Text(
                   'Kunde inte ladda utmaning, testa starta ett annat bingo!',
                   textAlign: TextAlign.center,
@@ -94,7 +94,7 @@ class _BingoEasyMode extends State<BingoEasyMode> {
                         ),
                       );
                     },
-                    child: Text('Okej', style: Theme.of(context).textTheme.headlineMedium),
+                    child: Text('Okej', textAlign: TextAlign.center, style: Theme.of(context).textTheme.headlineMedium),
                   ),
                 ],
               );

@@ -85,7 +85,7 @@ class _BingoHardMode extends State<BingoHardMode> {
             barrierDismissible: false,
             builder: (context) {
               return AlertDialog(
-                actionsAlignment: MainAxisAlignment.spaceBetween,
+                actionsAlignment: MainAxisAlignment.center,
                 content: const Text(
                   'Kunde inte ladda utmaning, testa starta ett annat bingo!',
                   textAlign: TextAlign.center,
@@ -102,7 +102,7 @@ class _BingoHardMode extends State<BingoHardMode> {
                       );
 
                     },
-                    child: Text('Okej', style: Theme.of(context).textTheme.headlineMedium),
+                    child: Text('Okej',textAlign: TextAlign.center, style: Theme.of(context).textTheme.headlineMedium),
                   ),
                 ],
               );
@@ -229,6 +229,7 @@ class _BingoHardMode extends State<BingoHardMode> {
         title: const Text('Bingo'),
       ),
       body: SafeArea(
+        child: SingleChildScrollView(
         child: Column(
           children: [
             Padding(
@@ -496,7 +497,7 @@ class _BingoHardMode extends State<BingoHardMode> {
                       context: context,
                       builder: (context) {
                         return AlertDialog(
-                          actionsAlignment: MainAxisAlignment.spaceBetween,
+                          actionsAlignment: MainAxisAlignment.center,
                           content: const Text(
                             'Är du säker? Om du avslutar nu registeras inga poäng',
                             textAlign: TextAlign.center,
@@ -554,6 +555,7 @@ class _BingoHardMode extends State<BingoHardMode> {
               ),
             ),
           ],
+        ),
         ),
       ),
       bottomNavigationBar: const CustomNavigationBar(selectedIndex: -1),

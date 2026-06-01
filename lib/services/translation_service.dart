@@ -20,11 +20,20 @@ class TranslationService {
     'Japanese flowering cherry' : 'Körsbärsträd',
     'Ladybird beetle' : 'Nyckelpiga',
     'Gulls' : 'Mås',
-    'Common lilac' : 'Syren',
     'Persian lilac' : 'Syren',
     'Garden Pansy' : 'Penséer',
+    'Cultivated Pansy' : 'Penséer',
     'Sweet William' : 'Nejlikor',
     'Rowan' : 'Rönn',
+    'Common Male Fern' : 'Ormbunke',
+    'Slender nettle' : 'Brännässla',
+    'Scots Pine' : 'Tall',
+    "Scot's Pine" : 'Tall',
+    'English lavender' : 'Lavendel',
+    'Hepatica' : 'Blåsippa',
+    'Caucasian spruce' : 'Gran',
+    'Quaking aspen' : 'Björk',
+
   };
 
   // debugging - skriv ut manuella översättningar
