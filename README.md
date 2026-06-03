@@ -137,12 +137,6 @@ flutter analyze
 - **Google Sign‑In fails** — verify the `serverClientId`, that it matches the backend's Google client, and that platform OAuth setup (SHA‑1 / URL scheme) is complete.
 - **iOS build issues** — from `ios/` run `pod install`, then build again.
 
-## Contributing
-
-1. Create a branch for your change.
-2. Run `flutter analyze` and `flutter test` before opening a pull request.
-3. Open a pull request describing what changed and why. For larger changes, open an issue first to discuss.
-
 ## Related
 
 - Backend: https://github.com/pvt-15/pvt-15-backend
