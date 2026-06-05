@@ -33,6 +33,8 @@ class TranslationService {
     'Hepatica' : 'Blåsippa',
     'Caucasian spruce' : 'Gran',
     'Quaking aspen' : 'Björk',
+    "Dyer's wood": 'Vejde',
+    'Meadow Buttercup': 'Smörblomma',
 
   };
 
